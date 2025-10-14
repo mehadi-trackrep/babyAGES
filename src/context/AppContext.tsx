@@ -2,17 +2,18 @@
 
 import { createContext, useContext, useReducer } from 'react';
 
-interface Product {
+export interface Product {
   id: number;
   name: string;
   price: number;
   description: string;
-  images: string[];  // Updated to match the new product structure
-  rating?: number;
+  images: string[];
+  rating: number;
   videos?: string[];
+  category: string;
 }
 
-interface CartItem extends Product {
+export interface CartItem extends Product {
   quantity: number;
 }
 

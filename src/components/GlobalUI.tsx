@@ -12,8 +12,9 @@ interface Product {
   price: number;
   description: string;
   images: string[];
-  rating?: number;
+  rating: number;
   videos?: string[];
+  category: string;
 }
 
 // Global UI component that manages sidebars and modals across all pages

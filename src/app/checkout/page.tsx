@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAppContext } from '@/context/AppContext';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface FormData {
   name: string;
@@ -70,7 +71,7 @@ export default function CheckoutPage() {
         sessionStorage.setItem(`order_${orderData.orderId}`, JSON.stringify(orderData));
         
         // Also store in localStorage as backup
-        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
         orders.push(orderData);
         localStorage.setItem('orders', JSON.stringify(orders));
 
@@ -85,11 +86,11 @@ export default function CheckoutPage() {
         // Handle Google Sheets save failure with a more specific message
         alert(`Order was processed but failed to save to our records: ${result.error || 'Unknown error'}. Please contact support with your order ID: ${orderData.orderId}`);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error placing order:', error);
       
       // Show user-friendly error message for Google Sheets failure
-      alert(`There was an error saving your order to our records: ${error.message || 'Please try again'}. Your payment may have been processed. Please contact support with the order ID for verification.`);
+      alert(`There was an error saving your order to our records: ${(error as Error).message || 'Please try again'}. Your payment may have been processed. Please contact support with the order ID for verification.`);
     } finally {
       setIsLoading(false);
     }
@@ -118,11 +119,15 @@ export default function CheckoutPage() {
                 <div className="space-y-4">
                   {state.cartItems.map((item) => (
                     <div key={item.id} className="flex items-center py-3 border-b border-gray-200">
-                      <img 
-                        src={item.image || "/api/placeholder/80/80"} 
-                        alt={item.name} 
-                        className="w-16 h-16 object-contain mr-4"
-                      />
+                      <div className="w-16 h-16 mr-4">
+                        <Image 
+                          src={item.images?.[0] || "/api/placeholder/80/80"} 
+                          alt={item.name} 
+                          width={64}
+                          height={64}
+                          className="object-contain"
+                        />
+                      </div>
                       <div className="flex-1">
                         <h3 className="font-medium">{item.name}</h3>
                         <p className="text-gray-600">${item.price.toFixed(2)} x {item.quantity}</p>

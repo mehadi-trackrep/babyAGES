@@ -1,16 +1,7 @@
 import { useState } from 'react';
 import { FaTimes, FaShoppingCart, FaHeart, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import Image from 'next/image';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  images: string[];
-  rating: number;
-  videos?: string[];
-}
+import { Product } from '@/context/AppContext';
 
 interface QuickViewModalProps {
   product: Product | null;

@@ -1,13 +1,6 @@
 import { FaTimes, FaTrash, FaShoppingCart } from 'react-icons/fa';
 import Image from 'next/image';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  image: string;
-}
+import { Product } from '@/context/AppContext';
 
 interface WishlistSidebarProps {
   isOpen: boolean;
@@ -54,7 +47,7 @@ const WishlistSidebar = ({
                 <div key={item.id} className="flex items-center py-4 border-b border-gray-200">
                   <div className="w-16 h-16">
                     <Image 
-                      src={item.image || "/api/placeholder/80/80"} 
+                      src={item.images?.[0] || "/api/placeholder/80/80"} 
                       alt={item.name} 
                       fill
                       className="object-contain"

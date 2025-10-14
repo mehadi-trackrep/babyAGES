@@ -1,28 +1,36 @@
 'use client';
 
 import { useAppContext } from '@/context/AppContext';
-import { useRouter } from 'next/navigation';
 import HeroSlider from '@/components/HeroSlider';
 import ProductCard from '@/components/ProductCard';
-import { FaShoppingCart, FaHeart, FaStar } from 'react-icons/fa';
 import { getAllProducts } from '@/data/products';
 
 // Get featured products (first 4 from the database)
 const featuredProducts = getAllProducts().slice(0, 8);
 
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  description: string;
+  images: string[];
+  rating: number;
+  videos?: string[];
+  category: string;
+}
+
 export default function Home() {
   const { dispatch } = useAppContext();
-  const router = useRouter();
 
-  const handleAddToCart = (product: any) => {
+  const handleAddToCart = (product: Product) => {
     dispatch({ type: 'ADD_TO_CART', product });
   };
 
-  const handleAddToWishlist = (product: any) => {
+  const handleAddToWishlist = (product: Product) => {
     dispatch({ type: 'ADD_TO_WISHLIST', product });
   };
 
-  const handleQuickView = (product: any) => {
+  const handleQuickView = (product: Product) => {
     dispatch({ type: 'OPEN_QUICK_VIEW', product });
   };
 

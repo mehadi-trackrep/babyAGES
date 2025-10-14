@@ -1,14 +1,6 @@
 import { FaShoppingCart, FaHeart, FaEye } from 'react-icons/fa';
 import Image from 'next/image';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  images: string[];
-  rating: number;
-}
+import { Product } from '@/context/AppContext';
 
 interface ProductCardProps {
   product: Product;
@@ -40,7 +32,7 @@ const ProductCard = ({
       <div className="relative overflow-hidden">
         <div className="w-full h-64">
           <Image 
-            src={product.images[0] || "/api/placeholder/300/300"} 
+            src={product.images?.[0] || "/api/placeholder/300/300"} 
             alt={product.name} 
             fill
             className="object-contain p-4 transition-transform duration-300 hover:scale-105"
@@ -75,7 +67,7 @@ const ProductCard = ({
             {[...Array(5)].map((_, i) => (
               <svg 
                 key={i} 
-                className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300'}`} 
+                className={`w-4 h-4 ${product.rating && i < Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300'}`} 
                 fill="currentColor" 
                 viewBox="0 0 20 20"
               >

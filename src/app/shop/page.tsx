@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import ProductCard from '@/components/ProductCard';
 import { useAppContext } from '@/context/AppContext';
-import { toast } from 'react-toastify';
 
 // Define product types
 interface Product {

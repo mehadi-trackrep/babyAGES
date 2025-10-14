@@ -1,18 +1,11 @@
 import { FaTimes, FaTrash, FaShoppingCart, FaArrowRight } from 'react-icons/fa';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  image: string;
-  quantity: number;
-}
+import Image from 'next/image';
+import { CartItem } from '@/context/AppContext';
 
 interface CartSidebarProps {
   isOpen: boolean;
   onClose: () => void;
-  cartItems: Product[];
+  cartItems: CartItem[];
   onRemoveItem: (id: number) => void;
   onUpdateQuantity: (id: number, quantity: number) => void;
   onCheckout: () => void;
@@ -61,11 +54,15 @@ const CartSidebar = ({
             <div className="flex-1 overflow-y-auto mb-6">
               {cartItems.map((item) => (
                 <div key={item.id} className="flex items-center py-4 border-b border-gray-200">
-                  <img 
-                    src={item.image || "/api/placeholder/80/80"} 
-                    alt={item.name} 
-                    className="w-16 h-16 object-contain mr-4"
-                  />
+                  <div className="w-16 h-16 mr-4">
+                    <Image 
+                      src={item.images[0] || "/api/placeholder/80/80"} 
+                      alt={item.name} 
+                      width={64}
+                      height={64}
+                      className="object-contain"
+                    />
+                  </div>
                   <div className="flex-1">
                     <h3 className="font-medium">{item.name}</h3>
                     <p className="text-blue-600 font-semibold">${item.price.toFixed(2)}</p>

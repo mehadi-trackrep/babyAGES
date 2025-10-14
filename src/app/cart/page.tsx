@@ -2,6 +2,7 @@
 
 import { useAppContext } from '@/context/AppContext';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function ViewCartPage() {
   const { state, dispatch } = useAppContext();
@@ -42,11 +43,15 @@ export default function ViewCartPage() {
           <div className="divide-y divide-gray-200">
             {state.cartItems.map((item) => (
               <div key={item.id} className="p-6 flex flex-col sm:flex-row items-start">
-                <img 
-                  src={item.image || "/api/placeholder/120/120"} 
-                  alt={item.name} 
-                  className="w-24 h-24 object-contain mr-6"
-                />
+                <div className="w-24 h-24 mr-6">
+                  <Image 
+                    src={item.images?.[0] || "/api/placeholder/120/120"} 
+                    alt={item.name} 
+                    width={96}
+                    height={96}
+                    className="object-contain"
+                  />
+                </div>
                 
                 <div className="flex-1 w-full">
                   <div className="flex flex-col md:flex-row md:justify-between">

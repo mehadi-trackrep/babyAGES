@@ -2,9 +2,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 
+interface OrderItem {
+  id: number;
+  name: string;
+  price: number;
+  images: string[];
+  rating: number;
+  videos?: string[];
+  category: string;
+  quantity: number;
+}
+
+interface OrderCustomer {
+  name: string;
+  contact: string;
+  address: string;
+  deliveryMethod: string;
+}
+
+interface OrderData {
+  orderId: string;
+  customer: OrderCustomer;
+  total: number;
+  date: string;
+  items: OrderItem[];
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const orderData = await request.json();
+    const orderData: OrderData = await request.json();
     
     console.log('Order received:', orderData);
     
@@ -17,7 +43,7 @@ export async function POST(request: NextRequest) {
       orderData.customer.deliveryMethod,
       orderData.total,
       orderData.date,
-      orderData.items.map((item: any) => `${item.name} (x${item.quantity})`).join('; ')
+      orderData.items.map((item: OrderItem) => `${item.name} (x${item.quantity})`).join('; ')
     ];
     
     // Google Sheets API configuration
@@ -27,7 +53,7 @@ export async function POST(request: NextRequest) {
     const auth = new google.auth.GoogleAuth({
       credentials: {
         client_email: process.env.GOOGLE_CLIENT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\n/g, '\n'),
       },
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
@@ -39,7 +65,7 @@ export async function POST(request: NextRequest) {
       spreadsheetId: SPREADSHEET_ID,
       range: 'Sheet1!A1', // Starting from A1, Google Sheets will auto-append to next row
       valueInputOption: 'USER_ENTERED',
-      resource: {
+      requestBody: {
         values: [sheetData],
       },
     });
@@ -51,11 +77,11 @@ export async function POST(request: NextRequest) {
       orderId: orderData.orderId,
       message: 'Order saved successfully' 
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error saving order to Google Sheets:', error);
     return NextResponse.json({ 
       success: false, 
-      error: error.message || 'Failed to save order to Google Sheets' 
+      error: (error as Error).message || 'Failed to save order to Google Sheets' 
     }, { status: 500 });
   }
 }
