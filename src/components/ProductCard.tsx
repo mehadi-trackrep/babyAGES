@@ -1,4 +1,5 @@
 import { FaShoppingCart, FaHeart, FaEye } from 'react-icons/fa';
+import Image from 'next/image';
 
 interface Product {
   id: number;
@@ -37,11 +38,15 @@ const ProductCard = ({
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
       <div className="relative overflow-hidden">
-        <img 
-          src={product.images[0] || "/api/placeholder/300/300"} 
-          alt={product.name} 
-          className="w-full h-64 object-contain p-4 transition-transform duration-300 hover:scale-105"
-        />
+        <div className="w-full h-64">
+          <Image 
+            src={product.images[0] || "/api/placeholder/300/300"} 
+            alt={product.name} 
+            fill
+            className="object-contain p-4 transition-transform duration-300 hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        </div>
         <div className="absolute top-2 right-2 flex flex-col space-y-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
           <button 
             onClick={handleAddToWishlist}

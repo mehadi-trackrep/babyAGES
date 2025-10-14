@@ -1,4 +1,5 @@
 import { FaTimes, FaTrash, FaShoppingCart } from 'react-icons/fa';
+import Image from 'next/image';
 
 interface Product {
   id: number;
@@ -51,11 +52,15 @@ const WishlistSidebar = ({
             <div className="flex-1 overflow-y-auto">
               {wishlistItems.map((item) => (
                 <div key={item.id} className="flex items-center py-4 border-b border-gray-200">
-                  <img 
-                    src={item.image || "/api/placeholder/80/80"} 
-                    alt={item.name} 
-                    className="w-16 h-16 object-contain mr-4"
-                  />
+                  <div className="w-16 h-16">
+                    <Image 
+                      src={item.image || "/api/placeholder/80/80"} 
+                      alt={item.name} 
+                      fill
+                      className="object-contain"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                  </div>
                   <div className="flex-1">
                     <h3 className="font-medium">{item.name}</h3>
                     <p className="text-blue-600 font-semibold">${item.price.toFixed(2)}</p>

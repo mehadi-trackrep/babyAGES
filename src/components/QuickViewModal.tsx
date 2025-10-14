@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FaTimes, FaShoppingCart, FaHeart, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import Image from 'next/image';
 
 interface Product {
   id: number;
@@ -26,9 +27,9 @@ const QuickViewModal = ({
   onAddToCart, 
   onAddToWishlist 
 }: QuickViewModalProps) => {
-  if (!isOpen || !product) return null;
-
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  if (!isOpen || !product) return null;
 
   const handleAddToCart = () => {
     onAddToCart(product);
@@ -76,11 +77,15 @@ const QuickViewModal = ({
             <div className="relative">
               <div className="relative h-80 md:h-96 bg-gray-100 rounded-lg overflow-hidden">
                 {product.images && product.images.length > 0 && (
-                  <img 
-                    src={product.images[currentImageIndex] || "/api/placeholder/500/500"} 
-                    alt={`${product.name} - Image ${currentImageIndex + 1}`}
-                    className="w-full h-full object-contain"
-                  />
+                  <div className="w-full h-full">
+                    <Image 
+                      src={product.images[currentImageIndex] || "/api/placeholder/500/500"} 
+                      alt={`${product.name} - Image ${currentImageIndex + 1}`}
+                      fill
+                      className="object-contain"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                  </div>
                 )}
                 
                 {/* Navigation Arrows */}
@@ -116,11 +121,15 @@ const QuickViewModal = ({
                       }`}
                       aria-label={`View image ${index + 1}`}
                     >
-                      <img 
-                        src={img} 
-                        alt={`${product.name} - Thumbnail ${index + 1}`} 
-                        className="w-full h-full object-cover"
-                      />
+                      <div className="w-full h-full">
+                        <Image 
+                          src={img} 
+                          alt={`${product.name} - Thumbnail ${index + 1}`} 
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                      </div>
                     </button>
                   ))}
                 </div>

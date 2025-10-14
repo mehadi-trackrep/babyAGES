@@ -6,6 +6,16 @@ import WishlistSidebar from '@/components/WishlistSidebar';
 import QuickViewModal from '@/components/QuickViewModal';
 import { useRouter } from 'next/navigation';
 
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  description: string;
+  images: string[];
+  rating?: number;
+  videos?: string[];
+}
+
 // Global UI component that manages sidebars and modals across all pages
 const GlobalUI = () => {
   const { state, dispatch } = useAppContext();
@@ -23,7 +33,7 @@ const GlobalUI = () => {
     dispatch({ type: 'REMOVE_FROM_WISHLIST', id });
   };
 
-  const handleCartAddFromWishlist = (product: any) => {
+  const handleCartAddFromWishlist = (product: Product) => {
     dispatch({ type: 'ADD_TO_CART', product });
     dispatch({ type: 'REMOVE_FROM_WISHLIST', id: product.id });
   };
@@ -38,11 +48,11 @@ const GlobalUI = () => {
     router.push('/cart');
   };
 
-  const handleAddToCart = (product: any) => {
+  const handleAddToCart = (product: Product) => {
     dispatch({ type: 'ADD_TO_CART', product });
   };
 
-  const handleAddToWishlist = (product: any) => {
+  const handleAddToWishlist = (product: Product) => {
     dispatch({ type: 'ADD_TO_WISHLIST', product });
   };
 
