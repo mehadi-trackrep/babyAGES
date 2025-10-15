@@ -17,7 +17,7 @@ const ToastManager = () => {
         switch (state.lastAction.type) {
           case 'ADD_TO_CART':
             toast.success(`${state.lastAction.product.name} added to cart!`, {
-              position: "top-right",
+              position: "bottom-center",
               autoClose: 2000,
               hideProgressBar: false,
               closeOnClick: true,
@@ -27,7 +27,7 @@ const ToastManager = () => {
             break;
           case 'ADD_TO_WISHLIST':
             toast.info(`${state.lastAction.product.name} added to wishlist!`, {
-              position: "top-right",
+              position: "bottom-center",
               autoClose: 2000,
               hideProgressBar: false,
               closeOnClick: true,
