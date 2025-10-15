@@ -68,6 +68,12 @@ const Navbar = () => {
             >
               Shop
             </Link>
+            <Link 
+              href="/about" 
+              className={`font-medium ${pathname === '/about' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'}`}
+            >
+              About Us
+            </Link>
           </div>
 
           {/* Icons and Mobile Menu Button */}
@@ -125,6 +131,13 @@ const Navbar = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Shop
+              </Link>
+              <Link 
+                href="/about" 
+                className={`font-medium px-4 py-2 ${pathname === '/about' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'}`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                About Us
               </Link>
             </div>
           </div>

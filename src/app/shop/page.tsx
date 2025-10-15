@@ -61,7 +61,7 @@ export default function ShopPage() {
   };
 
   return (
-    <div className="min-h-screen py-8">
+    <div className="min-h-screen py-8 mt-16">
       <div className="max-w-7xl mx-auto px-4">
         <h1 className="text-3xl font-bold text-gray-800 mb-8">Shop All Products</h1>
         
