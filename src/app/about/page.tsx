@@ -32,7 +32,7 @@ const AboutPage = () => {
           </ul>
           
           <p className="leading-relaxed pt-4">
-            Thank you for choosing BabyAGES. We are honored to be a part of your family's story.
+            Thank you for choosing BabyAGES. We are honored to be a part of your family&apos;s story.
           </p>
         </div>
       </div>

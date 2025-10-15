@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { FaShoppingCart, FaHeart, FaBars, FaTimes, FaArrowUp } from 'react-icons/fa';
@@ -51,7 +52,9 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           {/* Logo */}
           <div className="text-2xl font-bold text-blue-600">
-            <Link href="/">BabyAGES</Link>
+            <Link href="/">
+              <Image src="/logo.png" alt="BabyAGES" width={100} height={50} />
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
