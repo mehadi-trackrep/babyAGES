@@ -22,8 +22,8 @@ const products: Product[] = [
     description: 'High-quality wireless headphones with noise cancellation and 30-hour battery life',
     images: [
       'https://drive.google.com/uc?export=view&id=13RWZdE1n6BIZ5LJVIGPNYMbjRzXEnoDH',
-      'https://drive.google.com/uc?export=view&id=13RWZdE1n6BIZ5LJVIGPNYMbjRzXEnoDH',
-      'https://drive.google.com/uc?export=view&id=13RWZdE1n6BIZ5LJVIGPNYMbjRzXEnoDH'
+      // 'https://drive.google.com/uc?export=view&id=13RWZdE1n6BIZ5LJVIGPNYMbjRzXEnoDH',
+      // 'https://drive.google.com/uc?export=view&id=13RWZdE1n6BIZ5LJVIGPNYMbjRzXEnoDH'
     ],
     rating: 4.5,
     category: 'Electronics',
@@ -36,7 +36,7 @@ const products: Product[] = [
     description: 'Feature-rich smartwatch with health monitoring, GPS, and water resistance',
     images: [
       'https://drive.google.com/uc?export=view&id=13RWZdE1n6BIZ5LJVIGPNYMbjRzXEnoDH',
-      'https://drive.google.com/uc?export=view&id=13RWZdE1n6BIZ5LJVIGPNYMbjRzXEnoDH'
+      // 'https://drive.google.com/uc?export=view&id=13RWZdE1n6BIZ5LJVIGPNYMbjRzXEnoDH'
     ],
     rating: 4.2,
     category: 'Electronics',

@@ -42,23 +42,23 @@ const WishlistSidebar = ({
           </div>
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto mb-6">
               {wishlistItems.map((item) => (
                 <div key={item.id} className="flex items-center py-4 border-b border-gray-200">
-                  <div className="w-16 h-16">
+                  <div className="w-16 h-16 mr-4">
                     <Image 
                       src={item.images?.[0] || "/api/placeholder/80/80"} 
                       alt={item.name} 
-                      fill
+                      width={64}
+                      height={64}
                       className="object-contain"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   </div>
                   <div className="flex-1">
                     <h3 className="font-medium">{item.name}</h3>
                     <p className="text-blue-600 font-semibold">${item.price.toFixed(2)}</p>
                     
-                    <div className="flex space-x-2 mt-2">
+                    <div className="flex items-center mt-2">
                       <button
                         onClick={() => onAddToCart(item)}
                         className="flex items-center bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded text-sm"
@@ -69,7 +69,7 @@ const WishlistSidebar = ({
                       
                       <button 
                         onClick={() => onRemoveItem(item.id)}
-                        className="text-red-500 hover:text-red-700"
+                        className="ml-4 text-red-500 hover:text-red-700"
                         aria-label="Remove item"
                       >
                         <FaTrash />
