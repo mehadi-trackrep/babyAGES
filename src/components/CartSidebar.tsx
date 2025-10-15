@@ -1,6 +1,7 @@
 import { FaTimes, FaTrash, FaShoppingCart, FaArrowRight } from 'react-icons/fa';
 import Image from 'next/image';
 import { CartItem } from '@/context/AppContext';
+import { useEffect, useRef } from 'react';
 
 interface CartSidebarProps {
   isOpen: boolean;
@@ -26,8 +27,27 @@ const CartSidebar = ({
     0
   );
 
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
   return (
     <div 
+      ref={sidebarRef}
       className={`fixed top-0 right-0 h-full w-full md:w-96 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : 'translate-x-full'
       }`}
