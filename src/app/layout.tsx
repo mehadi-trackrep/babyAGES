@@ -25,6 +25,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+      </head>
       <body className={inter.className}>
         <AppProvider>
           <Navbar />
@@ -34,6 +37,11 @@ export default function RootLayout({
           <ToastManager />
           <ToastContainer />
         </AppProvider>
+        <script>
+          {
+            "if ('serviceWorker' in navigator) {\n              window.addEventListener('load', () => {\n                navigator.serviceWorker.register('/sw.js').then(registration => {\n                  console.log('SW registered: ', registration);\n                }).catch(registrationError => {\n                  console.log('SW registration failed: ', registrationError);\n                });\n              });\n            }"
+          }
+        </script>
       </body>
     </html>
   );
