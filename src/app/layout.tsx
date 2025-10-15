@@ -10,6 +10,8 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import GlobalUI from '@/components/GlobalUI';
 import ToastManager from '@/components/ToastManager';
+import WhatsAppWidget from "@/components/WhatsAppWidget";
+import SocialButtons from "@/components/SocialButtons";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,9 +30,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <head>
@@ -44,6 +44,8 @@ export default function RootLayout({
           <GlobalUI />
           <ToastManager />
           <ToastContainer />
+          <WhatsAppWidget />
+          <SocialButtons />
         </AppProvider>
         <script>
           {

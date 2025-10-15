@@ -34,10 +34,10 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold mb-4">Contact Us</h4>
             <address className="text-gray-300 not-italic">
-              <p>123 Shop Street</p>
-              <p>City, Country 12345</p>
-              <p className="mt-2">Email: info@babyages.com</p>
-              <p>Phone: +1 234 567 8900</p>
+              <p>Abdul Aziz Lane, Lalbagh, Azimpur</p>
+              <p>Dhaka 1204, Bangladesh</p>
+              <p className="mt-2">Email: mstechy49@gmail.com</p>
+              <p>Phone: (+880)1796777-157</p>
             </address>
           </div>
         </div>
