@@ -10,7 +10,7 @@ export interface Product {
   images: string[];
   rating: number;
   videos?: string[];
-  category: string;
+  category?: string;
 }
 
 export interface CartItem extends Product {

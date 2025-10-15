@@ -9,8 +9,8 @@ const HeroSlider = () => {
   const slides = [
     {
       id: 1,
-      title: "Summer Collection",
-      subtitle: "Up to 50% off on summer essentials",
+      title: "Winter Collection",
+      subtitle: "Up to 50% off on winter essentials",
       image: "/api/placeholder/1200/400",
       cta: "Shop Now",
       link: "/shop"

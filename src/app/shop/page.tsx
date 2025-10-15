@@ -2,19 +2,7 @@
 
 import { useState } from 'react';
 import ProductCard from '@/components/ProductCard';
-import { useAppContext } from '@/context/AppContext';
-
-// Define product types
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  images: string[];
-  rating: number;
-  category: string;
-  videos?: string[];
-}
+import { useAppContext, Product } from '@/context/AppContext';
 
 // Import products from our local database
 import { getAllProducts } from '@/data/products';
@@ -23,17 +11,17 @@ export default function ShopPage() {
   const { dispatch } = useAppContext();
   const [products] = useState<Product[]>(() => getAllProducts());
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(getAllProducts());
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Get unique categories
   const categories = ['All', ...new Set(products.map(p => p.category))];
 
   // Filter products based on category and search query
-  const filterProducts = (category: string, query: string) => {
+  const filterProducts = (category: string | undefined, query: string) => {
     let result = products;
     
-    if (category !== 'All') {
+    if (category && category !== 'All') {
       result = result.filter(p => p.category === category);
     }
     
@@ -49,7 +37,7 @@ export default function ShopPage() {
   };
 
   // Handle category change
-  const handleCategoryChange = (category: string) => {
+  const handleCategoryChange = (category: string | undefined) => {
     setSelectedCategory(category);
     filterProducts(category, searchQuery);
   };

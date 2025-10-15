@@ -1,23 +1,13 @@
 'use client';
 
 import { useAppContext } from '@/context/AppContext';
+import { Product } from '@/context/AppContext';
 import HeroSlider from '@/components/HeroSlider';
 import ProductCard from '@/components/ProductCard';
 import { getAllProducts } from '@/data/products';
 
 // Get featured products (first 4 from the database)
 const featuredProducts = getAllProducts().slice(0, 8);
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  images: string[];
-  rating: number;
-  videos?: string[];
-  category: string;
-}
 
 export default function Home() {
   const { dispatch } = useAppContext();

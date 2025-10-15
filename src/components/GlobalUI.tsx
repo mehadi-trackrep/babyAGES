@@ -1,21 +1,11 @@
 'use client';
 
 import { useAppContext } from '@/context/AppContext';
+import { Product } from '@/context/AppContext';
 import CartSidebar from '@/components/CartSidebar';
 import WishlistSidebar from '@/components/WishlistSidebar';
 import QuickViewModal from '@/components/QuickViewModal';
 import { useRouter } from 'next/navigation';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  images: string[];
-  rating: number;
-  videos?: string[];
-  category: string;
-}
 
 // Global UI component that manages sidebars and modals across all pages
 const GlobalUI = () => {

@@ -4,15 +4,9 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Product } from '@/context/AppContext';
 
-interface OrderItem {
-  id: number;
-  name: string;
-  price: number;
-  images: string[];
-  rating: number;
-  videos?: string[];
-  category: string;
+interface OrderItem extends Product {
   quantity: number;
 }
 

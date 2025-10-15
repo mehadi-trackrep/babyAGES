@@ -27,7 +27,7 @@ const products: Product[] = [
     ],
     rating: 4.5,
     category: 'Electronics',
-    videos: ['https://drive.google.com/file/d/1aBcDeFgHiJkLmNoPqRsTuVwXyZ/preview'] // Google Drive video example
+    videos: ['https://drive.google.com/file/d/1YUAnz-VuBVrTftNLfb-dSuLVOYEF-Jvx/preview'] // Google Drive video example
   },
   {
     id: 2,
@@ -40,7 +40,7 @@ const products: Product[] = [
     ],
     rating: 4.2,
     category: 'Electronics',
-    videos: ['https://drive.google.com/file/d/4dEfGhIjKlMnOpQrStUvWxYzAbC/preview']
+    videos: ['https://drive.google.com/file/d/1YUAnz-VuBVrTftNLfb-dSuLVOYEF-Jvx/preview']
   },
   {
     id: 3,
@@ -230,6 +230,6 @@ export const getProductById = (id: number): Product | undefined => {
 
 // Get product categories
 export const getCategories = (): string[] => {
-  const categories = [...new Set(products.map(p => p.category))];
+  const categories = [...new Set(products.map(p => p.category).filter(cat => cat !== undefined))] as string[];
   return categories;
 };
