@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { FaTimes, FaShoppingCart, FaHeart, FaChevronLeft, FaChevronRight, FaExpand, FaCompress } from 'react-icons/fa';
 import Image from 'next/image';
 import Slider from 'react-slick';
@@ -21,7 +21,13 @@ interface QuickViewModalProps {
   onAddToWishlist: (product: Product) => void;
 }
 
-const PrevArrow = (props: any) => {
+interface ArrowProps {
+  className?: string;
+  style?: React.CSSProperties;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
+}
+
+const PrevArrow = (props: ArrowProps) => {
   const { className, style, onClick } = props;
   return (
     <div
@@ -34,7 +40,7 @@ const PrevArrow = (props: any) => {
   );
 };
 
-const NextArrow = (props: any) => {
+const NextArrow = (props: ArrowProps) => {
   const { className, style, onClick } = props;
   return (
     <div
@@ -47,14 +53,13 @@ const NextArrow = (props: any) => {
   );
 };
 
-const QuickViewModal = ({ 
-  product, 
-  isOpen, 
-  onClose, 
-  onAddToCart, 
-  onAddToWishlist 
+const QuickViewModal = ({
+  product,
+  isOpen,
+  onClose,
+  onAddToCart,
+  onAddToWishlist
 }: QuickViewModalProps) => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
@@ -75,7 +80,7 @@ const QuickViewModal = ({
 
   const nextVideo = () => {
     if (product.videos && product.videos.length > 0) {
-      setCurrentVideoIndex((prevIndex) => 
+      setCurrentVideoIndex((prevIndex) =>
         prevIndex === product.videos!.length - 1 ? 0 : prevIndex + 1
       );
     }
@@ -83,7 +88,7 @@ const QuickViewModal = ({
 
   const prevVideo = () => {
     if (product.videos && product.videos.length > 0) {
-      setCurrentVideoIndex((prevIndex) => 
+      setCurrentVideoIndex((prevIndex) =>
         prevIndex === 0 ? product.videos!.length - 1 : prevIndex - 1
       );
     }
@@ -116,7 +121,6 @@ const QuickViewModal = ({
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-    afterChange: (index: number) => setCurrentImageIndex(index),
     prevArrow: <PrevArrow />,
     nextArrow: <NextArrow />,
   };
