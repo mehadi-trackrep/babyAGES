@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { FaShoppingCart, FaHeart, FaBars, FaTimes, FaArrowUp } from 'react-icons/fa';
+import { FaShoppingCart, FaHeart, FaBars, FaTimes, FaHandPointUp } from 'react-icons/fa';
 import { useAppContext } from '@/context/AppContext';
 
 const Navbar = () => {
@@ -151,10 +151,10 @@ const Navbar = () => {
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 z-50"
+          className="fixed bottom-24 right-6 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 z-50"
           aria-label="Scroll to top"
         >
-          <FaArrowUp />
+          <FaHandPointUp />
         </button>
       )}
     </>
