@@ -28,28 +28,28 @@ const ProductCard = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group border border-gray-200">
       <div className="relative overflow-hidden">
         <div className="w-full h-64">
           <Image 
             src={product.images?.[0] || "/api/placeholder/300/300"} 
             alt={product.name} 
             fill
-            className="object-contain p-4 transition-transform duration-300 hover:scale-105"
+            className="object-contain p-4 transition-transform duration-500 group-hover:scale-110"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </div>
-        <div className="absolute top-2 right-2 flex flex-col space-y-2 md:opacity-0 transition-opacity duration-300 md:group-hover:opacity-100">
+        <div className="absolute top-4 right-0 flex flex-col space-y-2 transform translate-x-12 group-hover:translate-x-[-8px] transition-transform duration-300">
           <button 
             onClick={handleAddToWishlist}
-            className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 text-gray-700"
+            className="bg-white p-3 rounded-l-full shadow-md hover:bg-red-500 hover:text-white text-gray-700 transition-colors duration-300"
             aria-label="Add to wishlist"
           >
             <FaHeart />
           </button>
           <button 
             onClick={handleQuickView}
-            className="bg-white p-2 rounded-full shadow-md hover:bg-blue-50 text-blue-500"
+            className="bg-white p-3 rounded-l-full shadow-md hover:bg-blue-500 hover:text-white text-blue-500 transition-colors duration-300"
             aria-label="Quick view"
           >
             <FaEye />
@@ -57,17 +57,17 @@ const ProductCard = ({
         </div>
       </div>
       
-      <div className="p-4">
-        <h3 className="font-semibold text-lg mb-1">{product.name}</h3>
-        <p className="text-gray-600 text-sm mb-2 line-clamp-2">{product.description}</p>
+      <div className="p-5">
+        <h3 className="font-bold text-xl mb-2 text-gray-800">{product.name}</h3>
+        <p className="text-gray-600 text-sm mb-3 line-clamp-2 h-10">{product.description}</p>
         
-        <div className="flex justify-between items-center">
-          <span className="text-xl font-bold text-blue-600">${product.price.toFixed(2)}</span>
+        <div className="flex justify-between items-center mb-4">
+          <span className="text-2xl font-extrabold text-indigo-600">${product.price.toFixed(2)}</span>
           <div className="flex items-center">
             {[...Array(5)].map((_, i) => (
               <svg 
                 key={i} 
-                className={`w-4 h-4 ${product.rating && i < Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300'}`} 
+                className={`w-5 h-5 ${product.rating && i < Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300'}`} 
                 fill="currentColor" 
                 viewBox="0 0 20 20"
               >
@@ -79,7 +79,7 @@ const ProductCard = ({
         
         <button
           onClick={handleAddToCart}
-          className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg flex items-center justify-center"
+          className="mt-4 w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
         >
           <FaShoppingCart className="mr-2" />
           Add to Cart

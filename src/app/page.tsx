@@ -5,6 +5,7 @@ import { Product } from '@/context/AppContext';
 import HeroSlider from '@/components/HeroSlider';
 import ProductCard from '@/components/ProductCard';
 import { getAllProducts } from '@/data/products';
+import FeatureSection from '@/components/FeatureSection';
 
 // Get featured products (first 4 from the database)
 const featuredProducts = getAllProducts().slice(0, 8);
@@ -60,6 +61,8 @@ export default function Home() {
           </button>
         </div>
       </section>
+      
+      <FeatureSection />
     </div>
   );
 }
