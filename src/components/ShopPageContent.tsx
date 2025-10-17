@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import ProductCard from '@/components/ProductCard';
 import { Product } from '@/context/AppContext';
@@ -21,44 +21,37 @@ export default function ShopPageContent({
   onAddToWishlist,
   onQuickView,
 }: ShopPageContentProps) {
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
-  const [selectedCategory, setSelectedCategory] = useState<string | undefined>('All');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
 
-  const filterProducts = (category: string | undefined, query: string) => {
-    let result = products;
-    if (category && category !== 'All') {
-      result = result.filter((p) => p.category === category);
+  // Update filtered products when products, selectedCategory, or searchQuery changes
+  useEffect(() => {
+    let filtered = products;
+    
+    // Apply category filter
+    if (selectedCategory !== 'All') {
+      filtered = filtered.filter(product => product.category === selectedCategory);
     }
-    if (query) {
-      const lowerQuery = query.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(lowerQuery) ||
-          p.description.toLowerCase().includes(lowerQuery)
+    
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(product => 
+        product.name.toLowerCase().includes(query) || 
+        product.description.toLowerCase().includes(query)
       );
     }
-    setFilteredProducts(result);
-  };
+    
+    setFilteredProducts(filtered);
+  }, [products, selectedCategory, searchQuery]);
 
-  const handleCategoryChange = (category: string | undefined) => {
+  const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
-    filterProducts(category, searchQuery);
   };
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    filterProducts(selectedCategory, query);
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
   };
 
   const itemVariants = {
@@ -149,14 +142,14 @@ export default function ShopPageContent({
                 <p className="mt-2 text-gray-500">Try adjusting your filters or search query.</p>
               </motion.div>
             ) : (
-              <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
-              >
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredProducts.map((product) => (
-                  <motion.div key={product.id} variants={itemVariants}>
+                  <motion.div 
+                    key={product.id} 
+                    variants={itemVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
                     <ProductCard
                       product={product}
                       onAddToCart={onAddToCart}
@@ -165,7 +158,7 @@ export default function ShopPageContent({
                     />
                   </motion.div>
                 ))}
-              </motion.div>
+              </div>
             )}
           </div>
         </div>
