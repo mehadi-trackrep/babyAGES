@@ -9,6 +9,7 @@ import Image from 'next/image';
 
 interface FormData {
   name: string;
+  email?: string;
   contact: string;
   address: string;
   deliveryMethod: string;
@@ -41,7 +42,12 @@ export default function CheckoutPage() {
   };
 
   const handleNext = () => {
-    // Add validation logic here if needed
+    const form = document.getElementById('shipping-form') as HTMLFormElement;
+    if (form && !form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -223,20 +229,24 @@ export default function CheckoutPage() {
 const ShippingStep = ({ formData, handleChange }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void }) => (
   <div>
     <h2 className="text-2xl font-bold text-gray-800 mb-6">Shipping Information</h2>
-    <div className="space-y-6">
+    <form id="shipping-form" className="space-y-6">
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-        <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="John Doe" />
+        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Full Name <span className="text-red-500">*</span></label>
+        <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Md. Mehadi Hasan" />
       </div>
       <div>
-        <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
-        <input type="tel" id="contact" name="contact" value={formData.contact} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+1 (234) 567-8900" />
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email (Optional)</label>
+        <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="you@example.com" />
       </div>
       <div>
-        <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">Delivery Address</label>
+        <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-1">Contact Number <span className="text-red-500">*</span></label>
+        <input type="tel" id="contact" name="contact" value={formData.contact} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="(+880) 1330-414242" />
+      </div>
+      <div>
+        <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">Delivery Address <span className="text-red-500">*</span></label>
         <textarea id="address" name="address" value={formData.address} onChange={handleChange} required rows={3} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="123 Main St, City, Country" />
       </div>
-    </div>
+    </form>
   </div>
 );
 
@@ -268,9 +278,10 @@ const ConfirmationStep = ({ formData, total }: { formData: FormData, total: numb
     <div className="space-y-4 bg-gray-100 p-6 rounded-lg">
       <div>
         <h3 className="font-semibold">Shipping Details:</h3>
-        <p>{formData.name}</p>
-        <p>{formData.contact}</p>
-        <p>{formData.address}</p>
+        <p>Full Name: {formData.name}</p>
+        {formData.email && <p>Email: {formData.email}</p>}
+        <p>Contact Number: {formData.contact}</p>
+        <p>Delivery Address: {formData.address}</p>
       </div>
       <div>
         <h3 className="font-semibold">Payment Method:</h3>

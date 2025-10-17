@@ -16,6 +16,7 @@ interface OrderData {
   orderId: string;
   customer: {
     name: string;
+    email?: string;
     contact: string;
     address: string;
     deliveryMethod: string;
@@ -106,9 +107,12 @@ export default function OrderConfirmationContent() {
                 <p className="font-semibold">Order Date:</p>
                 <p className="text-gray-700">{new Date(orderData.date).toLocaleDateString()}</p>
               </div>
-              <div>
-                <p className="font-semibold">Customer:</p>
+              <div className="sm:col-span-2">
+                <p className="font-semibold">Shipping Address:</p>
                 <p className="text-gray-700">{orderData.customer.name}</p>
+                {orderData.customer.email && <p className="text-gray-700">{orderData.customer.email}</p>}
+                <p className="text-gray-700">{orderData.customer.contact}</p>
+                <p className="text-gray-700">{orderData.customer.address}</p>
               </div>
               <div>
                 <p className="font-semibold">Total Amount:</p>

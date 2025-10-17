@@ -39,7 +39,7 @@ const ProductCard = ({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </div>
-        <div className="absolute top-4 right-0 flex flex-col space-y-2 transform translate-x-12 group-hover:translate-x-[-8px] transition-transform duration-300">
+        <div className="absolute top-4 right-4 md:right-0 flex flex-col space-y-2 transform md:translate-x-12 md:group-hover:translate-x-[-8px] transition-transform duration-300">
           <button 
             onClick={handleAddToWishlist}
             className="bg-white p-3 rounded-l-full shadow-md hover:bg-red-500 hover:text-white text-gray-700 transition-colors duration-300"

@@ -16,7 +16,7 @@ import SocialButtons from "@/components/SocialButtons";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "BabyAGES - Your Baby Care Solution",
+  title: "BabyAGES - Top Selected Baby Care Solution",
   description: "A top select e-commerce baby platform for your beautiful family",
   icons: {
     icon: [
