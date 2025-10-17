@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
+import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
 import { Product } from '@/context/AppContext';
 
 interface OrderItem extends Product {
@@ -31,148 +33,112 @@ export default function OrderConfirmationContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchOrderDetails = async () => {
-      if (!orderId) {
-        setError('No order ID provided');
-        setIsLoading(false);
-        return;
-      }
+    if (!orderId) {
+      setError('No order ID provided');
+      setIsLoading(false);
+      return;
+    }
 
-      try {
-        // In a real application, you would fetch the actual order details from your backend
-        // For now, we'll use session storage to retrieve the order data sent from checkout
-        const storedOrder = sessionStorage.getItem(`order_${orderId}`);
-        
-        if (storedOrder) {
-          const parsedOrder = JSON.parse(storedOrder);
-          setOrderData(parsedOrder);
+    try {
+      const storedOrder = sessionStorage.getItem(`order_${orderId}`);
+      if (storedOrder) {
+        setOrderData(JSON.parse(storedOrder));
+      } else {
+        const orders: OrderData[] = JSON.parse(localStorage.getItem('orders') || '[]');
+        const foundOrder = orders.find(order => order.orderId === orderId);
+        if (foundOrder) {
+          setOrderData(foundOrder);
         } else {
-          // Fallback: try to get from localStorage if sessionStorage fails
-          const orders: OrderData[] = JSON.parse(localStorage.getItem('orders') || '[]');
-          const foundOrder = orders.find((order: OrderData) => order.orderId === orderId);
-          
-          if (foundOrder) {
-            setOrderData(foundOrder);
-          } else {
-            setError('Order not found');
-          }
+          setError('Order not found');
         }
-      } catch (err) {
-        console.error('Error fetching order details:', err);
-        setError('Failed to load order details');
-      } finally {
-        setIsLoading(false);
       }
-    };
-
-    fetchOrderDetails();
+    } catch {
+      setError('Failed to load order details');
+    } finally {
+      setIsLoading(false);
+    }
   }, [orderId]);
 
   if (isLoading) {
-    return (
-      <div className="max-w-4xl mx-auto p-4 md:p-6 flex items-center justify-center h-64">
-        <p className="text-xl">Loading order details...</p>
-      </div>
-    );
+    return <div className="text-center py-20">Loading order details...</div>;
   }
 
   if (error || !orderData) {
     return (
-      <div className="max-w-4xl mx-auto p-4 md:p-6">
-        <div className="text-center py-12">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Order Not Found</h2>
-          <p className="text-gray-600 mb-4">{error || 'Could not retrieve order details'}</p>
-          <Link 
-            href="/" 
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded"
-          >
-            Continue Shopping
-          </Link>
-        </div>
+      <div className="text-center py-20 bg-white rounded-2xl shadow-lg p-8">
+        <FaExclamationCircle className="text-6xl text-red-500 mx-auto mb-6" />
+        <h2 className="text-3xl font-bold text-gray-800 mb-2">Order Not Found</h2>
+        <p className="text-gray-600 mb-8">{error || 'Could not retrieve order details'}</p>
+        <Link href="/shop" className="inline-block bg-blue-600 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-700 transition-colors">
+          Continue Shopping
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-6">
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Order Confirmed!</h1>
-        <p className="text-gray-600">Thank you for your purchase</p>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Order Details</h2>
-            <div className="space-y-2">
-              <p><span className="font-medium">Order ID:</span> {orderData.orderId}</p>
-              <p><span className="font-medium">Date:</span> {new Date(orderData.date).toLocaleString()}</p>
-              <p><span className="font-medium">Status:</span> <span className="text-green-600">Confirmed</span></p>
-              <p><span className="font-medium">Payment Method:</span> {orderData.customer.deliveryMethod}</p>
-            </div>
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Delivery Information</h2>
-            <div className="space-y-2">
-              <p><span className="font-medium">Name:</span> {orderData.customer.name}</p>
-              <p><span className="font-medium">Contact:</span> {orderData.customer.contact}</p>
-              <p><span className="font-medium">Address:</span> {orderData.customer.address}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Order Items</h2>
-        <div className="space-y-4">
-          {orderData.items.map((item) => (
-            <div key={item.id} className="flex items-center py-3 border-b border-gray-200">
-              <div className="w-16 h-16 mr-4">
-                <Image 
-                  src={item.images?.[0] || "/api/placeholder/80/80"} 
-                  alt={item.name} 
-                  width={64}
-                  height={64}
-                  className="object-contain"
-                />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium">{item.name}</h3>
-                <p className="text-gray-600">${item.price.toFixed(2)} x {item.quantity}</p>
-              </div>
-              <div className="text-lg font-semibold">
-                ${(item.price * item.quantity).toFixed(2)}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center text-xl font-semibold">
-          <span>Total:</span>
-          <span>${orderData.total.toFixed(2)}</span>
-        </div>
-      </div>
-
-      <div className="mt-8 text-center">
-        <p className="text-gray-600 mb-4">Your order has been confirmed and will be processed shortly.</p>
-        <Link 
-          href="/" 
-          className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded"
+    <div className="min-h-screen bg-gray-50 py-12 px-4 md:px-8 mt-16">
+      <div className="max-w-3xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, type: 'spring' }}
+          className="bg-white rounded-2xl shadow-2xl p-10 text-center"
         >
-          Continue Shopping
-        </Link>
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.5, type: 'spring', stiffness: 150 }}
+          >
+            <FaCheckCircle className="text-7xl text-green-500 mx-auto mb-6" />
+          </motion.div>
+          <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Thank You!</h1>
+          <p className="text-lg text-gray-600 mb-8">Your order has been successfully placed.</p>
+
+          <div className="bg-gray-100 rounded-lg p-6 text-left mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Order Summary</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <p className="font-semibold">Order ID:</p>
+                <p className="text-gray-700">{orderData.orderId}</p>
+              </div>
+              <div>
+                <p className="font-semibold">Order Date:</p>
+                <p className="text-gray-700">{new Date(orderData.date).toLocaleDateString()}</p>
+              </div>
+              <div>
+                <p className="font-semibold">Customer:</p>
+                <p className="text-gray-700">{orderData.customer.name}</p>
+              </div>
+              <div>
+                <p className="font-semibold">Total Amount:</p>
+                <p className="text-xl font-bold text-blue-600">${orderData.total.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-left mb-8">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Items Ordered</h3>
+            <div className="space-y-4">
+              {orderData.items.map(item => (
+                <div key={item.id} className="flex items-center gap-4 p-4 bg-white rounded-lg border border-gray-200">
+                  <Image src={item.images?.[0] || ''} alt={item.name} width={64} height={64} className="rounded-md object-cover" />
+                  <div className="flex-grow">
+                    <p className="font-semibold">{item.name}</p>
+                    <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                  </div>
+                  <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <Link href="/shop" className="inline-block bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-full transition-transform transform hover:scale-105">
+              Continue Shopping
+            </Link>
+          </div>
+        </motion.div>
       </div>
     </div>
   );

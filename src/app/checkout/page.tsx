@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useAppContext } from '@/context/AppContext';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaUser, FaCreditCard, FaCheckCircle } from 'react-icons/fa';
 import Image from 'next/image';
 
 interface FormData {
@@ -12,246 +14,273 @@ interface FormData {
   deliveryMethod: string;
 }
 
+const steps = [
+  { id: 'shipping', name: 'Shipping', icon: FaUser },
+  { id: 'payment', name: 'Payment', icon: FaCreditCard },
+  { id: 'confirm', name: 'Confirmation', icon: FaCheckCircle },
+];
+
 export default function CheckoutPage() {
   const { state, dispatch } = useAppContext();
   const router = useRouter();
   
+  const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>({
     name: '',
     contact: '',
     address: '',
     deliveryMethod: 'cash-on-delivery'
   });
-
   const [isLoading, setIsLoading] = useState(false);
+
+  const total = state.cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleNext = () => {
+    // Add validation logic here if needed
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Calculate total price
-    const totalPrice = state.cartItems.reduce(
-      (total, item) => total + (item.price * item.quantity),
-      0
-    );
-
-    // Prepare order data
     const orderData = {
       orderId: `ORD-${Date.now()}`,
-      customer: {
-        name: formData.name,
-        contact: formData.contact,
-        address: formData.address,
-        deliveryMethod: formData.deliveryMethod
-      },
+      customer: formData,
       items: state.cartItems,
-      total: totalPrice,
+      total,
       date: new Date().toISOString()
     };
 
     try {
-      // Call the API endpoint to save order to Google Sheets
       const response = await fetch('/api/orders', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        // Store order data in sessionStorage for the confirmation page
         sessionStorage.setItem(`order_${orderData.orderId}`, JSON.stringify(orderData));
-        
-        // Also store in localStorage as backup
         const orders = JSON.parse(localStorage.getItem('orders') || '[]');
         orders.push(orderData);
         localStorage.setItem('orders', JSON.stringify(orders));
 
-        // Clear cart
         state.cartItems.forEach(item => {
           dispatch({ type: 'REMOVE_FROM_CART', id: item.id });
         });
 
-        // Redirect to order confirmation page
         router.push(`/order-confirmation?orderId=${orderData.orderId}`);
       } else {
-        // Handle Google Sheets save failure with a more specific message
-        alert(`Order was processed but failed to save to our records: ${result.error || 'Unknown error'}. Please contact support with your order ID: ${orderData.orderId}`);
+        alert(`Order failed: ${result.error || 'Unknown error'}. Please contact support.`);
       }
     } catch (error) {
-      console.error('Error placing order:', error);
-      
-      // Show user-friendly error message for Google Sheets failure
-      alert(`There was an error saving your order to our records: ${(error as Error).message || 'Please try again'}. Your payment may have been processed. Please contact support with the order ID for verification.`);
+      alert(`An error occurred: ${(error as Error).message}. Please try again.`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Calculate total
-  const total = state.cartItems.reduce(
-    (sum, item) => sum + (item.price * item.quantity),
-    0
-  );
+  const stepVariants = {
+    hidden: { opacity: 0, x: 50 },
+    visible: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -50 },
+  };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-6">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">Checkout</h1>
+    <div className="min-h-screen bg-gray-50 py-12 px-4 md:px-8 mt-16">
+      <div className="max-w-6xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-12"
+        >
+          <h1 className="text-4xl font-extrabold text-gray-900">Checkout</h1>
+          <p className="mt-2 text-lg text-gray-600">Complete your purchase in a few simple steps.</p>
+        </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Order Summary */}
-        <div className="lg:col-span-2">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-
-            {state.cartItems.length === 0 ? (
-              <p className="text-gray-500">Your cart is empty</p>
-            ) : (
-              <div>
-                <div className="space-y-4">
-                  {state.cartItems.map((item) => (
-                    <div key={item.id} className="flex items-center py-3 border-b border-gray-200">
-                      <div className="w-16 h-16 mr-4">
-                        <Image 
-                          src={item.images?.[0] || "/api/placeholder/80/80"} 
-                          alt={item.name} 
-                          width={64}
-                          height={64}
-                          className="object-contain"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-medium">{item.name}</h3>
-                        <p className="text-gray-600">${item.price.toFixed(2)} x {item.quantity}</p>
-                      </div>
-                      <div className="text-lg font-semibold">
-                        ${(item.price * item.quantity).toFixed(2)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-gray-200">
-                  <div className="flex justify-between text-lg font-semibold">
-                    <span>Total:</span>
-                    <span>${total.toFixed(2)}</span>
+        {/* Progress Bar */}
+        <div className="mb-12">
+          <div className="flex items-center justify-between max-w-2xl mx-auto">
+            {steps.map((step, index) => (
+              <React.Fragment key={step.id}>
+                <div className="flex flex-col items-center text-center">
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+                      index === currentStep ? 'bg-blue-600 text-white scale-110' : 'bg-gray-300 text-gray-600'
+                    }`}
+                  >
+                    <step.icon className="w-6 h-6" />
                   </div>
+                  <p className={`mt-2 font-semibold ${index === currentStep ? 'text-blue-600' : 'text-gray-500'}`}>
+                    {step.name}
+                  </p>
                 </div>
-              </div>
-            )}
+                {index < steps.length - 1 && (
+                  <div className={`flex-1 h-1 mx-4 rounded-full ${
+                    index < currentStep ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}></div>
+                )}
+              </React.Fragment>
+            ))}
           </div>
         </div>
 
-        {/* Checkout Form */}
-        <div>
-          <div className="bg-white p-6 rounded-lg shadow-md sticky top-6">
-            <h2 className="text-xl font-semibold mb-4">Delivery Information</h2>
+        <div className="grid lg:grid-cols-3 gap-12">
+          {/* Form Steps */}
+          <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-8">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentStep}
+                variants={stepVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ duration: 0.3 }}
+              >
+                {currentStep === 0 && <ShippingStep formData={formData} handleChange={handleChange} />}
+                {currentStep === 1 && <PaymentStep formData={formData} handleChange={handleChange} />}
+                {currentStep === 2 && <ConfirmationStep formData={formData} total={total} />}
+              </motion.div>
+            </AnimatePresence>
 
-            <form onSubmit={handleSubmit}>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="John Doe"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-1">
-                    Contact Number
-                  </label>
-                  <input
-                    type="tel"
-                    id="contact"
-                    name="contact"
-                    value={formData.contact}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="+1 (234) 567-8900"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                    Delivery Address
-                  </label>
-                  <textarea
-                    id="address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    required
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="123 Main St, City, Country"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Delivery Method
-                  </label>
-                  <div className="space-y-2">
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="deliveryMethod"
-                        value="cash-on-delivery"
-                        checked={formData.deliveryMethod === 'cash-on-delivery'}
-                        onChange={handleChange}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="ml-2">Cash on Delivery</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="deliveryMethod"
-                        value="standard-delivery"
-                        checked={formData.deliveryMethod === 'standard-delivery'}
-                        onChange={handleChange}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                        disabled
-                      />
-                      <span className="ml-2 text-gray-500">Standard Delivery (Coming Soon)</span>
-                    </label>
-                  </div>
-                </div>
-
+            {/* Navigation Buttons */}
+            <div className="mt-8 flex justify-between">
+              {currentStep > 0 && (
+                <button onClick={handlePrev} className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                  Back
+                </button>
+              )}
+              <div className="flex-grow"></div>
+              {currentStep < steps.length - 1 && (
+                <button onClick={handleNext} className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                  Next
+                </button>
+              )}
+              {currentStep === steps.length - 1 && (
                 <button
-                  type="submit"
+                  onClick={handleSubmit}
                   disabled={isLoading || state.cartItems.length === 0}
-                  className={`w-full py-3 px-4 rounded-md text-white font-medium ${
+                  className={`w-full max-w-xs ml-auto py-3 px-6 rounded-lg text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 ${
                     isLoading || state.cartItems.length === 0
                       ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-blue-600 hover:bg-blue-700'
+                      : 'bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700'
                   }`}
                 >
-                  {isLoading ? 'Processing...' : `Place Order - $${total.toFixed(2)}`}
+                  {isLoading ? 'Processing...' : `Place Order - ${total.toFixed(2)}`}
                 </button>
+              )}
+            </div>
+          </div>
+
+          {/* Order Summary */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-2xl shadow-lg p-8 sticky top-24">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Order Summary</h2>
+              <div className="space-y-4">
+                {state.cartItems.map(item => (
+                  <div key={item.id} className="flex justify-between items-center">
+                    <div className="flex items-center gap-4">
+                      <Image src={item.images?.[0] || ''} alt={item.name} width={64} height={64} className="w-16 h-16 rounded-lg object-cover" />
+                      <div>
+                        <p className="font-semibold">{item.name}</p>
+                        <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                      </div>
+                    </div>
+                    <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                  </div>
+                ))}
               </div>
-            </form>
+              <div className="border-t border-gray-200 pt-4 mt-6">
+                <div className="flex justify-between font-bold text-xl">
+                  <span>Total</span>
+                  <span>${total.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+// Step Components
+const ShippingStep = ({ formData, handleChange }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void }) => (
+  <div>
+    <h2 className="text-2xl font-bold text-gray-800 mb-6">Shipping Information</h2>
+    <div className="space-y-6">
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+        <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="John Doe" />
+      </div>
+      <div>
+        <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
+        <input type="tel" id="contact" name="contact" value={formData.contact} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+1 (234) 567-8900" />
+      </div>
+      <div>
+        <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">Delivery Address</label>
+        <textarea id="address" name="address" value={formData.address} onChange={handleChange} required rows={3} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="123 Main St, City, Country" />
+      </div>
+    </div>
+  </div>
+);
+
+const PaymentStep = ({ formData, handleChange }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
+  <div>
+    <h2 className="text-2xl font-bold text-gray-800 mb-6">Payment Method</h2>
+    <div className="space-y-4">
+      <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:border-blue-500">
+        <input type="radio" name="deliveryMethod" value="cash-on-delivery" checked={formData.deliveryMethod === 'cash-on-delivery'} onChange={handleChange} className="h-5 w-5 text-blue-600 focus:ring-blue-500" />
+        <span className="ml-4">
+          <p className="font-semibold">Cash on Delivery</p>
+          <p className="text-sm text-gray-500">Pay with cash upon delivery.</p>
+        </span>
+      </label>
+      <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-not-allowed bg-gray-100">
+        <input type="radio" name="deliveryMethod" value="standard-delivery" checked={formData.deliveryMethod === 'standard-delivery'} onChange={handleChange} className="h-5 w-5 text-blue-600 focus:ring-blue-500" disabled />
+        <span className="ml-4">
+          <p className="font-semibold text-gray-500">Credit Card (Coming Soon)</p>
+          <p className="text-sm text-gray-400">Pay with your credit card.</p>
+        </span>
+      </label>
+    </div>
+  </div>
+);
+
+const ConfirmationStep = ({ formData, total }: { formData: FormData, total: number }) => (
+  <div>
+    <h2 className="text-2xl font-bold text-gray-800 mb-6">Confirm Your Order</h2>
+    <div className="space-y-4 bg-gray-100 p-6 rounded-lg">
+      <div>
+        <h3 className="font-semibold">Shipping Details:</h3>
+        <p>{formData.name}</p>
+        <p>{formData.contact}</p>
+        <p>{formData.address}</p>
+      </div>
+      <div>
+        <h3 className="font-semibold">Payment Method:</h3>
+        <p>{formData.deliveryMethod === 'cash-on-delivery' ? 'Cash on Delivery' : 'Standard Delivery'}</p>
+      </div>
+      <div>
+        <h3 className="font-semibold">Order Total:</h3>
+        <p className="text-xl font-bold">${total.toFixed(2)}</p>
+      </div>
+    </div>
+    <p className="mt-6 text-sm text-gray-600">By clicking &quot;Place Order&quot;, you agree to our Terms of Service and Privacy Policy.</p>
+  </div>
+);
