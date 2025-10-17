@@ -129,9 +129,11 @@ export default function OrderConfirmationContent() {
                   <Image src={item.images?.[0] || ''} alt={item.name} width={64} height={64} className="rounded-md object-cover" />
                   <div className="flex-grow">
                     <p className="font-semibold">{item.name}</p>
-                    <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                    <div className="flex justify-between items-center">
+                      <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                      <p className="font-semibold text-right">${(item.price * item.quantity).toFixed(2)}</p>
+                    </div>
                   </div>
-                  <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
                 </div>
               ))}
             </div>
