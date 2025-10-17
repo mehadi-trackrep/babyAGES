@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useReducer } from 'react';
+import { createContext, useContext, useReducer, useEffect } from 'react';
 
 export interface Product {
   id: number;
@@ -37,7 +37,9 @@ type Action =
   | { type: 'TOGGLE_WISHLIST'; isOpen?: boolean }
   | { type: 'OPEN_QUICK_VIEW'; product: Product }
   | { type: 'CLOSE_QUICK_VIEW' }
-  | { type: 'SET_LAST_ACTION'; action: { type: string; product?: Product } };
+  | { type: 'SET_LAST_ACTION'; action: { type: string; product?: Product } }
+  | { type: 'REPLACE_CART'; cartItems: CartItem[] }
+  | { type: 'REPLACE_WISHLIST'; wishlistItems: Product[] };
 
 const initialState: State = {
   cartItems: [],
@@ -150,6 +152,18 @@ const appReducer = (state: State, action: Action): State => {
         lastAction: action.action,
       };
 
+    case 'REPLACE_CART':
+      return {
+        ...state,
+        cartItems: action.cartItems,
+      };
+
+    case 'REPLACE_WISHLIST':
+      return {
+        ...state,
+        wishlistItems: action.wishlistItems,
+      };
+
     default:
       return state;
   }
@@ -157,6 +171,27 @@ const appReducer = (state: State, action: Action): State => {
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
+
+  useEffect(() => {
+    const savedCart = sessionStorage.getItem('cartItems');
+    const savedWishlist = sessionStorage.getItem('wishlistItems');
+
+    if (savedCart) {
+      dispatch({ type: 'REPLACE_CART', cartItems: JSON.parse(savedCart) });
+    }
+
+    if (savedWishlist) {
+      dispatch({ type: 'REPLACE_WISHLIST', wishlistItems: JSON.parse(savedWishlist) });
+    }
+  }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem('cartItems', JSON.stringify(state.cartItems));
+  }, [state.cartItems]);
+
+  useEffect(() => {
+    sessionStorage.setItem('wishlistItems', JSON.stringify(state.wishlistItems));
+  }, [state.wishlistItems]);
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>
