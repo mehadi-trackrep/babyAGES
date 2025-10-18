@@ -23,6 +23,9 @@ interface OrderCustomer {
 interface OrderData {
   orderId: string;
   customer: OrderCustomer;
+  subtotal: number;
+  discountAmount: number;
+  couponCode?: string;
   total: number;
   date: string;
   items: OrderItem[];
@@ -41,6 +44,9 @@ export async function POST(request: NextRequest) {
       orderData.customer.contact,
       orderData.customer.address,
       orderData.customer.deliveryMethod,
+      orderData.subtotal,
+      orderData.discountAmount,
+      orderData.couponCode || '',
       orderData.total,
       orderData.date,
       orderData.items.map((item: OrderItem) => `${item.name} (x${item.quantity})`).join('; ')
@@ -72,16 +78,16 @@ export async function POST(request: NextRequest) {
     
     console.log('Data successfully added to Google Sheet:', sheetData);
     
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true, 
       orderId: orderData.orderId,
       message: 'Order saved successfully' 
     });
   } catch (error) {
     console.error('Error saving order to Google Sheets:', error);
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: false, 
-      error: (error as Error).message || 'Failed to save order to Google Sheets' 
+      error: (error as Error).message || 'Failed to save order to Google Sheets'
     }, { status: 500 });
   }
 }

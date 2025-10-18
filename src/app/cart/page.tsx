@@ -203,27 +203,23 @@ export default function ViewCartPage() {
                   </div>
                 </div>
                 
-                {couponCode && (
-                  <div className="mt-4 text-center">
-                    <button 
-                      onClick={handleRemoveCoupon}
-                      className="text-sm text-red-500 hover:underline"
-                    >
-                      Remove Coupon
-                    </button>
-                  </div>
-                )}
-
-                <div className="mt-8">
+                <div className="flex flex-col items-center gap-4 mt-8">
                   <Link
                     href="/checkout"
                     className="w-full text-center bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 px-6 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                   >
                     Proceed to Checkout
                   </Link>
-                </div>
 
-                <div className="mt-6 text-center">
+                  {couponCode && (
+                    <button 
+                      onClick={handleRemoveCoupon}
+                      className="text-sm text-red-500 hover:underline"
+                    >
+                      Remove Coupon
+                    </button>
+                  )}
+
                   <Link
                     href="/shop"
                     className="text-blue-600 hover:underline font-medium"
