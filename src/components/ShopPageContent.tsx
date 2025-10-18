@@ -23,11 +23,12 @@ export default function ShopPageContent({
 }: ShopPageContentProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [sortOption, setSortOption] = useState<string>('price-asc');
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
 
   // Update filtered products when products, selectedCategory, or searchQuery changes
   useEffect(() => {
-    let filtered = products;
+    let filtered = [...products];
     
     // Apply category filter
     if (selectedCategory !== 'All') {
@@ -42,9 +43,30 @@ export default function ShopPageContent({
         product.description.toLowerCase().includes(query)
       );
     }
+
+    // Apply sort
+    switch (sortOption) {
+      case 'price-asc':
+        filtered.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+        filtered.sort((a, b) => b.price - a.price);
+        break;
+      case 'name-asc':
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'name-desc':
+        filtered.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case 'rating-desc':
+        filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        break;
+      default:
+        break;
+    }
     
     setFilteredProducts(filtered);
-  }, [products, selectedCategory, searchQuery]);
+  }, [products, selectedCategory, searchQuery, sortOption]);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
@@ -52,6 +74,10 @@ export default function ShopPageContent({
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+  };
+
+  const handleSortChange = (option: string) => {
+    setSortOption(option);
   };
 
   const itemVariants = {
@@ -93,7 +119,9 @@ export default function ShopPageContent({
             className="w-full md:w-1/4"
           >
             <div className="p-6 bg-white rounded-2xl shadow-lg">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Filters</h2>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">Filters</h2>
+              </div>
               
               {/* Category Filter */}
               <div className="mb-6">
@@ -131,6 +159,19 @@ export default function ShopPageContent({
 
           {/* Products Grid */}
           <div className="w-full md:w-3/4">
+            <div className="flex justify-end mb-4">
+              <select
+                value={sortOption}
+                onChange={(e) => handleSortChange(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-custom-blue"
+              >
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="name-asc">Name: A to Z</option>
+                <option value="name-desc">Name: Z to A</option>
+                <option value="rating-desc">Rating: High to Low</option>
+              </select>
+            </div>
             {filteredProducts.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
