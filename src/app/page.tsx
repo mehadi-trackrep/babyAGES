@@ -7,6 +7,7 @@ import ProductCard from '@/components/ProductCard';
 import { getAllProducts } from '@/data/products';
 import FeatureSection from '@/components/FeatureSection';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 // Get featured products (first 4 from the database)
 const initialFeaturedProducts = getAllProducts().slice(0, 8);
@@ -101,9 +102,12 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">Special Offer!</h2>
           <p className="text-xl mb-6">Get 20% off on your first order with code: FIRST20</p>
-          <button className="bg-white text-blue-600 font-bold py-3 px-8 rounded-full text-lg hover:bg-gray-100 transition duration-300">
+          <Link 
+            href="/shop"
+            className="bg-white text-blue-600 font-bold py-3 px-8 rounded-full text-lg hover:bg-gray-100 transition duration-300"
+          >
             Shop Now
-          </button>
+          </Link>
         </div>
       </section>
       
