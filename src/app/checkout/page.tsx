@@ -187,7 +187,7 @@ export default function CheckoutPage() {
                       : 'bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700'
                   }`}
                 >
-                  {isLoading ? 'Processing...' : `Place Order - ${total.toFixed(2)}`}
+                  {isLoading ? 'Processing...' : `Place Order - ৳{total.toFixed(2)}`}
                 </button>
               )}
             </div>
@@ -207,14 +207,14 @@ export default function CheckoutPage() {
                         <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                       </div>
                     </div>
-                    <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                    <p className="font-semibold">৳{(item.price * item.quantity).toFixed(2)}</p>
                   </div>
                 ))}
               </div>
               <div className="border-t border-gray-200 pt-4 mt-6">
                 <div className="flex justify-between font-bold text-xl">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>৳{total.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -289,7 +289,7 @@ const ConfirmationStep = ({ formData, total }: { formData: FormData, total: numb
       </div>
       <div>
         <h3 className="font-semibold">Order Total:</h3>
-        <p className="text-xl font-bold">${total.toFixed(2)}</p>
+        <p className="text-xl font-bold">৳{total.toFixed(2)}</p>
       </div>
     </div>
     <p className="mt-6 text-sm text-gray-600">By clicking &quot;Place Order&quot;, you agree to our Terms of Service and Privacy Policy.</p>

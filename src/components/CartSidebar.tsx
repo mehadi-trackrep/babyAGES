@@ -85,7 +85,7 @@ const CartSidebar = ({
                   </div>
                   <div className="flex-1">
                     <h3 className="font-medium">{item.name}</h3>
-                    <p className="text-blue-600 font-semibold">${item.price.toFixed(2)}</p>
+                    <p className="text-blue-600 font-semibold">৳{item.price.toFixed(2)}</p>
                     
                     <div className="flex items-center mt-2">
                       <button 
@@ -120,7 +120,7 @@ const CartSidebar = ({
             <div className="border-t border-gray-200 pt-4">
               <div className="flex justify-between text-lg font-semibold mb-6">
                 <span>Total:</span>
-                <span>${totalPrice.toFixed(2)}</span>
+                <span>৳{totalPrice.toFixed(2)}</span>
               </div>
               
               <div className="space-y-3">

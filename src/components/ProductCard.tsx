@@ -62,7 +62,7 @@ const ProductCard = ({
         <p className="text-gray-600 text-sm mb-3 line-clamp-2 h-10">{product.description}</p>
         
         <div className="flex justify-between items-center mb-4">
-          <span className="text-2xl font-extrabold text-indigo-600">${product.price.toFixed(2)}</span>
+          <span className="text-2xl font-extrabold text-indigo-600">৳{product.price.toFixed(2)}</span>
           <div className="flex items-center">
             {[...Array(5)].map((_, i) => (
               <svg 

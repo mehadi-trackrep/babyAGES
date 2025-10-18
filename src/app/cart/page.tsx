@@ -95,10 +95,10 @@ export default function ViewCartPage() {
                       <div className="flex justify-between items-start">
                         <div>
                           <h3 className="text-xl font-semibold text-gray-900">{item.name}</h3>
-                          <p className="mt-1 text-gray-500">${item.price.toFixed(2)}</p>
+                          <p className="mt-1 text-gray-500">৳{item.price.toFixed(2)}</p>
                         </div>
                         <p className="text-xl font-bold text-blue-600">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          ৳{(item.price * item.quantity).toFixed(2)}
                         </p>
                       </div>
                       
@@ -144,7 +144,7 @@ export default function ViewCartPage() {
                 <div className="space-y-4">
                   <div className="flex justify-between text-gray-600">
                     <span>Subtotal</span>
-                    <span>${totalPrice.toFixed(2)}</span>
+                    <span>৳{totalPrice.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-gray-600">
                     <span>Shipping</span>
@@ -152,7 +152,7 @@ export default function ViewCartPage() {
                   </div>
                   <div className="border-t border-gray-200 pt-4 mt-4 flex justify-between text-xl font-bold text-gray-900">
                     <span>Total</span>
-                    <span>${totalPrice.toFixed(2)}</span>
+                    <span>৳{totalPrice.toFixed(2)}</span>
                   </div>
                 </div>
                 

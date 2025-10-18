@@ -9,7 +9,7 @@ const features = [
   },
   {
     name: 'Free Delivery',
-    description: 'For Order over 3000 Tk*',
+    description: 'For Order over 3000 ৳*',
     icon: TruckIcon,
   },
   {

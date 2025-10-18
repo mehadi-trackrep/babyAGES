@@ -177,7 +177,7 @@ const QuickViewModal = ({
             {/* Product Details Section */}
             <div>
               <div className="flex items-center mb-4">
-                <span className="text-2xl font-bold text-blue-600">${product.price.toFixed(2)}</span>
+                <span className="text-2xl font-bold text-blue-600">৳{product.price.toFixed(2)}</span>
                 <div className="ml-4 flex items-center">
                   {[...Array(5)].map((_, i) => (
                     <svg 

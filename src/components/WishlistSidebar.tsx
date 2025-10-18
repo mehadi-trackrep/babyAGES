@@ -76,7 +76,7 @@ const WishlistSidebar = ({
                   </div>
                   <div className="flex-1">
                     <h3 className="font-medium">{item.name}</h3>
-                    <p className="text-blue-600 font-semibold">${item.price.toFixed(2)}</p>
+                    <p className="text-blue-600 font-semibold">৳{item.price.toFixed(2)}</p>
                     
                     <div className="flex items-center mt-2">
                       <button

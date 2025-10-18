@@ -116,7 +116,7 @@ export default function OrderConfirmationContent() {
               </div>
               <div>
                 <p className="font-semibold">Total Amount:</p>
-                <p className="text-xl font-bold text-blue-600">${orderData.total.toFixed(2)}</p>
+                <p className="text-xl font-bold text-blue-600">৳{orderData.total.toFixed(2)}</p>
               </div>
             </div>
           </div>
@@ -131,7 +131,7 @@ export default function OrderConfirmationContent() {
                     <p className="font-semibold">{item.name}</p>
                     <div className="flex justify-between items-center">
                       <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                      <p className="font-semibold text-right">${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-semibold text-right">৳{(item.price * item.quantity).toFixed(2)}</p>
                     </div>
                   </div>
                 </div>
