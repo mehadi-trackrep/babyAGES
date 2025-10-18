@@ -10,7 +10,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import GlobalUI from '@/components/GlobalUI';
 import ToastManager from '@/components/ToastManager';
-import WhatsAppWidget from "@/components/WhatsAppWidget";
+import FloatingButtons from "@/components/FloatingButtons";
 import SocialButtons from "@/components/SocialButtons";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -44,7 +44,7 @@ export default function RootLayout({
           <GlobalUI />
           <ToastManager />
           <ToastContainer />
-          <WhatsAppWidget />
+          <FloatingButtons />
           <SocialButtons />
         </AppProvider>
         <script>
