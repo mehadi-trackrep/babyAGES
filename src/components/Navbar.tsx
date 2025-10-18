@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { FaShoppingCart, FaHeart, FaBars, FaTimes } from 'react-icons/fa';
+import { FiShoppingCart, FiHeart, FiMenu, FiX } from 'react-icons/fi';
 import { useAppContext } from '@/context/AppContext';
 
 const Navbar = () => {
@@ -24,8 +24,6 @@ const Navbar = () => {
   const toggleWishlist = () => {
     dispatch({ type: 'TOGGLE_WISHLIST' });
   };
-
-  
 
   return (
     <>
@@ -67,12 +65,10 @@ const Navbar = () => {
               className="relative p-2"
               onClick={toggleWishlist}
             >
-              <FaHeart className="text-gray-700 text-xl" />
-              {state.wishlistItems.length > 0 && (
-                <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {state.wishlistItems.length}
-                </span>
-              )}
+              <FiHeart className="text-gray-700 text-2xl hover:text-blue-600 transition-colors" />
+              <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {state.wishlistItems.length}
+              </span>
             </button>
 
             {/* Cart Icon */}
@@ -80,12 +76,10 @@ const Navbar = () => {
               className="relative p-2"
               onClick={toggleCart}
             >
-              <FaShoppingCart className="text-gray-700 text-xl" />
-              {state.cartItems.length > 0 && (
-                <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {state.cartItems.reduce((total, item) => total + item.quantity, 0)}
-                </span>
-              )}
+              <FiShoppingCart className="text-gray-700 text-2xl" />
+              <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {state.cartItems.reduce((total, item) => total + item.quantity, 0)}
+              </span>
             </button>
 
             {/* Mobile Menu Button */}
@@ -93,7 +87,7 @@ const Navbar = () => {
               className="md:hidden text-gray-700 focus:outline-none"
               onClick={toggleMenu}
             >
-              {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+              {isMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
             </button>
           </div>
         </div>
@@ -127,8 +121,6 @@ const Navbar = () => {
           </div>
         )}
       </nav>
-
-      
     </>
   );
 };

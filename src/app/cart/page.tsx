@@ -194,7 +194,7 @@ export default function ViewCartPage() {
                   )}
 
                   <div className="flex justify-between text-gray-600">
-                    <span>Shipping</span>
+                    <span>Packaging</span>
                     <span className="font-medium text-green-600">FREE</span>
                   </div>
                   <div className="border-t border-gray-200 pt-4 mt-4 flex justify-between text-xl font-bold text-gray-900">
