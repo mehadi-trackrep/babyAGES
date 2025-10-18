@@ -1,9 +1,36 @@
 'use client';
 
-'use client';
-
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+
+// Helper function to convert Google Drive sharing URL to a direct image URL
+const getGoogleDriveImageUrl = (url: string): string => {
+  if (!url.includes('drive.google.com')) return url;
+  
+  // Different Google Drive URL patterns that we might encounter
+  let fileId = '';
+  
+  // Pattern for /file/d/ URLs
+  const filePattern = /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/;
+  const fileMatch = url.match(filePattern);
+  if (fileMatch && fileMatch[1]) {
+    fileId = fileMatch[1];
+  } else {
+    // Alternative pattern for other Google Drive formats
+    const idPattern = /id=([a-zA-Z0-9_-]+)/;
+    const idMatch = url.match(idPattern);
+    if (idMatch && idMatch[1]) {
+      fileId = idMatch[1];
+    }
+  }
+  
+  if (fileId) {
+    // Use the direct image URL that works with publicly shared files
+    return `https://drive.google.com/uc?export=view&id=${fileId}`;
+  }
+  return url;
+};
 
 const HeroSlider = () => {
   const slides = [
@@ -11,7 +38,7 @@ const HeroSlider = () => {
       id: 1,
       title: "Winter Collection",
       subtitle: "Up to 50% off on winter essentials",
-      image: "/api/placeholder/1200/400",
+      image: "https://drive.google.com/uc?export=view&id=13RWZdE1n6BIZ5LJVIGPNYMbjRzXEnoDH",
       cta: "Shop Now",
       link: "/shop"
     },
@@ -19,7 +46,7 @@ const HeroSlider = () => {
       id: 2,
       title: "New Arrivals",
       subtitle: "Discover our latest products",
-      image: "/api/placeholder/1200/400",
+      image: "https://drive.google.com/uc?export=view&id=13RWZdE1n6BIZ5LJVIGPNYMbjRzXEnoDH",
       cta: "Explore",
       link: "/shop"
     },
@@ -27,7 +54,7 @@ const HeroSlider = () => {
       id: 3,
       title: "Exclusive Deals",
       subtitle: "Limited time offers you can't miss",
-      image: "/api/placeholder/1200/400",
+      image: "https://drive.google.com/uc?export=view&id=13RWZdE1n6BIZ5LJVIGPNYMbjRzXEnoDH",
       cta: "View Deals",
       link: "/shop"
     }
@@ -71,10 +98,21 @@ const HeroSlider = () => {
               index === currentIndex ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            <div 
-              className="w-full h-full bg-cover bg-center"
-              style={{ backgroundImage: `url(${slide.image})` }}
-            >
+            <div className="w-full h-full relative">
+              <Image
+                src={getGoogleDriveImageUrl(slide.image)}
+                alt={slide.title}
+                fill
+                className="object-cover"
+                onError={() => {
+                  // Fallback to a local placeholder if the image fails to load
+                  // Since Next.js Image doesn't allow changing src directly,
+                  // you'd need to implement state to switch the image source
+                  console.error(`Failed to load image: ${slide.image}`);
+                }}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 100vw"
+                priority={index === 0} // Prioritize loading the first slide
+              />
               <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
                 <div className="text-center text-white px-4">
                   <h1 className="text-4xl md:text-6xl font-bold mb-4">{slide.title}</h1>
