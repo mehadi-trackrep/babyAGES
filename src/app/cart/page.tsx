@@ -1,13 +1,16 @@
 'use client';
 
+import { useState } from 'react';
 import { useAppContext } from '@/context/AppContext';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { FaTrashAlt } from 'react-icons/fa';
+import { FaTrashAlt, FaTicketAlt } from 'react-icons/fa';
 
 export default function ViewCartPage() {
   const { state, dispatch } = useAppContext();
+  const { cartItems, couponCode, discountPercentage } = state;
+  const [couponInput, setCouponInput] = useState('');
 
   const handleRemoveItem = (id: number) => {
     dispatch({ type: 'REMOVE_FROM_CART', id });
@@ -21,10 +24,24 @@ export default function ViewCartPage() {
     }
   };
 
-  const totalPrice = state.cartItems.reduce(
+  const handleApplyCoupon = () => {
+    if (couponInput.trim()) {
+      dispatch({ type: 'APPLY_COUPON', couponCode: couponInput.trim() });
+      setCouponInput('');
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    dispatch({ type: 'REMOVE_COUPON' });
+  };
+
+  const subtotal = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
+
+  const discountAmount = subtotal * (discountPercentage || 0);
+  const grandTotal = subtotal - discountAmount;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -49,7 +66,7 @@ export default function ViewCartPage() {
           <p className="mt-2 text-lg text-gray-600">Review your items and proceed to checkout.</p>
         </motion.div>
 
-        {state.cartItems.length === 0 ? (
+        {cartItems.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -75,7 +92,7 @@ export default function ViewCartPage() {
             >
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Your Items</h2>
               <div className="space-y-6">
-                {state.cartItems.map((item) => (
+                {cartItems.map((item) => (
                   <motion.div
                     key={item.id}
                     variants={itemVariants}
@@ -141,21 +158,62 @@ export default function ViewCartPage() {
             >
               <div className="bg-white rounded-2xl shadow-lg p-8">
                 <h2 className="text-2xl font-bold text-gray-800 mb-6">Order Summary</h2>
+                
+                {/* Coupon Code Input */}
+                <div className="mb-6">
+                  <label htmlFor="coupon" className="block text-sm font-medium text-gray-700 mb-2">Coupon Code</label>
+                  <div className="flex">
+                    <input 
+                      type="text" 
+                      id="coupon"
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value)}
+                      placeholder="Enter FIRST20"
+                      className="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-custom-blue"
+                    />
+                    <button 
+                      onClick={handleApplyCoupon}
+                      className="px-4 py-2 bg-custom-blue text-white font-semibold rounded-r-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom-blue"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
+
                 <div className="space-y-4">
                   <div className="flex justify-between text-gray-600">
                     <span>Subtotal</span>
-                    <span>৳{totalPrice.toFixed(2)}</span>
+                    <span>৳{subtotal.toFixed(2)}</span>
                   </div>
+
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Discount ({couponCode})</span>
+                      <span>-৳{discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+
                   <div className="flex justify-between text-gray-600">
                     <span>Shipping</span>
                     <span className="font-medium text-green-600">FREE</span>
                   </div>
                   <div className="border-t border-gray-200 pt-4 mt-4 flex justify-between text-xl font-bold text-gray-900">
                     <span>Total</span>
-                    <span>৳{totalPrice.toFixed(2)}</span>
+                    <span>৳{grandTotal.toFixed(2)}</span>
                   </div>
                 </div>
                 
+                {couponCode && (
+                  <div className="mt-4 text-center">
+                    <button 
+                      onClick={handleRemoveCoupon}
+                      className="text-sm text-red-500 hover:underline"
+                    >
+                      Remove Coupon
+                    </button>
+                  </div>
+                )}
+
                 <div className="mt-8">
                   <Link
                     href="/checkout"

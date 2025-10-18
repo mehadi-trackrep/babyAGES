@@ -25,6 +25,8 @@ interface State {
   isQuickViewOpen: boolean;
   quickViewProduct: Product | null;
   lastAction?: { type: string; product?: Product };
+  couponCode?: string;
+  discountPercentage?: number;
 }
 
 type Action =
@@ -39,7 +41,9 @@ type Action =
   | { type: 'CLOSE_QUICK_VIEW' }
   | { type: 'SET_LAST_ACTION'; action: { type: string; product?: Product } }
   | { type: 'REPLACE_CART'; cartItems: CartItem[] }
-  | { type: 'REPLACE_WISHLIST'; wishlistItems: Product[] };
+  | { type: 'REPLACE_WISHLIST'; wishlistItems: Product[] }
+  | { type: 'APPLY_COUPON'; couponCode: string }
+  | { type: 'REMOVE_COUPON' };
 
 const initialState: State = {
   cartItems: [],
@@ -49,6 +53,8 @@ const initialState: State = {
   isQuickViewOpen: false,
   quickViewProduct: null,
   lastAction: undefined,
+  couponCode: '',
+  discountPercentage: 0,
 };
 
 const AppContext = createContext<{
@@ -163,6 +169,29 @@ const appReducer = (state: State, action: Action): State => {
         ...state,
         wishlistItems: action.wishlistItems,
       };
+    
+    case 'APPLY_COUPON': {
+      if (action.couponCode.toUpperCase() === 'FIRST20') {
+        return {
+          ...state,
+          couponCode: action.couponCode,
+          discountPercentage: 0.2,
+        };
+      }
+      // Optional: handle invalid coupon
+      return {
+        ...state,
+        couponCode: '',
+        discountPercentage: 0,
+      };
+    }
+    case 'REMOVE_COUPON': {
+      return {
+        ...state,
+        couponCode: '',
+        discountPercentage: 0,
+      };
+    }
 
     default:
       return state;
@@ -175,6 +204,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     const savedCart = sessionStorage.getItem('cartItems');
     const savedWishlist = sessionStorage.getItem('wishlistItems');
+    const savedCouponCode = sessionStorage.getItem('couponCode');
 
     if (savedCart) {
       dispatch({ type: 'REPLACE_CART', cartItems: JSON.parse(savedCart) });
@@ -182,6 +212,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     if (savedWishlist) {
       dispatch({ type: 'REPLACE_WISHLIST', wishlistItems: JSON.parse(savedWishlist) });
+    }
+
+    if (savedCouponCode) {
+      dispatch({ type: 'APPLY_COUPON', couponCode: savedCouponCode });
     }
   }, []);
 
@@ -192,6 +226,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     sessionStorage.setItem('wishlistItems', JSON.stringify(state.wishlistItems));
   }, [state.wishlistItems]);
+
+  useEffect(() => {
+    if (state.couponCode) {
+      sessionStorage.setItem('couponCode', state.couponCode);
+    } else {
+      sessionStorage.removeItem('couponCode');
+    }
+  }, [state.couponCode]);
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>

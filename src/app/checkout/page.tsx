@@ -24,6 +24,7 @@ const steps = [
 export default function CheckoutPage() {
   const { state, dispatch } = useAppContext();
   const router = useRouter();
+  const { cartItems, couponCode, discountPercentage } = state;
   
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>({
@@ -34,7 +35,9 @@ export default function CheckoutPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  const total = state.cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const discountAmount = subtotal * (discountPercentage || 0);
+  const grandTotal = subtotal - discountAmount;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -55,7 +58,7 @@ export default function CheckoutPage() {
 
   const handlePrev = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+      setCurrentStep(currentStep + 1);
     }
   };
 
@@ -66,8 +69,11 @@ export default function CheckoutPage() {
     const orderData = {
       orderId: `ORD-${Date.now()}`,
       customer: formData,
-      items: state.cartItems,
-      total,
+      items: cartItems,
+      subtotal,
+      discountAmount,
+      couponCode,
+      total: grandTotal,
       date: new Date().toISOString()
     };
 
@@ -86,9 +92,10 @@ export default function CheckoutPage() {
         orders.push(orderData);
         localStorage.setItem('orders', JSON.stringify(orders));
 
-        state.cartItems.forEach(item => {
+        cartItems.forEach(item => {
           dispatch({ type: 'REMOVE_FROM_CART', id: item.id });
         });
+        dispatch({ type: 'REMOVE_COUPON' });
 
         router.push(`/order-confirmation?orderId=${orderData.orderId}`);
       } else {
@@ -160,7 +167,7 @@ export default function CheckoutPage() {
               >
                 {currentStep === 0 && <ShippingStep formData={formData} handleChange={handleChange} />}
                 {currentStep === 1 && <PaymentStep formData={formData} handleChange={handleChange} />}
-                {currentStep === 2 && <ConfirmationStep formData={formData} total={total} />}
+                {currentStep === 2 && <ConfirmationStep formData={formData} subtotal={subtotal} discountAmount={discountAmount} total={grandTotal} />}
               </motion.div>
             </AnimatePresence>
 
@@ -180,14 +187,14 @@ export default function CheckoutPage() {
               {currentStep === steps.length - 1 && (
                 <button
                   onClick={handleSubmit}
-                  disabled={isLoading || state.cartItems.length === 0}
+                  disabled={isLoading || cartItems.length === 0}
                   className={`w-full max-w-xs ml-auto py-3 px-6 rounded-lg text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 ${
-                    isLoading || state.cartItems.length === 0
+                    isLoading || cartItems.length === 0
                       ? 'bg-gray-400 cursor-not-allowed'
                       : 'bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700'
                   }`}
                 >
-                  {isLoading ? 'Processing...' : `Place Order - ৳${total.toFixed(2)}`}
+                  {isLoading ? 'Processing...' : `Place Order - ৳${grandTotal.toFixed(2)}`}
                 </button>
               )}
             </div>
@@ -198,7 +205,7 @@ export default function CheckoutPage() {
             <div className="bg-white rounded-2xl shadow-lg p-8 sticky top-24">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Order Summary</h2>
               <div className="space-y-4">
-                {state.cartItems.map(item => (
+                {cartItems.map(item => (
                   <div key={item.id} className="flex justify-between items-center">
                     <div className="flex items-center gap-4">
                       <Image src={item.images?.[0] || ''} alt={item.name} width={64} height={64} className="w-16 h-16 rounded-lg object-cover" />
@@ -211,10 +218,20 @@ export default function CheckoutPage() {
                   </div>
                 ))}
               </div>
-              <div className="border-t border-gray-200 pt-4 mt-6">
+              <div className="border-t border-gray-200 pt-4 mt-6 space-y-2">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span>৳{subtotal.toFixed(2)}</span>
+                </div>
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Discount ({couponCode})</span>
+                    <span>-৳{discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between font-bold text-xl">
                   <span>Total</span>
-                  <span>৳{total.toFixed(2)}</span>
+                  <span>৳{grandTotal.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -272,7 +289,7 @@ const PaymentStep = ({ formData, handleChange }: { formData: FormData, handleCha
   </div>
 );
 
-const ConfirmationStep = ({ formData, total }: { formData: FormData, total: number }) => (
+const ConfirmationStep = ({ formData, subtotal, discountAmount, total }: { formData: FormData, subtotal: number, discountAmount: number, total: number }) => (
   <div>
     <h2 className="text-2xl font-bold text-gray-800 mb-6">Confirm Your Order</h2>
     <div className="space-y-4 bg-gray-100 p-6 rounded-lg">
@@ -287,9 +304,21 @@ const ConfirmationStep = ({ formData, total }: { formData: FormData, total: numb
         <h3 className="font-semibold">Payment Method:</h3>
         <p>{formData.deliveryMethod === 'cash-on-delivery' ? 'Cash on Delivery' : 'Standard Delivery'}</p>
       </div>
-      <div>
-        <h3 className="font-semibold">Order Total:</h3>
-        <p className="text-xl font-bold">৳{total.toFixed(2)}</p>
+      <div className="border-t pt-4 mt-4 space-y-2">
+        <div className="flex justify-between">
+          <span>Subtotal</span>
+          <span>৳{subtotal.toFixed(2)}</span>
+        </div>
+        {discountAmount > 0 && (
+          <div className="flex justify-between text-green-600">
+            <span>Discount</span>
+            <span>-৳{discountAmount.toFixed(2)}</span>
+          </div>
+        )}
+        <div className="flex justify-between font-bold text-xl">
+          <span>Total</span>
+          <span>৳{total.toFixed(2)}</span>
+        </div>
       </div>
     </div>
     <p className="mt-6 text-sm text-gray-600">By clicking &quot;Place Order&quot;, you agree to our Terms of Service and Privacy Policy.</p>
