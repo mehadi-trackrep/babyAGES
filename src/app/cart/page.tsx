@@ -160,7 +160,7 @@ export default function ViewCartPage() {
                 <h2 className="text-2xl font-bold text-gray-800 mb-6">Order Summary</h2>
                 
                 {/* Coupon Code Input */}
-                <div className="mb-6">
+                <form className="mb-6" onSubmit={(e) => { e.preventDefault(); handleApplyCoupon(); }}>
                   <label htmlFor="coupon" className="block text-sm font-medium text-gray-700 mb-2">Coupon Code</label>
                   <div className="flex">
                     <input 
@@ -172,13 +172,13 @@ export default function ViewCartPage() {
                       className="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-custom-blue"
                     />
                     <button 
-                      onClick={handleApplyCoupon}
+                      type="submit"
                       className="px-4 py-2 bg-custom-blue text-white font-semibold rounded-r-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom-blue"
                     >
                       Apply
                     </button>
                   </div>
-                </div>
+                </form>
 
                 <div className="space-y-4">
                   <div className="flex justify-between text-gray-600">
