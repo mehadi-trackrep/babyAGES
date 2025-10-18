@@ -37,7 +37,7 @@ const Footer = () => {
               <p>Abdul Aziz Lane, Lalbagh, Azimpur</p>
               <p>Dhaka 1204, Bangladesh</p>
               <p className="mt-2">Email: mstechy49@gmail.com</p>
-              <p>Phone: (+880)1796777-157</p>
+              <p>Phone: (+880)1330-528534</p>
             </address>
           </div>
         </div>

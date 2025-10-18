@@ -220,37 +220,28 @@ const QuickViewModal = ({
                   <div className="relative">
                     {product.videos[currentVideoIndex] && (
                       <div className="mt-2">
-                        {/* Extract YouTube ID from URL */}
-                        {product.videos[currentVideoIndex].includes('youtube.com') ||
-                         product.videos[currentVideoIndex].includes('youtu.be') ? (
-                          <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
-                            <div className="w-full h-full flex items-center justify-center">
-                              <button
-                                onClick={openVideoModal}
-                                className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 shadow-lg transform hover:scale-105 transition-transform"
-                              >
-                                <svg
-                                  className="w-8 h-8 text-white"
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
-                                >
-                                  <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-                                </svg>
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="rounded-lg overflow-hidden shadow-sm">
-                            <iframe
-                              src={product.videos[currentVideoIndex]}
-                              className="w-full h-48"
-                              frameBorder="0"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                              title={`${product.name} Video ${currentVideoIndex + 1}`}
-                            />
-                          </div>
-                        )}
+                        {/* Video Preview with Play Button */}
+                        <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                          <Image
+                            src={product.images?.[0] || "/api/placeholder/400/225"} // Use product image as thumbnail or a generic placeholder
+                            alt="Video Thumbnail"
+                            fill
+                            className="object-cover"
+                          />
+                          <button
+                            onClick={openVideoModal}
+                            className="absolute bg-black bg-opacity-50 text-white rounded-full w-16 h-16 flex items-center justify-center hover:bg-opacity-75 transition-opacity"
+                            aria-label="Play video"
+                          >
+                            <svg
+                              className="w-8 h-8 text-white"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                            </svg>
+                          </button>
+                        </div>
 
                         {/* Video navigation */}
                         {product.videos.length > 1 && (
@@ -306,26 +297,45 @@ const QuickViewModal = ({
             <div className="p-4">
               {product.videos[currentVideoIndex] && (
                 <div className="relative aspect-video">
-                  {product.videos[currentVideoIndex].includes('youtube.com') || 
-                   product.videos[currentVideoIndex].includes('youtu.be') ? (
-                    <iframe
-                      src={`https://www.youtube.com/embed/${extractYouTubeId(product.videos[currentVideoIndex])}?autoplay=1`}
-                      className="w-full h-full rounded-lg"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      title={`${product.name} Video ${currentVideoIndex + 1}`}
-                    />
-                  ) : (
-                    <iframe
-                      src={product.videos[currentVideoIndex]}
-                      className="w-full h-full rounded-lg"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      title={`${product.name} Video ${currentVideoIndex + 1}`}
-                    />
-                  )}
+                  {(() => {
+                    const videoUrl = product.videos[currentVideoIndex];
+                    if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+                      return (
+                        <iframe
+                          src={`https://www.youtube.com/embed/${extractYouTubeId(videoUrl)}?autoplay=1&mute=1`}
+                          className="w-full h-full rounded-lg"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          title={`${product.name} Video ${currentVideoIndex + 1}`}
+                        />
+                      );
+                    } else if (videoUrl.includes('drive.google.com') || (videoUrl.includes('google.com') && videoUrl.includes('/file/d/'))) {
+                      // For Google Drive, use the preview URL in an iframe
+                      // Google Drive does not support direct video embedding with autoplay due to security restrictions
+                      return (
+                        <iframe
+                          src={getGoogleDriveEmbedUrl(videoUrl)}
+                          className="w-full h-full rounded-lg"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          title={`${product.name} Video ${currentVideoIndex + 1}`}
+                        />
+                      );
+                    } else {
+                      return (
+                        <iframe
+                          src={`${product.videos[currentVideoIndex]}?autoplay=1`}
+                          className="w-full h-full rounded-lg"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          title={`${product.name} Video ${currentVideoIndex + 1}`}
+                        />
+                      );
+                    }
+                  })()}
                 </div>
               )}
               
@@ -380,4 +390,30 @@ const extractYouTubeId = (url: string): string => {
   const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url.match(regExp);
   return (match && match[2].length === 11) ? match[2] : '';
+};
+
+const extractGoogleDriveId = (url: string): string => {
+  // Match different Google Drive URL formats
+  const patterns = [
+    /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/,
+    /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/,
+    /drive\.google\.com\/uc\?id=([a-zA-Z0-9_-]+)/
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+  return '';
+};
+
+// Helper function to create a Google Drive embed URL that's more likely to work in iframes
+const getGoogleDriveEmbedUrl = (url: string): string => {
+  const fileId = extractGoogleDriveId(url);
+  if (!fileId) return url; // Return original URL if we can't extract the ID
+  
+  // Use the preview format which is most compatible with iframes
+  return `https://drive.google.com/file/d/${fileId}/preview`;
 };
