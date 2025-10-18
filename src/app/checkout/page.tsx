@@ -187,7 +187,7 @@ export default function CheckoutPage() {
                       : 'bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700'
                   }`}
                 >
-                  {isLoading ? 'Processing...' : `Place Order - ৳{total.toFixed(2)}`}
+                  {isLoading ? 'Processing...' : `Place Order - ৳${total.toFixed(2)}`}
                 </button>
               )}
             </div>
