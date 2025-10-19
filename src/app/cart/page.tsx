@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppContext } from '@/context/AppContext';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -9,8 +9,41 @@ import { FaTrashAlt } from 'react-icons/fa';
 
 export default function ViewCartPage() {
   const { state, dispatch } = useAppContext();
-  const { cartItems, couponCode, discountPercentage } = state;
+  const { cartItems, couponCode, discountPercentage, lastAction } = state;
   const [couponInput, setCouponInput] = useState('');
+  const [subtotal, setSubtotal] = useState(0);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [grandTotal, setGrandTotal] = useState(0);
+
+  useEffect(() => {
+    const newSubtotal = cartItems.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
+    const newDiscountAmount = newSubtotal * (discountPercentage || 0);
+    const newGrandTotal = newSubtotal - newDiscountAmount;
+    
+    setSubtotal(newSubtotal);
+    setDiscountAmount(newDiscountAmount);
+    setGrandTotal(newGrandTotal);
+  }, [cartItems, discountPercentage]);
+
+  // This effect ensures the cart page updates when actions occur from other components (like wishlist)
+  useEffect(() => {
+    if (lastAction?.type === 'ADD_TO_CART') {
+      // Force re-calculation when an item is added to cart from another component
+      const newSubtotal = cartItems.reduce(
+        (total, item) => total + item.price * item.quantity,
+        0
+      );
+      const newDiscountAmount = newSubtotal * (discountPercentage || 0);
+      const newGrandTotal = newSubtotal - newDiscountAmount;
+      
+      setSubtotal(newSubtotal);
+      setDiscountAmount(newDiscountAmount);
+      setGrandTotal(newGrandTotal);
+    }
+  }, [lastAction, cartItems, discountPercentage]);
 
   const handleRemoveItem = (id: number) => {
     dispatch({ type: 'REMOVE_FROM_CART', id });
@@ -34,14 +67,6 @@ export default function ViewCartPage() {
   const handleRemoveCoupon = () => {
     dispatch({ type: 'REMOVE_COUPON' });
   };
-
-  const subtotal = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
-
-  const discountAmount = subtotal * (discountPercentage || 0);
-  const grandTotal = subtotal - discountAmount;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -94,8 +119,10 @@ export default function ViewCartPage() {
               <div className="space-y-6">
                 {cartItems.map((item) => (
                   <motion.div
-                    key={item.id}
+                    key={item.id} /* Use only ID as key to prevent unnecessary re-renders */
                     variants={itemVariants}
+                    initial="hidden" /* Initial state for animation */
+                    animate="visible" /* Animate to visible state */
                     className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 border-b border-gray-200 pb-4 sm:pb-6"
                   >
                     <div className="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0">
@@ -108,7 +135,7 @@ export default function ViewCartPage() {
                       />
                     </div>
                     
-                    <div className="flex-1 w-full min-w-0"> {/* min-w-0 allows flex child to shrink below content size */}
+                    <div className="flex-1 w-full min-w-0 text-gray-900"> {/* min-w-0 allows flex child to shrink below content size, text-gray-900 ensures text visibility */}
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                         <div className="flex-1 min-w-0">
                           <h3 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">{item.name}</h3>
@@ -127,7 +154,7 @@ export default function ViewCartPage() {
                           >
                             -
                           </button>
-                          <span className="px-3 py-2 border-x border-gray-300 font-medium text-sm sm:text-base">{item.quantity}</span>
+                          <span className="px-3 py-2 border-x border-gray-300 font-medium text-gray-900 text-sm sm:text-base">{item.quantity}</span>
                           <button
                             onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
                             className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-r-full text-sm sm:text-base"
