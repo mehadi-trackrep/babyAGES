@@ -6,6 +6,7 @@ import { FaWhatsapp, FaPaperPlane } from 'react-icons/fa';
 const WhatsAppWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [displayedMessages, setDisplayedMessages] = useState<string[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
   const phoneNumber = '8801796777157'; // Replace with your WhatsApp number
   const welcomeMessages = useMemo(() => [
     'Hello 👋, welcome to BabyAGES',
@@ -19,30 +20,32 @@ const WhatsAppWidget = () => {
   useEffect(() => {
     if (isOpen) {
       setDisplayedMessages([]);
-      let i = 0;
-      const showMessages = () => {
-        if (i < welcomeMessages.length) {
-          setDisplayedMessages(prev => [...prev, welcomeMessages[i]]);
-          i++;
-          setTimeout(showMessages, 10);
-        }
-      };
-      showMessages();
+      setIsTyping(true);
+      setTimeout(() => {
+        setDisplayedMessages(prev => [...prev, welcomeMessages[0]]);
+        setIsTyping(false);
+        setTimeout(() => {
+          setIsTyping(true);
+          setTimeout(() => {
+            setDisplayedMessages(prev => [...prev, welcomeMessages[1]]);
+            setIsTyping(false);
+          }, 1000);
+        }, 500);
+      }, 1000);
     }
   }, [isOpen, welcomeMessages]);
 
   const openWhatsApp = () => {
-    const message = welcomeMessages.join('\n');
-    window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
+    window.open(`https://wa.me/${phoneNumber}`, '_blank');
   };
 
   return (
     <div className="relative">
       <button
         onClick={toggleChat}
-        className="bg-green-500 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg transform transition-transform duration-300 hover:scale-110"
+        className="bg-green-500 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transform transition-transform duration-300 hover:scale-110"
       >
-        <FaWhatsapp size={30} />
+        <FaWhatsapp size={24} />
       </button>
 
       {isOpen && (
@@ -59,6 +62,13 @@ const WhatsAppWidget = () => {
                 <p className="bg-gray-200 text-gray-800 rounded-lg py-2 px-4 inline-block">{msg}</p>
               </div>
             ))}
+            {isTyping && (
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s] mx-1"></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+              </div>
+            )}
           </div>
           <div className="p-4 bg-gray-100 rounded-b-xl">
             <button
