@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaUser, FaCreditCard, FaCheckCircle } from 'react-icons/fa';
 import Image from 'next/image';
+import TermsAndConditionsPopup from '@/components/TermsAndConditionsPopup';
 
 interface FormData {
   name: string;
@@ -29,11 +30,14 @@ export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>({
     name: '',
+    email: '', // Initialize email field to prevent uncontrolled input error
     contact: '',
     address: '',
     deliveryMethod: 'cash-on-delivery'
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isTermsAccepted, setIsTermsAccepted] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const discountAmount = subtotal * (discountPercentage || 0);
@@ -64,6 +68,10 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isTermsAccepted) {
+      alert('Please accept the Terms & Conditions to proceed.');
+      return;
+    }
     setIsLoading(true);
 
     const orderData = {
@@ -167,7 +175,15 @@ export default function CheckoutPage() {
               >
                 {currentStep === 0 && <ShippingStep formData={formData} handleChange={handleChange} />}
                 {currentStep === 1 && <PaymentStep formData={formData} handleChange={handleChange} />}
-                {currentStep === 2 && <ConfirmationStep formData={formData} subtotal={subtotal} discountAmount={discountAmount} total={grandTotal} />}
+                {currentStep === 2 && <ConfirmationStep 
+                  formData={formData} 
+                  subtotal={subtotal} 
+                  discountAmount={discountAmount} 
+                  total={grandTotal} 
+                  isTermsAccepted={isTermsAccepted}
+                  setIsTermsAccepted={setIsTermsAccepted}
+                  setIsPopupOpen={setIsPopupOpen}
+                />}
               </motion.div>
             </AnimatePresence>
 
@@ -187,9 +203,9 @@ export default function CheckoutPage() {
               {currentStep === steps.length - 1 && (
                 <button
                   onClick={handleSubmit}
-                  disabled={isLoading || cartItems.length === 0}
+                  disabled={isLoading || cartItems.length === 0 || !isTermsAccepted}
                   className={`w-full max-w-xs ml-auto py-3 px-6 rounded-lg text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 ${
-                    isLoading || cartItems.length === 0
+                    isLoading || cartItems.length === 0 || !isTermsAccepted
                       ? 'bg-gray-400 cursor-not-allowed'
                       : 'bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700'
                   }`}
@@ -238,6 +254,7 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+      {isPopupOpen && <TermsAndConditionsPopup onClose={() => setIsPopupOpen(false)} />}
     </div>
   );
 }
@@ -289,7 +306,23 @@ const PaymentStep = ({ formData, handleChange }: { formData: FormData, handleCha
   </div>
 );
 
-const ConfirmationStep = ({ formData, subtotal, discountAmount, total }: { formData: FormData, subtotal: number, discountAmount: number, total: number }) => (
+const ConfirmationStep = ({ 
+  formData, 
+  subtotal, 
+  discountAmount, 
+  total, 
+  isTermsAccepted,
+  setIsTermsAccepted,
+  setIsPopupOpen
+}: { 
+  formData: FormData, 
+  subtotal: number, 
+  discountAmount: number, 
+  total: number,
+  isTermsAccepted: boolean,
+  setIsTermsAccepted: React.Dispatch<React.SetStateAction<boolean>>,
+  setIsPopupOpen: React.Dispatch<React.SetStateAction<boolean>>
+}) => (
   <div>
     <h2 className="text-2xl font-bold text-gray-800 mb-6">Confirm Your Order</h2>
     <div className="space-y-4 bg-gray-100 p-6 rounded-lg">
@@ -321,6 +354,25 @@ const ConfirmationStep = ({ formData, subtotal, discountAmount, total }: { formD
         </div>
       </div>
     </div>
-    <p className="mt-6 text-sm text-gray-600">By clicking &quot;Place Order&quot;, you agree to our Terms of Service and Privacy Policy.</p>
+    <div className="mt-6">
+      <label className="flex items-center">
+        <input
+          type="checkbox"
+          checked={isTermsAccepted}
+          onChange={() => setIsTermsAccepted(!isTermsAccepted)}
+          className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <span className="ml-2 text-sm text-gray-600">
+          I have read and agree to the{' '}
+          <button
+            type="button"
+            onClick={() => setIsPopupOpen(true)}
+            className="text-blue-600 hover:underline focus:outline-none"
+          >
+            Terms & Conditions
+          </button>
+        </span>
+      </label>
+    </div>
   </div>
 );
