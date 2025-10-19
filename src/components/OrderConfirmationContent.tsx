@@ -105,7 +105,7 @@ export default function OrderConfirmationContent() {
               </div>
               <div>
                 <p className="font-semibold">Order Date:</p>
-                <p className="text-gray-700">{new Date(orderData.date).toLocaleDateString()}</p>
+                <p className="text-gray-700">{orderData.date}</p>
               </div>
               <div className="sm:col-span-2">
                 <p className="font-semibold">Shipping Address:</p>

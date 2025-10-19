@@ -74,6 +74,19 @@ export default function CheckoutPage() {
     }
     setIsLoading(true);
 
+    // Format date in Dhaka timezone with AM/PM format
+    const now = new Date();
+    const dhakaTime = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Dhaka',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true  // Use AM/PM format
+    }).format(now);
+
     const orderData = {
       orderId: `ORD-${Date.now()}`,
       customer: formData,
@@ -82,7 +95,7 @@ export default function CheckoutPage() {
       discountAmount,
       couponCode,
       total: grandTotal,
-      date: new Date().toISOString()
+      date: dhakaTime
     };
 
     try {
