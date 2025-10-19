@@ -163,20 +163,54 @@ export default function ViewCartPage() {
                 <form className="mb-4" onSubmit={(e) => { e.preventDefault(); handleApplyCoupon(); }}>
                   <label htmlFor="coupon" className="block text-sm font-medium text-gray-700 mb-2">Coupon Code</label>
                   <div className="flex flex-col sm:flex-row gap-2">
-                    <input 
-                      type="text" 
-                      id="coupon"
-                      value={couponInput}
-                      onChange={(e) => setCouponInput(e.target.value)}
-                      placeholder="Enter FIRST20"
-                      className="flex-grow px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom-blue"
-                    />
-                    <button 
-                      type="submit"
-                      className="px-4 py-2 bg-custom-blue text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom-blue whitespace-nowrap"
-                    >
-                      Apply
-                    </button>
+                    {couponCode ? (
+                      <div className="flex flex-col sm:flex-row gap-2 w-full">
+                        <input 
+                          type="text" 
+                          id="coupon"
+                          value={couponCode} // Show applied coupon code
+                          disabled // Disable input when coupon is applied
+                          className="flex-grow px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 bg-gray-100"
+                        />
+                        <div className="flex gap-2">
+                          <button 
+                            type="button"
+                            onClick={handleRemoveCoupon}
+                            className="px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 whitespace-nowrap"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex flex-col sm:flex-row gap-2 w-full">
+                          <input 
+                            type="text" 
+                            id="coupon"
+                            value={couponInput}
+                            onChange={(e) => setCouponInput(e.target.value)}
+                            placeholder="Enter FIRST20"
+                            className="flex-grow px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom-blue"
+                          />
+                          <div className="flex flex-col sm:flex-row gap-2">
+                            <button 
+                              type="submit"
+                              className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 whitespace-nowrap"
+                            >
+                              Apply
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => { setCouponInput('FIRST20'); }}
+                              className="px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 whitespace-nowrap text-sm"
+                            >
+                              Use FIRST20
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </form>
 
@@ -210,15 +244,6 @@ export default function ViewCartPage() {
                   >
                     Proceed to Checkout
                   </Link>
-
-                  {couponCode && (
-                    <button 
-                      onClick={handleRemoveCoupon}
-                      className="text-xs sm:text-sm text-red-500 hover:underline"
-                    >
-                      Remove Coupon
-                    </button>
-                  )}
 
                   <Link
                     href="/shop"
