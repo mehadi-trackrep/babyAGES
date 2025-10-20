@@ -1,4 +1,5 @@
 import { FaShoppingCart, FaHeart, FaEye } from 'react-icons/fa';
+import Link from 'next/link';
 import Image from 'next/image';
 import { Product } from '@/context/AppContext';
 
@@ -58,7 +59,9 @@ const ProductCard = ({
       </div>
       
       <div className="p-5">
-        <h3 className="font-bold text-xl mb-2 text-gray-800">{product.name}</h3>
+        <Link href={`/product/${product.category?.toLowerCase().replace(/\s+/g, '-')}/${product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${product.id}`}>
+          <h3 className="font-bold text-xl mb-2 text-gray-800 cursor-pointer hover:text-blue-600 transition-colors">{product.name}</h3>
+        </Link>
         <p className="text-gray-600 text-sm mb-3 line-clamp-2 h-10">{product.description}</p>
         
         <div className="flex justify-between items-center mb-4">
@@ -77,13 +80,22 @@ const ProductCard = ({
           </div>
         </div>
         
-        <button
-          onClick={handleAddToCart}
-          className="mt-4 w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
-        >
-          <FaShoppingCart className="mr-2" />
-          Add to Cart
-        </button>
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={handleAddToCart}
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+          >
+            <FaShoppingCart className="mr-2" />
+            Add to Cart
+          </button>
+          <Link href={`/product/${product.category?.toLowerCase().replace(/\s+/g, '-')}/${product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${product.id}`}>
+            <button
+              className="w-full bg-white border border-gray-300 text-gray-700 font-bold py-2.5 px-4 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors duration-300"
+            >
+              View Details
+            </button>
+          </Link>
+        </div>
       </div>
     </div>
   );
