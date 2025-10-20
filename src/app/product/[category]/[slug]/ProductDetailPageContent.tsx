@@ -166,6 +166,31 @@ export default function ProductDetailPageContent({ product, relatedProducts }: P
               <div className="text-3xl font-bold text-indigo-600 mb-6">৳{product.price.toFixed(2)}</div>
 
               <p className="text-gray-700 mb-6 leading-relaxed">{product.description}</p>
+              
+              {/* Product Videos Section */}
+              {product.videos && product.videos.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Product Videos</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {product.videos.map((video, index) => (
+                      <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
+                        <div className="aspect-w-16 aspect-h-9">
+                          <div className="relative pb-[56.25%] h-0">
+                            <iframe
+                              src={video}
+                              className="absolute top-0 left-0 w-full h-full"
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                              title={`Product video ${index + 1}`}
+                            ></iframe>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="flex items-center mb-6">
                 <label className="mr-4 text-gray-700">Quantity:</label>
