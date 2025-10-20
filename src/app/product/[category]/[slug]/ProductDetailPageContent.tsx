@@ -45,7 +45,7 @@ export default function ProductDetailPageContent({ product, relatedProducts }: P
   const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
 
   const handleAddToCart = () => {
-    dispatch({ type: 'ADD_TO_CART', product });
+    dispatch({ type: 'ADD_TO_CART_WITH_QUANTITY', product, quantity });
   };
 
   const handleAddToWishlist = () => {

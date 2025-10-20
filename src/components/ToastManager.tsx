@@ -16,6 +16,7 @@ const ToastManager = () => {
       if (state.lastAction.product) {
         switch (state.lastAction.type) {
           case 'ADD_TO_CART':
+          case 'ADD_TO_CART_WITH_QUANTITY':
             toast.success(`${state.lastAction.product.name} added to cart!`, {
               position: "bottom-center",
               autoClose: 2000,

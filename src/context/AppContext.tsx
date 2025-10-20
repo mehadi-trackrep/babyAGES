@@ -31,6 +31,7 @@ interface State {
 
 type Action =
   | { type: 'ADD_TO_CART'; product: Product }
+  | { type: 'ADD_TO_CART_WITH_QUANTITY'; product: Product; quantity: number }
   | { type: 'REMOVE_FROM_CART'; id: number }
   | { type: 'UPDATE_QUANTITY'; id: number; quantity: number }
   | { type: 'ADD_TO_WISHLIST'; product: Product }
@@ -83,6 +84,27 @@ const appReducer = (state: State, action: Action): State => {
         return {
           ...state,
           cartItems: [...state.cartItems, { ...action.product, quantity: 1 }],
+          lastAction: { type: 'ADD_TO_CART', product: action.product },
+        };
+      }
+    }
+
+    case 'ADD_TO_CART_WITH_QUANTITY': {
+      const existingItem = state.cartItems.find(item => item.id === action.product.id);
+      if (existingItem) {
+        return {
+          ...state,
+          cartItems: state.cartItems.map(item =>
+            item.id === action.product.id
+              ? { ...item, quantity: item.quantity + action.quantity }
+              : item
+          ),
+          lastAction: { type: 'ADD_TO_CART', product: action.product },
+        };
+      } else {
+        return {
+          ...state,
+          cartItems: [...state.cartItems, { ...action.product, quantity: action.quantity }],
           lastAction: { type: 'ADD_TO_CART', product: action.product },
         };
       }

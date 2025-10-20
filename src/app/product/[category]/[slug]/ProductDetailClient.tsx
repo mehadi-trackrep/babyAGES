@@ -89,7 +89,7 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
   }
 
   const handleAddToCart = () => {
-    dispatch({ type: 'ADD_TO_CART', product });
+    dispatch({ type: 'ADD_TO_CART_WITH_QUANTITY', product, quantity });
   };
 
   const handleAddToWishlist = () => {
