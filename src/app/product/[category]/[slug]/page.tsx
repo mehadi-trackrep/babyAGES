@@ -2,156 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { parseProductIdFromSlug } from '@/utils/productUtils';
 import ProductDetailPageContent from './ProductDetailPageContent';
-import { google } from 'googleapis';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  images: string[]; // Array of image URLs
-  rating: number;
-  category: string;
-  videos?: string[]; // Optional array of video links
-  subcategory?: string;
-  subtitle?: string;
-  savePercentage?: number;
-  sizes?: string[];
-  colors?: string[];
-  itemsLeft?: number;
-  commentsAndRatings?: { comment: string; rating: number }[];
-}
-
-// Function to fetch products from Google Sheets - directly in the server component
-const fetchProductsFromSheet = async (): Promise<Product[]> => {
-  try {
-    // Set up authentication with service account credentials
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: process.env.GOOGLE_CLIENT_EMAIL!,
-        private_key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\n/g, '\n'),
-      },
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
-
-    const sheets = google.sheets({ version: 'v4', auth });
-
-    // Google Sheets API configuration
-    const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID!;
-    const RANGE = 'Sheet1!A:Z'; // Assuming data is in the first sheet, columns A to Z
-
-    // Get data from the Google Sheet
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: RANGE,
-    });
-
-    const rows = response.data.values;
-    if (!rows || rows.length === 0) {
-      return [];
-    }
-
-    // Extract headers from the first row
-    const headers = rows[0];
-    
-    // Process data rows (starting from row 1, excluding header)
-    const products: Product[] = [];
-    for (let i = 1; i < rows.length; i++) {
-      const row = rows[i];
-      if (!row || row.length === 0) continue; // Skip empty rows
-      
-      // Create an object mapping headers to row values
-      const rowData: Record<string, unknown> = {};
-      for (let j = 0; j < headers.length; j++) {
-        const header = headers[j];
-        if (header) {
-          rowData[header] = row[j];
-        }
-      }
-
-      // Only add the product if it has an ID (meaning it's not an empty row)
-      if (rowData['id']) {
-        const product: Product = {
-          id: parseInt(rowData['id'] as string) || 0,
-          name: (rowData['name'] as string) || '',
-          price: parseFloat(rowData['price'] as string) || 0,
-          description: (rowData['description'] as string) || '',
-          images: (rowData['images'] as string) 
-            ? (rowData['images'] as string).split(',').map(item => item.trim()) 
-            : [],
-          rating: parseFloat(rowData['rating'] as string) || 0,
-          category: (rowData['category'] as string) || '',
-          videos: (rowData['videos'] as string)
-            ? (rowData['videos'] as string).split(',').map(item => item.trim())
-            : undefined,
-          subcategory: (rowData['subcategory'] as string) || undefined,
-          subtitle: (rowData['subtitle'] as string) || undefined,
-          savePercentage: parseFloat(rowData['save'] as string) || undefined,
-          sizes: (rowData['sizes'] as string)
-            ? (rowData['sizes'] as string).split(',').map(size => size.trim())
-            : undefined,
-          colors: (rowData['colors'] as string)
-            ? (rowData['colors'] as string).split(',').map(color => color.trim())
-            : undefined,
-          itemsLeft: parseInt(rowData['itemsLeft'] as string) || undefined,
-        };
-
-        // Process comments and ratings from the commentsAndRatings column
-        if (rowData['commentsAndRatings']) {
-          const commentsAndRatingsStr = rowData['commentsAndRatings'] as string;
-          if (commentsAndRatingsStr) {
-            // Parse format: "comment1#rating:4.7, comment2#rating:5, ..."
-            const commentsAndRatings = commentsAndRatingsStr.split(',').map(item => {
-              const [commentPart, ratingPart] = item.trim().split('#rating:');
-              return {
-                comment: commentPart?.trim() || '',
-                rating: parseFloat(ratingPart) || 0,
-              };
-            }).filter(item => item.comment); // Filter out any empty comments
-
-            if (commentsAndRatings.length > 0) {
-              product.commentsAndRatings = commentsAndRatings;
-              // Calculate an average rating if not already provided
-              if (!product.rating || product.rating === 0) {
-                const avgRating = commentsAndRatings.reduce((sum, item) => sum + item.rating, 0) / commentsAndRatings.length;
-                product.rating = parseFloat(avgRating.toFixed(2));
-              }
-            }
-          }
-        }
-        
-        products.push(product);
-      }
-    }
-
-    return products;
-  } catch (error) {
-    console.error('Error fetching products from Google Sheet:', error);
-    throw new Error('Failed to fetch products from Google Sheet');
-  }
-};
-
-// Get a single product by ID - using server-side function
-const getProductById = async (id: number): Promise<Product | undefined> => {
-  try {
-    const allProducts = await fetchProductsFromSheet();
-    return allProducts.find(product => product.id === id);
-  } catch (error) {
-    console.error(`Error fetching product with ID ${id}:`, error);
-    return undefined;
-  }
-};
-
-// Get products by category - using server-side function
-const getProductsByCategory = async (category: string): Promise<Product[]> => {
-  try {
-    const allProducts = await fetchProductsFromSheet();
-    return allProducts.filter(product => product.category === category);
-  } catch (error) {
-    console.error(`Error fetching products for category ${category}:`, error);
-    return [];
-  }
-};
+import { getProductById, getProductsByCategory } from '@/data/products';
 
 // Generate metadata for SEO
 export async function generateMetadata({ 
@@ -199,7 +50,7 @@ export async function generateMetadata({
       title: product.name,
       description: product.description,
       type: 'website', // Changed from 'product' to 'website' as 'product' is not a valid OpenGraph type
-      url: `https://your-domain.com/product/${product.category?.toLowerCase().replace(/\s+/g, '-')}/${product.subcategory?.toLowerCase().replace(/\s+/g, '-') || ''}/${product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${product.id}`,
+      url: `https://your-domain.com/product/${product.category?.toLowerCase().replace(/\\s+/g, '-')}/${product.subcategory?.toLowerCase().replace(/\\s+/g, '-') || ''}/${product.name.toLowerCase().replace(/\\s+/g, '-').replace(/[^\w-]/g, '')}-${product.id}`,
       images: [
         {
           url: product.images?.[0] || '/default-product-image.jpg',
@@ -216,7 +67,7 @@ export async function generateMetadata({
       images: [product.images?.[0] || '/default-product-image.jpg'],
     },
     alternates: {
-      canonical: `https://your-domain.com/product/${product.category?.toLowerCase().replace(/\s+/g, '-')}/${product.subcategory?.toLowerCase().replace(/\s+/g, '-') || ''}/${product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${product.id}`,
+      canonical: `https://your-domain.com/product/${product.category?.toLowerCase().replace(/\\s+/g, '-')}/${product.subcategory?.toLowerCase().replace(/\\s+/g, '-') || ''}/${product.name.toLowerCase().replace(/\\s+/g, '-').replace(/[^\w-]/g, '')}-${product.id}`,
     },
   };
 }
