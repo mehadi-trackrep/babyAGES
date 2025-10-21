@@ -86,7 +86,17 @@ export const fetchProductsFromSheet = async (): Promise<Product[]> => {
           price: parseFloat(rowData['price'] as string) || 0,
           description: (rowData['description'] as string) || '',
           images: (rowData['images'] as string) 
-            ? (rowData['images'] as string).split(',').map(item => item.trim()) 
+            ? (rowData['images'] as string).split(',').map(item => {
+                const trimmedItem = item.trim();
+                // Convert Google Drive file URLs to direct image URLs
+                if (trimmedItem.includes('drive.google.com/file/d/')) {
+                  const match = trimmedItem.match(/\/file\/d\/([^\/]+)/);
+                  if (match && match[1]) {
+                    return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+                  }
+                }
+                return trimmedItem;
+              }) 
             : [],
           rating: parseFloat(rowData['rating'] as string) || 0,
           category: (rowData['category'] as string) || '',
