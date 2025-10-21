@@ -5,7 +5,7 @@ import { useAppContext } from '@/context/AppContext';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { FaTrashAlt } from 'react-icons/fa';
+import { FaTrashAlt, FaBroom } from 'react-icons/fa';
 
 export default function ViewCartPage() {
   const { state, dispatch } = useAppContext();
@@ -115,8 +115,23 @@ export default function ViewCartPage() {
               animate="visible"
               className="bg-white rounded-2xl shadow-lg p-4 sm:p-6"
             >
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Your Items</h2>
-              <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-800">Your Items</h2>
+                {cartItems.length > 0 && (
+                  <button
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to clear your entire cart?')) {
+                        dispatch({ type: 'CLEAR_CART' });
+                      }
+                    }}
+                    className="text-red-500 hover:text-red-700 flex items-center gap-1 font-medium"
+                    aria-label="Clear cart"
+                  >
+                    <FaBroom /> <span>Clear Cart</span>
+                  </button>
+                )}
+              </div>
+              <div className="space-y-6 mt-6">
                 {cartItems.map((item) => (
                   <motion.div
                     key={`${item.id}-${item.selectedOptions?.size || 'none'}-${item.selectedOptions?.color || 'none'}`} /* Use ID with size and color to uniquely identify variants */

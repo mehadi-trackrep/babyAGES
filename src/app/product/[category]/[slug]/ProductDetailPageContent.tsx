@@ -305,13 +305,7 @@ export default function ProductDetailPageContent({ product, relatedProducts }: P
               {product.itemsLeft !== undefined && (
                 <div className="mb-4">
                   <div className="text-sm text-gray-600">
-                    Only <span className="font-bold text-red-600">{product.itemsLeft}</span> left
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
-                    <div 
-                      className="bg-red-600 h-2 rounded-full" 
-                      style={{ width: `${Math.min(100, (product.itemsLeft / 20) * 100)}%` }}
-                    ></div>
+                    <span className="text-red-600">Item Left Only: <span className="font-bold text-red-600">   {product.itemsLeft}</span> </span>
                   </div>
                 </div>
               )}

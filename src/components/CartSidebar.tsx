@@ -1,4 +1,4 @@
-import { FaTimes, FaTrash, FaShoppingCart, FaArrowRight } from 'react-icons/fa';
+import { FaTimes, FaTrash, FaShoppingCart, FaArrowRight, FaBroom } from 'react-icons/fa';
 import Image from 'next/image';
 import { CartItem } from '@/context/AppContext';
 import { useEffect, useRef } from 'react';
@@ -54,7 +54,23 @@ const CartSidebar = ({
     >
       <div className="p-6 h-full flex flex-col">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Your Cart</h2>
+          <div className="flex items-center space-x-3">
+            <h2 className="text-2xl font-bold">Your Cart</h2>
+            {cartItems.length > 0 && (
+              <button
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to clear your entire cart?')) {
+                    cartItems.forEach(item => onRemoveItem(item.id, item.selectedOptions));
+                  }
+                }}
+                className="text-red-500 hover:text-red-700 flex items-center gap-1 font-medium"
+                aria-label="Clear cart"
+              >
+                <FaBroom /> <span>Clear Cart</span>
+              </button>
+            )}
+
+          </div>
           <button 
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 text-2xl"
@@ -146,18 +162,6 @@ const CartSidebar = ({
                   <FaArrowRight className="ml-2" />
                 </button>
                 
-                {cartItems.length > 0 && (
-                  <button
-                    onClick={() => {
-                      if (window.confirm('Are you sure you want to clear your entire cart?')) {
-                        cartItems.forEach(item => onRemoveItem(item.id));
-                      }
-                    }}
-                    className="w-full flex items-center justify-center bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-medium"
-                  >
-                    Clear Cart
-                  </button>
-                )}
               </div>
             </div>
           </>
