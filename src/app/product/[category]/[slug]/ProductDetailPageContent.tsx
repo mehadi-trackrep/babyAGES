@@ -7,6 +7,14 @@ import { FiHeart, FiShoppingCart, FiShare2, FiChevronRight } from 'react-icons/f
 import Image from 'next/image';
 import Link from 'next/link';
 
+interface Review {
+  id: number;
+  userName: string;
+  rating: number;
+  comment: string;
+  date: string;
+}
+
 interface ProductDetailPageContentProps {
   product: Product;
   relatedProducts: Product[];
@@ -23,16 +31,36 @@ export default function ProductDetailPageContent({ product, relatedProducts }: P
   const [selectedColor, setSelectedColor] = useState<string | undefined>(
     product.colors && product.colors.length > 0 ? product.colors[0] : undefined
   );
-  // Use product's comments and ratings if available, otherwise use mock data
-  const initialReviews = product.commentsAndRatings && product.commentsAndRatings.length > 0 
-    ? product.commentsAndRatings.map((review, index) => ({
-        id: index + 1,
+  // Load reviews from session storage if available
+  const loadReviews = () => {
+    // Get session reviews (user submitted reviews during this session)
+    let sessionReviews = [];
+    try {
+      const sessionKey = `product_reviews_${product.id}`;
+      const sessionReviewsStr = sessionStorage.getItem(sessionKey);
+      if (sessionReviewsStr) {
+        sessionReviews = JSON.parse(sessionReviewsStr);
+      }
+    } catch (error) {
+      console.error('Failed to load reviews from session storage:', error);
+    }
+    
+    // If session reviews exist, return just those (the user has already submitted reviews)
+    if (sessionReviews.length > 0) {
+      return sessionReviews;
+    }
+    
+    // Otherwise, return the original product reviews or mock reviews
+    if (product.commentsAndRatings && product.commentsAndRatings.length > 0) {
+      return product.commentsAndRatings.map((review, index) => ({
+        id: index + 1, // Since the original reviews don't have ids, use index + 1
         userName: 'Anonymous User',
         rating: review.rating,
         comment: review.comment,
         date: new Date().toISOString().split('T')[0] // Use current date for demo purposes
-      }))
-    : [
+      }));
+    } else {
+      return [
         {
           id: 1,
           userName: 'John Doe',
@@ -55,8 +83,12 @@ export default function ProductDetailPageContent({ product, relatedProducts }: P
           date: '2023-10-20'
         }
       ];
-  const [reviews, setReviews] = useState(initialReviews);
+    }
+  };
+  
+  const [reviews, setReviews] = useState<Review[]>(loadReviews);
   const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
+  const hasSubmittedReview = reviews.some(review => review.userName === 'Current User');
 
   const handleAddToCart = () => {
     const productWithOptions = {
@@ -99,13 +131,25 @@ export default function ProductDetailPageContent({ product, relatedProducts }: P
     e.preventDefault();
     // In a real app, this would send the review to an API
     const review = {
-      id: reviews.length + 1,
+      id: Date.now(), // Using timestamp as unique ID to avoid conflicts
       userName: 'Current User',
       rating: newReview.rating,
       comment: newReview.comment,
       date: new Date().toISOString().split('T')[0]
     };
-    setReviews([review, ...reviews]);
+    
+    // Add to current state
+    const updatedReviews = [review, ...reviews];
+    setReviews(updatedReviews);
+    
+    // Save to session storage to persist during user session
+    try {
+      const sessionKey = `product_reviews_${product.id}`;
+      sessionStorage.setItem(sessionKey, JSON.stringify(updatedReviews));
+    } catch (error) {
+      console.error('Failed to save review to session storage:', error);
+    }
+    
     setNewReview({ rating: 5, comment: '' });
   };
 
@@ -377,101 +421,83 @@ export default function ProductDetailPageContent({ product, relatedProducts }: P
               
               <div className="mb-8 p-6 bg-gray-50 rounded-lg">
                 <h3 className="text-lg font-semibold mb-4">Write a Review</h3>
-                <form onSubmit={handleAddReview}>
-                  <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Rating</label>
-                    <div className="flex">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          type="button"
-                          onClick={() => setNewReview({...newReview, rating: star})}
-                          className="text-2xl"
-                        >
-                          {star <= newReview.rating ? (
-                            <FaStar className="text-yellow-400" />
-                          ) : (
-                            <FaRegStar className="text-gray-300" />
-                          )}
-                        </button>
-                      ))}
+                {hasSubmittedReview ? (
+                  <div className="text-center py-6">
+                    <p className="text-gray-600 mb-4">Thank you for your review! You have already submitted a review for this product.</p>
+                    <p className="text-sm text-gray-500">Each user can submit only one review per product per session.</p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleAddReview}>
+                    <div className="mb-4">
+                      <label className="block text-gray-700 mb-2">Rating</label>
+                      <div className="flex">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setNewReview({...newReview, rating: star})}
+                            className="text-2xl"
+                          >
+                            {star <= newReview.rating ? (
+                              <FaStar className="text-yellow-400" />
+                            ) : (
+                              <FaRegStar className="text-gray-300" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Comment</label>
-                    <textarea
-                      value={newReview.comment}
-                      onChange={(e) => setNewReview({...newReview, comment: e.target.value})}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      rows={4}
-                      placeholder="Share your experience with this product..."
-                    />
-                    {newReview.comment.length > 0 && (
-                      <p className="text-sm text-gray-500 mt-1 text-right">
-                        {newReview.comment.length}/500 characters
-                      </p>
-                    )}
-                  </div>
-                  
-                  <button
-                    type="submit"
-                    className="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300"
-                  >
-                    Submit Review
-                  </button>
-                </form>
+                    
+                    <div className="mb-4">
+                      <label className="block text-gray-700 mb-2">Comment</label>
+                      <textarea
+                        value={newReview.comment}
+                        onChange={(e) => setNewReview({...newReview, comment: e.target.value})}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        rows={4}
+                        placeholder="Share your experience with this product..."
+                      />
+                      {newReview.comment.length > 0 && (
+                        <p className="text-sm text-gray-500 mt-1 text-right">
+                          {newReview.comment.length}/500 characters
+                        </p>
+                      )}
+                    </div>
+                    
+                    <button
+                      type="submit"
+                      className="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300"
+                    >
+                      Submit Review
+                    </button>
+                  </form>
+                )}
               </div>
               
               <div className="space-y-6">
-                {/* Display reviews from product data */}
-                {product.commentsAndRatings && product.commentsAndRatings.length > 0 ? (
-                  product.commentsAndRatings.map((review, index) => (
-                    <div key={index} className="border-b border-gray-200 pb-6 last:border-0 last:pb-0">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-semibold text-gray-900">Anonymous User</h4>
-                      </div>
-                      <div className="flex mb-2">
-                        {[...Array(5)].map((_, i) => (
-                          <span key={i}>
-                            {i < Math.floor(review.rating) ? (
-                              <FaStar className="text-yellow-400" />
-                            ) : i === Math.floor(review.rating) && review.rating % 1 >= 0.5 ? (
-                              <FaStarHalfAlt className="text-yellow-400" />
-                            ) : (
-                              <FaRegStar className="text-gray-300" />
-                            )}
-                          </span>
-                        ))}
-                      </div>
-                      <p className="text-gray-700">{review.comment}</p>
+                {/* Display all reviews: original product reviews + user session reviews */}
+                {reviews.map((review) => (
+                  <div key={review.id} className="border-b border-gray-200 pb-6 last:border-0 last:pb-0">
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-semibold text-gray-900">{review.userName}</h4>
+                      <span className="text-sm text-gray-500">{review.date}</span>
                     </div>
-                  ))
-                ) : (
-                  // If no comments from product data, fall back to mock reviews
-                  reviews.map((review) => (
-                    <div key={review.id} className="border-b border-gray-200 pb-6 last:border-0 last:pb-0">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-semibold text-gray-900">{review.userName}</h4>
-                        <span className="text-sm text-gray-500">{review.date}</span>
-                      </div>
-                      <div className="flex mb-2">
-                        {[...Array(5)].map((_, i) => (
-                          <span key={i}>
-                            {i < Math.floor(review.rating) ? (
-                              <FaStar className="text-yellow-400" />
-                            ) : i === Math.floor(review.rating) && review.rating % 1 >= 0.5 ? (
-                              <FaStarHalfAlt className="text-yellow-400" />
-                            ) : (
-                              <FaRegStar className="text-gray-300" />
-                            )}
-                          </span>
-                        ))}
-                      </div>
-                      <p className="text-gray-700">{review.comment}</p>
+                    <div className="flex mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <span key={i}>
+                          {i < Math.floor(review.rating) ? (
+                            <FaStar className="text-yellow-400" />
+                          ) : i === Math.floor(review.rating) && review.rating % 1 >= 0.5 ? (
+                            <FaStarHalfAlt className="text-yellow-400" />
+                          ) : (
+                            <FaRegStar className="text-gray-300" />
+                          )}
+                        </span>
+                      ))}
                     </div>
-                  ))
-                )}
+                    <p className="text-gray-700">{review.comment}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

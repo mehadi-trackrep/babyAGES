@@ -12,30 +12,13 @@ interface ProductDetailClientProps {
   productId: number | null;
 }
 
-// Mock reviews data - in a real app, this would come from an API
-const mockReviews = [
-  {
-    id: 1,
-    userName: 'John Doe',
-    rating: 5,
-    comment: 'This product is amazing! Very high quality and worth the money.',
-    date: '2023-10-15'
-  },
-  {
-    id: 2,
-    userName: 'Jane Smith',
-    rating: 4,
-    comment: 'Great product overall. My only complaint is that it took a bit long to ship.',
-    date: '2023-10-18'
-  },
-  {
-    id: 3,
-    userName: 'Robert Johnson',
-    rating: 5,
-    comment: 'Exceeded my expectations! Will definitely buy again.',
-    date: '2023-10-20'
-  }
-];
+interface Review {
+  id: number;
+  userName: string;
+  rating: number;
+  comment: string;
+  date: string;
+}
 
 export default function ProductDetailClient({ productId }: ProductDetailClientProps) {
   const { dispatch } = useAppContext();
@@ -44,8 +27,65 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
   const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
-  const [reviews, setReviews] = useState(mockReviews);
+  
+  // Load reviews from session storage if available
+  const loadReviews = (product: Product) => {
+    // Get session reviews (user submitted reviews during this session)
+    let sessionReviews = [];
+    try {
+      const sessionKey = `product_reviews_${product.id}`;
+      const sessionReviewsStr = sessionStorage.getItem(sessionKey);
+      if (sessionReviewsStr) {
+        sessionReviews = JSON.parse(sessionReviewsStr);
+      }
+    } catch (error) {
+      console.error('Failed to load reviews from session storage:', error);
+    }
+    
+    // If session reviews exist, return just those (the user has already submitted reviews)
+    if (sessionReviews.length > 0) {
+      return sessionReviews;
+    }
+    
+    // Otherwise, return the original product reviews or mock reviews
+    if (product.commentsAndRatings && product.commentsAndRatings.length > 0) {
+      return product.commentsAndRatings.map((review, index) => ({
+        id: index + 1, // Since the original reviews don't have ids, use index + 1
+        userName: 'Anonymous User',
+        rating: review.rating,
+        comment: review.comment,
+        date: new Date().toISOString().split('T')[0] // Use current date for demo purposes
+      }));
+    } else {
+      return [
+        {
+          id: 1,
+          userName: 'John Doe',
+          rating: 5,
+          comment: 'This product is amazing! Very high quality and worth the money.',
+          date: '2023-10-15'
+        },
+        {
+          id: 2,
+          userName: 'Jane Smith',
+          rating: 4,
+          comment: 'Great product overall. My only complaint is that it took a bit long to ship.',
+          date: '2023-10-18'
+        },
+        {
+          id: 3,
+          userName: 'Robert Johnson',
+          rating: 5,
+          comment: 'Exceeded my expectations! Will definitely buy again.',
+          date: '2023-10-20'
+        }
+      ];
+    }
+  };
+  
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
+  const hasSubmittedReview = reviews.some(review => review.userName === 'Current User');
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -55,6 +95,9 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
         const foundProduct = await getProductById(productId);
         if (foundProduct) {
           setProduct(foundProduct);
+          
+          // Load reviews using the loadReviews function
+          setReviews(loadReviews(foundProduct));
           
           // Get related products based on category
           const related = (await getProductsByCategory(foundProduct.category || ''))
@@ -139,13 +182,27 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
     e.preventDefault();
     // In a real app, this would send the review to an API
     const review = {
-      id: reviews.length + 1,
+      id: Date.now(), // Using timestamp as unique ID to avoid conflicts
       userName: 'Current User',
       rating: newReview.rating,
       comment: newReview.comment,
       date: new Date().toISOString().split('T')[0]
     };
-    setReviews([review, ...reviews]);
+    
+    // Add to current state
+    const updatedReviews = [review, ...reviews];
+    setReviews(updatedReviews);
+    
+    // Save to session storage to persist during user session
+    if (product) {
+      try {
+        const sessionKey = `product_reviews_${product.id}`;
+        sessionStorage.setItem(sessionKey, JSON.stringify(updatedReviews));
+      } catch (error) {
+        console.error('Failed to save review to session storage:', error);
+      }
+    }
+    
     setNewReview({ rating: 5, comment: '' });
   };
 
@@ -392,50 +449,57 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
               
               <div className="mb-8 p-6 bg-gray-50 rounded-lg">
                 <h3 className="text-lg font-semibold mb-4">Write a Review</h3>
-                <form onSubmit={handleAddReview}>
-                  <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Rating</label>
-                    <div className="flex">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          type="button"
-                          onClick={() => setNewReview({...newReview, rating: star})}
-                          className="text-2xl"
-                        >
-                          {star <= newReview.rating ? (
-                            <FaStar className="text-yellow-400" />
-                          ) : (
-                            <FaRegStar className="text-gray-300" />
-                          )}
-                        </button>
-                      ))}
+                {hasSubmittedReview ? (
+                  <div className="text-center py-6">
+                    <p className="text-gray-600 mb-4">Thank you for your review! You have already submitted a review for this product.</p>
+                    <p className="text-sm text-gray-500">Each user can submit only one review per product per session.</p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleAddReview}>
+                    <div className="mb-4">
+                      <label className="block text-gray-700 mb-2">Rating</label>
+                      <div className="flex">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setNewReview({...newReview, rating: star})}
+                            className="text-2xl"
+                          >
+                            {star <= newReview.rating ? (
+                              <FaStar className="text-yellow-400" />
+                            ) : (
+                              <FaRegStar className="text-gray-300" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Comment</label>
-                    <textarea
-                      value={newReview.comment}
-                      onChange={(e) => setNewReview({...newReview, comment: e.target.value})}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      rows={4}
-                      placeholder="Share your experience with this product..."
-                    />
-                    {newReview.comment.length > 0 && (
-                      <p className="text-sm text-gray-500 mt-1 text-right">
-                        {newReview.comment.length}/500 characters
-                      </p>
-                    )}
-                  </div>
-                  
-                  <button
-                    type="submit"
-                    className="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300"
-                  >
-                    Submit Review
-                  </button>
-                </form>
+                    
+                    <div className="mb-4">
+                      <label className="block text-gray-700 mb-2">Comment</label>
+                      <textarea
+                        value={newReview.comment}
+                        onChange={(e) => setNewReview({...newReview, comment: e.target.value})}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        rows={4}
+                        placeholder="Share your experience with this product..."
+                      />
+                      {newReview.comment.length > 0 && (
+                        <p className="text-sm text-gray-500 mt-1 text-right">
+                          {newReview.comment.length}/500 characters
+                        </p>
+                      )}
+                    </div>
+                    
+                    <button
+                      type="submit"
+                      className="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300"
+                    >
+                      Submit Review
+                    </button>
+                  </form>
+                )}
               </div>
               
               <div className="space-y-6">
