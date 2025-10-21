@@ -235,15 +235,21 @@ export default function CheckoutPage() {
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Order Summary</h2>
               <div className="space-y-4">
                 {cartItems.map(item => (
-                  <div key={item.id} className="flex justify-between items-center">
-                    <div className="flex items-center gap-4">
-                      <Image src={item.images?.[0] || ''} alt={item.name} width={64} height={64} className="w-16 h-16 rounded-lg object-cover" />
+                  <div key={item.id} className="flex justify-between items-start">
+                    <div className="flex items-start gap-4">
+                      <Image src={item.images?.[0] || ''} alt={item.name} width={64} height={64} className="w-16 h-16 rounded-lg object-cover mt-1" />
                       <div>
                         <p className="font-semibold">{item.name}</p>
                         <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                        {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
+                          <div className="mt-1 text-xs text-gray-600">
+                            {item.selectedOptions.size && <span>Size: {item.selectedOptions.size} </span>}
+                            {item.selectedOptions.color && <span>Color: {item.selectedOptions.color}</span>}
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <p className="font-semibold">৳{(item.price * item.quantity).toFixed(2)}</p>
+                    <p className="font-semibold mt-1">৳{(item.price * item.quantity).toFixed(2)}</p>
                   </div>
                 ))}
               </div>

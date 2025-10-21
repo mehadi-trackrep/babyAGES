@@ -42,26 +42,32 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
   const [product, setProduct] = useState<Product | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
+  const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
   const [reviews, setReviews] = useState(mockReviews);
   const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (productId !== null) {
-      const foundProduct = getProductById(productId);
-      if (foundProduct) {
-        setProduct(foundProduct);
-        
-        // Get related products based on category
-        const related = getProductsByCategory(foundProduct.category || '')
-          .filter(p => p.id !== foundProduct.id)
-          .slice(0, 6); // Limit to 6 related products
-        setRelatedProducts(related);
+    const fetchProduct = async () => {
+      if (productId !== null) {
+        const foundProduct = await getProductById(productId);
+        if (foundProduct) {
+          setProduct(foundProduct);
+          
+          // Get related products based on category
+          const related = (await getProductsByCategory(foundProduct.category || ''))
+            .filter(p => p.id !== foundProduct.id)
+            .slice(0, 6); // Limit to 6 related products
+          setRelatedProducts(related);
+        }
       }
-    }
-    
-    setLoaded(true);
+      
+      setLoaded(true);
+    };
+
+    fetchProduct();
   }, [productId]);
 
   if (!loaded) {
@@ -89,11 +95,29 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
   }
 
   const handleAddToCart = () => {
-    dispatch({ type: 'ADD_TO_CART_WITH_QUANTITY', product, quantity });
+    if (product) {
+      const productWithOptions = {
+        ...product,
+        selectedOptions: {
+          size: selectedSize,
+          color: selectedColor,
+        }
+      };
+      dispatch({ type: 'ADD_TO_CART_WITH_QUANTITY', product: productWithOptions, quantity });
+    }
   };
 
   const handleAddToWishlist = () => {
-    dispatch({ type: 'ADD_TO_WISHLIST', product });
+    if (product) {
+      const productWithOptions = {
+        ...product,
+        selectedOptions: {
+          size: selectedSize,
+          color: selectedColor,
+        }
+      };
+      dispatch({ type: 'ADD_TO_WISHLIST', product: productWithOptions });
+    }
   };
 
   const handleShare = () => {
@@ -157,6 +181,12 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
             <li><Link href="/shop" className="hover:text-blue-600">Shop</Link></li>
             <li>/</li>
             <li className="capitalize text-gray-900 font-medium">{product.category}</li>
+            {product.subcategory && (
+              <>
+                <li>/</li>
+                <li className="capitalize text-gray-900 font-medium">{product.subcategory}</li>
+              </>
+            )}
             <li>/</li>
             <li className="text-gray-900 font-medium truncate max-w-xs">{product.name}</li>
           </ol>
@@ -199,6 +229,7 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
             {/* Product Info */}
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+              {product.subtitle && <p className="text-lg text-gray-600 mb-2">{product.subtitle}</p>}
               
               <div className="flex items-center mb-4">
                 <div className="flex">
@@ -207,11 +238,71 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
                 <span className="ml-2 text-gray-600">({product.rating} Reviews)</span>
               </div>
 
-              <div className="text-3xl font-bold text-indigo-600 mb-6">৳{product.price.toFixed(2)}</div>
+              <div className="flex items-center mb-6">
+                {product.savePercentage && product.savePercentage > 0 ? (
+                  <>
+                    <div className="text-3xl font-bold text-indigo-600 mr-4">৳{(product.price * (1 - product.savePercentage / 100)).toFixed(2)}</div>
+                    <div className="text-xl text-gray-500 line-through">৳{product.price.toFixed(2)}</div>
+                    <div className="ml-4 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
+                      Save {product.savePercentage}%
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-3xl font-bold text-indigo-600">৳{product.price.toFixed(2)}</div>
+                )}
+              </div>
 
               <p className="text-gray-700 mb-6 leading-relaxed">{product.description}</p>
 
-              <div className="flex items-center mb-6">
+              {/* Size Selection */}
+              {product.sizes && product.sizes.length > 0 && (
+                <div className="mb-4">
+                  <label className="block text-gray-700 mb-2">Size:</label>
+                  <div className="flex flex-wrap gap-2">
+                    {product.sizes.map((size, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setSelectedSize(size)}
+                        className={`px-4 py-2 border rounded-lg transition-colors duration-300 ${
+                          selectedSize === size
+                            ? 'border-blue-500 bg-blue-100 text-blue-700'
+                            : 'border-gray-300 hover:border-blue-500 hover:text-blue-600'
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Color Selection */}
+              {product.colors && product.colors.length > 0 && (
+                <div className="mb-4">
+                  <label className="block text-gray-700 mb-2">Color:</label>
+                  <div className="flex flex-wrap gap-2">
+                    {product.colors.map((color, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setSelectedColor(color)}
+                        className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                          selectedColor === color
+                            ? 'border-blue-500 ring-2 ring-blue-300 scale-110'
+                            : 'border-gray-300 hover:border-blue-500'
+                        }`}
+                        style={{ backgroundColor: color }}
+                        title={color}
+                      >
+                        {selectedColor === color && (
+                          <span className="text-white text-xs font-bold">✓</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center mb-4">
                 <label className="mr-4 text-gray-700">Quantity:</label>
                 <div className="flex items-center border border-gray-300 rounded-lg">
                   <button 
@@ -229,6 +320,20 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
                   </button>
                 </div>
               </div>
+
+              {product.itemsLeft !== undefined && (
+                <div className="mb-4">
+                  <div className="text-sm text-gray-600">
+                    Only <span className="font-bold text-red-600">{product.itemsLeft}</span> left
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                    <div 
+                      className="bg-red-600 h-2 rounded-full" 
+                      style={{ width: `${Math.min(100, (product.itemsLeft / 20) * 100)}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-wrap gap-4 mb-6">
                 <button
@@ -263,13 +368,21 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
                     <span className="w-32 text-gray-500">Category</span>
                     <span className="font-medium capitalize">{product.category}</span>
                   </li>
+                  {product.subcategory && (
+                    <li className="flex">
+                      <span className="w-32 text-gray-500">Subcategory</span>
+                      <span className="font-medium capitalize">{product.subcategory}</span>
+                    </li>
+                  )}
                   <li className="flex">
                     <span className="w-32 text-gray-500">Rating</span>
                     <span className="font-medium">{product.rating}/5</span>
                   </li>
                   <li className="flex">
                     <span className="w-32 text-gray-500">Availability</span>
-                    <span className="font-medium text-green-600">In Stock</span>
+                    <span className={`font-medium ${product.itemsLeft && product.itemsLeft < 5 ? 'text-red-600' : 'text-green-600'}`}>
+                      {product.itemsLeft && product.itemsLeft < 5 ? `${product.itemsLeft} left` : 'In Stock'}
+                    </span>
                   </li>
                 </ul>
               </div>
@@ -386,7 +499,22 @@ export default function ProductDetailClient({ productId }: ProductDetailClientPr
                         </div>
                         <div className="p-4">
                           <h3 className="font-semibold text-gray-900 mb-1 truncate">{relatedProduct.name}</h3>
-                          <p className="text-indigo-600 font-bold">৳{relatedProduct.price.toFixed(2)}</p>
+                          {relatedProduct.subtitle && (
+                            <p className="text-sm text-gray-600 truncate">{relatedProduct.subtitle}</p>
+                          )}
+                          <div className="flex items-center mt-2">
+                            {relatedProduct.savePercentage && relatedProduct.savePercentage > 0 ? (
+                              <>
+                                <span className="text-indigo-600 font-bold">৳{(relatedProduct.price * (1 - relatedProduct.savePercentage / 100)).toFixed(2)}</span>
+                                <span className="ml-2 text-sm text-gray-500 line-through">৳{relatedProduct.price.toFixed(2)}</span>
+                                <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs">
+                                  -{relatedProduct.savePercentage}%
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-indigo-600 font-bold">৳{relatedProduct.price.toFixed(2)}</span>
+                            )}
+                          </div>
                           <div className="flex items-center mt-2">
                             <div className="flex">
                               {renderStars(relatedProduct.rating)}

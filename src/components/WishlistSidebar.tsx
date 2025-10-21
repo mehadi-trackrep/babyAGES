@@ -77,6 +77,12 @@ const WishlistSidebar = ({
                   <div className="flex-1">
                     <h3 className="font-medium">{item.name}</h3>
                     <p className="text-blue-600 font-semibold">৳{item.price.toFixed(2)}</p>
+                    {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
+                      <div className="mt-1 text-xs text-gray-600">
+                        {item.selectedOptions.size && <span>Size: {item.selectedOptions.size} </span>}
+                        {item.selectedOptions.color && <span>Color: {item.selectedOptions.color}</span>}
+                      </div>
+                    )}
                     
                     <div className="flex items-center mt-2">
                       <button

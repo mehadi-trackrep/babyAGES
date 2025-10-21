@@ -12,12 +12,12 @@ const GlobalUI = () => {
   const { state, dispatch } = useAppContext();
   const router = useRouter();
 
-  const handleRemoveFromCart = (id: number) => {
-    dispatch({ type: 'REMOVE_FROM_CART', id });
+  const handleRemoveFromCart = (id: number, selectedOptions?: { size?: string; color?: string }) => {
+    dispatch({ type: 'REMOVE_FROM_CART', id, selectedOptions });
   };
 
-  const handleUpdateQuantity = (id: number, quantity: number) => {
-    dispatch({ type: 'UPDATE_QUANTITY', id, quantity });
+  const handleUpdateQuantity = (id: number, quantity: number, selectedOptions?: { size?: string; color?: string }) => {
+    dispatch({ type: 'UPDATE_QUANTITY', id, quantity, selectedOptions });
   };
 
   const handleRemoveFromWishlist = (id: number) => {
@@ -25,7 +25,7 @@ const GlobalUI = () => {
   };
 
   const handleCartAddFromWishlist = (product: Product) => {
-    dispatch({ type: 'ADD_TO_CART', product });
+    dispatch({ type: 'ADD_TO_CART_WITH_QUANTITY', product, quantity: 1 });
     dispatch({ type: 'REMOVE_FROM_WISHLIST', id: product.id });
   };
 

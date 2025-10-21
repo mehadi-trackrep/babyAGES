@@ -11,6 +11,10 @@ interface OrderItem {
   videos?: string[];
   category: string;
   quantity: number;
+  selectedOptions?: {
+    size?: string;
+    color?: string;
+  };
 }
 
 interface OrderCustomer {
@@ -49,7 +53,14 @@ export async function POST(request: NextRequest) {
       orderData.couponCode || '',
       orderData.total,
       orderData.date,
-      orderData.items.map((item: OrderItem) => `${item.name} (x${item.quantity})`).join('; ')
+      orderData.items.map((item: OrderItem) => {
+        let itemDetails = `${item.name} (x${item.quantity})`;
+        if (item.selectedOptions) {
+          if (item.selectedOptions.size) itemDetails += `, Size: ${item.selectedOptions.size}`;
+          if (item.selectedOptions.color) itemDetails += `, Color: ${item.selectedOptions.color}`;
+        }
+        return itemDetails;
+      }).join('; ')
     ];
     
     // Google Sheets API configuration

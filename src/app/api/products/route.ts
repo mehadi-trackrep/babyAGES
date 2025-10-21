@@ -1,7 +1,5 @@
-import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { parseProductIdFromSlug } from '@/utils/productUtils';
-import ProductDetailPageContent from './ProductDetailPageContent';
+// src/app/api/products/route.ts
+import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 
 interface Product {
@@ -22,14 +20,14 @@ interface Product {
   commentsAndRatings?: { comment: string; rating: number }[];
 }
 
-// Function to fetch products from Google Sheets - directly in the server component
+// Function to fetch products from Google Sheets
 const fetchProductsFromSheet = async (): Promise<Product[]> => {
   try {
     // Set up authentication with service account credentials
     const auth = new google.auth.GoogleAuth({
       credentials: {
         client_email: process.env.GOOGLE_CLIENT_EMAIL!,
-        private_key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\n/g, '\n'),
+        private_key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, '\n'),
       },
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
@@ -131,132 +129,34 @@ const fetchProductsFromSheet = async (): Promise<Product[]> => {
   }
 };
 
-// Get a single product by ID - using server-side function
-const getProductById = async (id: number): Promise<Product | undefined> => {
+export async function GET(request: NextRequest) {
   try {
-    const allProducts = await fetchProductsFromSheet();
-    return allProducts.find(product => product.id === id);
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get('category');
+    const id = searchParams.get('id');
+
+    const products = await fetchProductsFromSheet();
+
+    if (id) {
+      // Return specific product by ID
+      const productId = parseInt(id);
+      const product = products.find(p => p.id === productId);
+      
+      if (!product) {
+        return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+      }
+      
+      return NextResponse.json(product);
+    } else if (category) {
+      // Return products by category
+      const filteredProducts = products.filter(p => p.category === category);
+      return NextResponse.json(filteredProducts);
+    } else {
+      // Return all products
+      return NextResponse.json(products);
+    }
   } catch (error) {
-    console.error(`Error fetching product with ID ${id}:`, error);
-    return undefined;
+    console.error('Error in GET /api/products:', error);
+    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
   }
-};
-
-// Get products by category - using server-side function
-const getProductsByCategory = async (category: string): Promise<Product[]> => {
-  try {
-    const allProducts = await fetchProductsFromSheet();
-    return allProducts.filter(product => product.category === category);
-  } catch (error) {
-    console.error(`Error fetching products for category ${category}:`, error);
-    return [];
-  }
-};
-
-// Generate metadata for SEO
-export async function generateMetadata({ 
-  params: paramsPromise 
-}: { 
-  params: Promise<{ category: string; slug: string }>;
-}): Promise<Metadata> {
-  const { slug } = await paramsPromise;
-  let productId: number | null = null;
-  
-  // Try to parse ID from slug (slug format: product-name-123)
-  if (typeof slug === 'string') {
-    productId = parseProductIdFromSlug(slug);
-  } else if (Array.isArray(slug) && slug[0]) {
-    productId = parseProductIdFromSlug(slug[0]);
-  }
-  
-  // If parsing failed, try as direct ID
-  if (!productId && typeof slug === 'string') {
-    productId = parseInt(slug);
-  } else if (!productId && Array.isArray(slug) && slug[0]) {
-    productId = parseInt(slug[0]);
-  }
-  
-  if (!productId) {
-    return {
-      title: 'Product Not Found',
-      description: 'The requested product could not be found.'
-    };
-  }
-  
-  const product = await getProductById(productId);
-  
-  if (!product) {
-    return {
-      title: 'Product Not Found',
-      description: 'The requested product could not be found.'
-    };
-  }
-
-  return {
-    title: `${product.name} | BabyAGES E-commerce`,
-    description: product.description,
-    openGraph: {
-      title: product.name,
-      description: product.description,
-      type: 'website', // Changed from 'product' to 'website' as 'product' is not a valid OpenGraph type
-      url: `https://your-domain.com/product/${product.category?.toLowerCase().replace(/\s+/g, '-')}/${product.subcategory?.toLowerCase().replace(/\s+/g, '-') || ''}/${product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${product.id}`,
-      images: [
-        {
-          url: product.images?.[0] || '/default-product-image.jpg',
-          width: 800,
-          height: 600,
-          alt: product.name,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: product.name,
-      description: product.description,
-      images: [product.images?.[0] || '/default-product-image.jpg'],
-    },
-    alternates: {
-      canonical: `https://your-domain.com/product/${product.category?.toLowerCase().replace(/\s+/g, '-')}/${product.subcategory?.toLowerCase().replace(/\s+/g, '-') || ''}/${product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${product.id}`,
-    },
-  };
-}
-
-export default async function ProductDetailPage({ 
-  params: paramsPromise 
-}: { 
-  params: Promise<{ category: string; slug: string }>;
-}) {
-  const { slug } = await paramsPromise; // Only using slug, category is available if needed later
-  let productId: number | null = null;
-  
-  // Try to parse ID from slug (slug format: product-name-123)
-  if (typeof slug === 'string') {
-    productId = parseProductIdFromSlug(slug);
-  } else if (Array.isArray(slug) && slug[0]) {
-    productId = parseProductIdFromSlug(slug[0]);
-  }
-  
-  // If parsing failed, try as direct ID
-  if (!productId && typeof slug === 'string') {
-    productId = parseInt(slug);
-  } else if (!productId && Array.isArray(slug) && slug[0]) {
-    productId = parseInt(slug[0]);
-  }
-  
-  if (!productId) {
-    notFound();
-  }
-  
-  const product = await getProductById(productId);
-  
-  if (!product) {
-    notFound();
-  }
-  
-  // Get related products based on category
-  const relatedProducts = (await getProductsByCategory(product.category || ''))
-    .filter(p => p.id !== product.id)
-    .slice(0, 6); // Limit to 6 related products
-
-  return <ProductDetailPageContent product={product} relatedProducts={relatedProducts} />;
 }

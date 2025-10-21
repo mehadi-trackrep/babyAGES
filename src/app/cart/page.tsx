@@ -45,15 +45,15 @@ export default function ViewCartPage() {
     }
   }, [lastAction, cartItems, discountPercentage]);
 
-  const handleRemoveItem = (id: number) => {
-    dispatch({ type: 'REMOVE_FROM_CART', id });
+  const handleRemoveItem = (id: number, selectedOptions?: { size?: string; color?: string }) => {
+    dispatch({ type: 'REMOVE_FROM_CART', id, selectedOptions });
   };
 
-  const handleUpdateQuantity = (id: number, quantity: number) => {
+  const handleUpdateQuantity = (id: number, quantity: number, selectedOptions?: { size?: string; color?: string }) => {
     if (quantity <= 0) {
-      dispatch({ type: 'REMOVE_FROM_CART', id });
+      dispatch({ type: 'REMOVE_FROM_CART', id, selectedOptions });
     } else {
-      dispatch({ type: 'UPDATE_QUANTITY', id, quantity });
+      dispatch({ type: 'UPDATE_QUANTITY', id, quantity, selectedOptions });
     }
   };
 
@@ -119,7 +119,7 @@ export default function ViewCartPage() {
               <div className="space-y-6">
                 {cartItems.map((item) => (
                   <motion.div
-                    key={item.id} /* Use only ID as key to prevent unnecessary re-renders */
+                    key={`${item.id}-${item.selectedOptions?.size || 'none'}-${item.selectedOptions?.color || 'none'}`} /* Use ID with size and color to uniquely identify variants */
                     variants={itemVariants}
                     initial="hidden" /* Initial state for animation */
                     animate="visible" /* Animate to visible state */
@@ -140,6 +140,12 @@ export default function ViewCartPage() {
                         <div className="flex-1 min-w-0">
                           <h3 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">{item.name}</h3>
                           <p className="mt-1 text-gray-500">৳{item.price.toFixed(2)}</p>
+                          {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
+                            <div className="mt-2 text-sm text-gray-600">
+                              {item.selectedOptions.size && <span>Size: {item.selectedOptions.size} </span>}
+                              {item.selectedOptions.color && <span>Color: {item.selectedOptions.color}</span>}
+                            </div>
+                          )}
                         </div>
                         <p className="text-lg sm:text-xl font-bold text-blue-600 self-end sm:self-auto">
                           ৳{(item.price * item.quantity).toFixed(2)}
@@ -147,24 +153,22 @@ export default function ViewCartPage() {
                       </div>
                       
                       <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
-                        <div className="flex items-center border border-gray-300 rounded-full w-fit">
-                          <button
-                            onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
-                            className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-l-full text-sm sm:text-base"
-                          >
-                            -
-                          </button>
-                          <span className="px-3 py-2 border-x border-gray-300 font-medium text-gray-900 text-sm sm:text-base">{item.quantity}</span>
-                          <button
-                            onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
-                            className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-r-full text-sm sm:text-base"
-                          >
-                            +
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => handleUpdateQuantity(item.id, item.quantity - 1, item.selectedOptions)}
+                          className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-l-full text-sm sm:text-base"
+                        >
+                          -
+                        </button>
+                        <span className="px-3 py-2 border-x border-gray-300 font-medium text-gray-900 text-sm sm:text-base">{item.quantity}</span>
+                        <button
+                          onClick={() => handleUpdateQuantity(item.id, item.quantity + 1, item.selectedOptions)}
+                          className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-r-full text-sm sm:text-base"
+                        >
+                          +
+                        </button>
                         
                         <button
-                          onClick={() => handleRemoveItem(item.id)}
+                          onClick={() => handleRemoveItem(item.id, item.selectedOptions)}
                           className="text-red-500 hover:text-red-700 transition-colors flex items-center gap-1 sm:gap-2 text-sm"
                         >
                           <FaTrashAlt /> <span>Remove</span>

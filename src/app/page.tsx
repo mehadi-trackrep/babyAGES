@@ -4,42 +4,61 @@ import { useAppContext } from '@/context/AppContext';
 import { Product } from '@/context/AppContext';
 import HeroSlider from '@/components/HeroSlider';
 import ProductCard from '@/components/ProductCard';
-import { getAllProducts } from '@/data/products';
 import FeatureSection from '@/components/FeatureSection';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-// Get featured products (first 4 from the database)
-const initialFeaturedProducts = getAllProducts().slice(0, 8);
-
 export default function Home() {
   const { dispatch } = useAppContext();
   const [sortOption, setSortOption] = useState('price-asc');
-  const [featuredProducts, setFeaturedProducts] = useState(initialFeaturedProducts);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const sortedProducts = [...initialFeaturedProducts];
-    switch (sortOption) {
-      case 'price-asc':
-        sortedProducts.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-desc':
-        sortedProducts.sort((a, b) => b.price - a.price);
-        break;
-      case 'name-asc':
-        sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case 'name-desc':
-        sortedProducts.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      case 'rating-desc':
-        sortedProducts.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-        break;
-      default:
-        break;
-    }
-    setFeaturedProducts(sortedProducts);
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        // Fetch products from the API route
+        const response = await fetch('/api/products');
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        const allProducts: Product[] = await response.json();
+        const initialFeaturedProducts = allProducts.slice(0, 8);
+        
+        // Apply initial sorting
+        const sortedProducts = [...initialFeaturedProducts];
+        switch (sortOption) {
+          case 'price-asc':
+            sortedProducts.sort((a, b) => a.price - b.price);
+            break;
+          case 'price-desc':
+            sortedProducts.sort((a, b) => b.price - a.price);
+            break;
+          case 'name-asc':
+            sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
+            break;
+          case 'name-desc':
+            sortedProducts.sort((a, b) => b.name.localeCompare(a.name));
+            break;
+          case 'rating-desc':
+            sortedProducts.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+            break;
+          default:
+            break;
+        }
+        setFeaturedProducts(sortedProducts);
+      } catch (error) {
+        console.error('Error fetching featured products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
   }, [sortOption]);
+
+  
 
   const handleAddToCart = (product: Product) => {
     dispatch({ type: 'ADD_TO_CART', product });
@@ -84,15 +103,42 @@ export default function Home() {
             </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {featuredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={handleAddToCart}
-                onAddToWishlist={handleAddToWishlist}
-                onQuickView={handleQuickView}
-              />
-            ))}
+            {loading ? (
+              // Loading state for featured products section - skeleton loader in the same grid layout
+              Array.from({ length: 4 }).map((_, index) => (
+                <div 
+                  key={index} 
+                  className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 animate-pulse"
+                >
+                  <div className="h-48 flex items-center justify-center p-4">
+                    <div className="text-gray-500">Loading...</div>
+                  </div>
+                  <div className="p-4">
+                    <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-3"></div>
+                    <div className="flex justify-between">
+                      <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+                      <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+                    </div>
+                    <div className="flex gap-3 mt-4">
+                      <div className="h-10 bg-gray-200 rounded flex-grow"></div>
+                      <div className="h-10 bg-gray-200 rounded w-10"></div>
+                      <div className="h-10 bg-gray-200 rounded w-10"></div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              featuredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={handleAddToCart}
+                  onAddToWishlist={handleAddToWishlist}
+                  onQuickView={handleQuickView}
+                />
+              ))
+            )}
           </div>
         </div>
       </section>

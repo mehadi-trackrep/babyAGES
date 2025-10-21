@@ -2,6 +2,11 @@
 
 import { createContext, useContext, useReducer, useEffect } from 'react';
 
+export interface ProductOption {
+  size?: string;
+  color?: string;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -11,6 +16,14 @@ export interface Product {
   rating: number;
   videos?: string[];
   category?: string;
+  subcategory?: string;
+  subtitle?: string;
+  savePercentage?: number;
+  sizes?: string[];
+  colors?: string[];
+  itemsLeft?: number;
+  commentsAndRatings?: { comment: string; rating: number }[];
+  selectedOptions?: ProductOption;
 }
 
 export interface CartItem extends Product {
@@ -32,8 +45,8 @@ interface State {
 type Action =
   | { type: 'ADD_TO_CART'; product: Product }
   | { type: 'ADD_TO_CART_WITH_QUANTITY'; product: Product; quantity: number }
-  | { type: 'REMOVE_FROM_CART'; id: number }
-  | { type: 'UPDATE_QUANTITY'; id: number; quantity: number }
+  | { type: 'REMOVE_FROM_CART'; id: number; selectedOptions?: { size?: string; color?: string } }
+  | { type: 'UPDATE_QUANTITY'; id: number; quantity: number; selectedOptions?: { size?: string; color?: string } }
   | { type: 'ADD_TO_WISHLIST'; product: Product }
   | { type: 'REMOVE_FROM_WISHLIST'; id: number }
   | { type: 'TOGGLE_CART'; isOpen?: boolean }
@@ -44,7 +57,8 @@ type Action =
   | { type: 'REPLACE_CART'; cartItems: CartItem[] }
   | { type: 'REPLACE_WISHLIST'; wishlistItems: Product[] }
   | { type: 'APPLY_COUPON'; couponCode: string }
-  | { type: 'REMOVE_COUPON' };
+  | { type: 'REMOVE_COUPON' }
+  | { type: 'CLEAR_CART' };
 
 const initialState: State = {
   cartItems: [],
@@ -69,12 +83,18 @@ const AppContext = createContext<{
 const appReducer = (state: State, action: Action): State => {
   switch (action.type) {
     case 'ADD_TO_CART': {
-      const existingItem = state.cartItems.find(item => item.id === action.product.id);
+      // Find an existing cart item that matches the product ID and selected options
+      const existingItem = state.cartItems.find(item => 
+        item.id === action.product.id && 
+        JSON.stringify(item.selectedOptions) === JSON.stringify(action.product.selectedOptions)
+      );
+      
       if (existingItem) {
         return {
           ...state,
           cartItems: state.cartItems.map(item =>
-            item.id === action.product.id
+            item.id === action.product.id && 
+            JSON.stringify(item.selectedOptions) === JSON.stringify(action.product.selectedOptions)
               ? { ...item, quantity: item.quantity + 1 }
               : item
           ),
@@ -90,12 +110,18 @@ const appReducer = (state: State, action: Action): State => {
     }
 
     case 'ADD_TO_CART_WITH_QUANTITY': {
-      const existingItem = state.cartItems.find(item => item.id === action.product.id);
+      // Find an existing cart item that matches the product ID and selected options
+      const existingItem = state.cartItems.find(item => 
+        item.id === action.product.id && 
+        JSON.stringify(item.selectedOptions) === JSON.stringify(action.product.selectedOptions)
+      );
+      
       if (existingItem) {
         return {
           ...state,
           cartItems: state.cartItems.map(item =>
-            item.id === action.product.id
+            item.id === action.product.id && 
+            JSON.stringify(item.selectedOptions) === JSON.stringify(action.product.selectedOptions)
               ? { ...item, quantity: item.quantity + action.quantity }
               : item
           ),
@@ -111,29 +137,69 @@ const appReducer = (state: State, action: Action): State => {
     }
 
     case 'REMOVE_FROM_CART':
-      return {
-        ...state,
-        cartItems: state.cartItems.filter(item => item.id !== action.id),
-      };
-
-    case 'UPDATE_QUANTITY':
-      if (action.quantity <= 0) {
+      if (action.selectedOptions) {
+        // Remove specific item with matching ID and options
+        return {
+          ...state,
+          cartItems: state.cartItems.filter(item => 
+            !(item.id === action.id && JSON.stringify(item.selectedOptions) === JSON.stringify(action.selectedOptions))
+          ),
+        };
+      } else {
+        // Remove all items with the matching ID (fallback behavior)
         return {
           ...state,
           cartItems: state.cartItems.filter(item => item.id !== action.id),
         };
       }
-      return {
-        ...state,
-        cartItems: state.cartItems.map(item =>
-          item.id === action.id ? { ...item, quantity: action.quantity } : item
-        ),
-      };
+
+    case 'UPDATE_QUANTITY':
+      if (action.quantity <= 0) {
+        if (action.selectedOptions) {
+          // Remove specific item with matching ID and options
+          return {
+            ...state,
+            cartItems: state.cartItems.filter(item => 
+              !(item.id === action.id && JSON.stringify(item.selectedOptions) === JSON.stringify(action.selectedOptions))
+            ),
+          };
+        } else {
+          // Remove all items with matching ID (fallback)
+          return {
+            ...state,
+            cartItems: state.cartItems.filter(item => item.id !== action.id),
+          };
+        }
+      }
+      
+      if (action.selectedOptions) {
+        // Update quantity for specific item with matching ID and options
+        return {
+          ...state,
+          cartItems: state.cartItems.map(item =>
+            item.id === action.id && JSON.stringify(item.selectedOptions) === JSON.stringify(action.selectedOptions)
+              ? { ...item, quantity: action.quantity }
+              : item
+          ),
+        };
+      } else {
+        // Update all items with matching ID (fallback)
+        return {
+          ...state,
+          cartItems: state.cartItems.map(item =>
+            item.id === action.id ? { ...item, quantity: action.quantity } : item
+          ),
+        };
+      }
 
     case 'ADD_TO_WISHLIST': {
-      const existingItem = state.wishlistItems.find(item => item.id === action.product.id);
+      // Check if this specific combination of product and options already exists in wishlist
+      const existingItem = state.wishlistItems.find(item => 
+        item.id === action.product.id && 
+        JSON.stringify(item.selectedOptions) === JSON.stringify(action.product.selectedOptions)
+      );
       if (existingItem) {
-        return state; // Item already in wishlist
+        return state; // Item with same options already in wishlist
       }
       return {
         ...state,
@@ -212,6 +278,13 @@ const appReducer = (state: State, action: Action): State => {
         ...state,
         couponCode: '',
         discountPercentage: 0,
+      };
+    }
+
+    case 'CLEAR_CART': {
+      return {
+        ...state,
+        cartItems: [],
       };
     }
 

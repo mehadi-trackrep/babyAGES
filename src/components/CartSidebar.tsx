@@ -7,8 +7,8 @@ interface CartSidebarProps {
   isOpen: boolean;
   onClose: () => void;
   cartItems: CartItem[];
-  onRemoveItem: (id: number) => void;
-  onUpdateQuantity: (id: number, quantity: number) => void;
+  onRemoveItem: (id: number, selectedOptions?: { size?: string; color?: string }) => void;
+  onUpdateQuantity: (id: number, quantity: number, selectedOptions?: { size?: string; color?: string }) => void;
   onCheckout: () => void;
   onViewCart: () => void;
 }
@@ -86,10 +86,16 @@ const CartSidebar = ({
                   <div className="flex-1">
                     <h3 className="font-medium">{item.name}</h3>
                     <p className="text-blue-600 font-semibold">৳{item.price.toFixed(2)}</p>
+                    {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
+                      <div className="mt-1 text-xs text-gray-600">
+                        {item.selectedOptions.size && <span>Size: {item.selectedOptions.size} </span>}
+                        {item.selectedOptions.color && <span>Color: {item.selectedOptions.color}</span>}
+                      </div>
+                    )}
                     
                     <div className="flex items-center mt-2">
                       <button 
-                        onClick={() => onUpdateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                        onClick={() => onUpdateQuantity(item.id, Math.max(1, item.quantity - 1), item.selectedOptions)}
                         className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-l"
                       >
                         -
@@ -98,14 +104,14 @@ const CartSidebar = ({
                         {item.quantity}
                       </span>
                       <button 
-                        onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => onUpdateQuantity(item.id, item.quantity + 1, item.selectedOptions)}
                         className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-r"
                       >
                         +
                       </button>
                       
                       <button 
-                        onClick={() => onRemoveItem(item.id)}
+                        onClick={() => onRemoveItem(item.id, item.selectedOptions)}
                         className="ml-4 text-red-500 hover:text-red-700"
                         aria-label="Remove item"
                       >
@@ -139,6 +145,19 @@ const CartSidebar = ({
                   Checkout
                   <FaArrowRight className="ml-2" />
                 </button>
+                
+                {cartItems.length > 0 && (
+                  <button
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to clear your entire cart?')) {
+                        cartItems.forEach(item => onRemoveItem(item.id));
+                      }
+                    }}
+                    className="w-full flex items-center justify-center bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-medium"
+                  >
+                    Clear Cart
+                  </button>
+                )}
               </div>
             </div>
           </>
