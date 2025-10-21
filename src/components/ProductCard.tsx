@@ -1,7 +1,8 @@
-import { FaShoppingCart, FaHeart, FaEye, FaStar, FaRegStar, FaStarHalfAlt } from 'react-icons/fa';
+import { FaShoppingCart, FaHeart, FaEye, FaStar, FaRegStar, FaStarHalfAlt, FaSpinner } from 'react-icons/fa';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Product } from '@/context/AppContext';
+import { useState } from 'react';
 
 interface ProductCardProps {
   product: Product;
@@ -16,6 +17,8 @@ const ProductCard = ({
   onAddToWishlist, 
   onQuickView 
 }: ProductCardProps) => {
+  const [isNavigating, setIsNavigating] = useState(false);
+  
   const handleAddToCart = () => {
     onAddToCart(product);
   };
@@ -26,6 +29,15 @@ const ProductCard = ({
 
   const handleQuickView = () => {
     onQuickView(product);
+  };
+
+  const handleViewDetails = () => {
+    setIsNavigating(true);
+    // The navigation is handled by the Link component, but we show the loading state
+    // and reset it after a short timeout to provide visual feedback
+    setTimeout(() => {
+      setIsNavigating(false);
+    }, 1000); // Reset loading after 1 second (or page navigation will prevent this)
   };
 
   return (
@@ -91,11 +103,18 @@ const ProductCard = ({
             <FaShoppingCart className="mr-2" />
             Add to Cart
           </button>
-          <Link href={`/product/${product.category?.toLowerCase().replace(/\s+/g, '-')}/${product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${product.id}`}>
+          <Link href={`/product/${product.category?.toLowerCase().replace(/\s+/g, '-')}/${product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${product.id}`} onClick={handleViewDetails}>
             <button
-              className="w-full bg-white border border-gray-300 text-gray-700 font-bold py-2.5 px-4 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors duration-300"
+              className="w-full bg-white border border-gray-300 text-gray-700 font-bold py-2.5 px-4 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors duration-300 disabled:opacity-50"
+              disabled={isNavigating}
             >
-              View Details
+              {isNavigating ? (
+                <>
+                  <FaSpinner className="animate-spin mr-2" /> Loading...
+                </>
+              ) : (
+                'View Details'
+              )}
             </button>
           </Link>
         </div>
