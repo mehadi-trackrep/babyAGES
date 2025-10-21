@@ -124,8 +124,13 @@ export default function OrderConfirmationContent() {
           <div className="text-left mb-8">
             <h3 className="text-xl font-bold text-gray-800 mb-4">Items Ordered</h3>
             <div className="space-y-4">
-              {orderData.items.map(item => (
-                <div key={item.id} className="flex items-start gap-4 p-4 bg-white rounded-lg border border-gray-200">
+              {orderData.items.map(item => {
+                // Create a unique key that includes product id, size, and color options
+                const uniqueKey = item.selectedOptions 
+                  ? `${item.id}-${item.selectedOptions.size || 'default'}-${item.selectedOptions.color || 'default'}` 
+                  : item.id;
+                return (
+                <div key={uniqueKey} className="flex items-start gap-4 p-4 bg-white rounded-lg border border-gray-200">
                   <Image src={item.images?.[0] || ''} alt={item.name} width={64} height={64} className="rounded-md object-cover mt-1" />
                   <div className="flex-grow">
                     <p className="font-semibold">{item.name}</p>
@@ -141,7 +146,7 @@ export default function OrderConfirmationContent() {
                     </div>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           </div>
 

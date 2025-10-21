@@ -89,8 +89,13 @@ const CartSidebar = ({
         ) : (
           <>
             <div className="flex-1 overflow-y-auto mb-6">
-              {cartItems.map((item) => (
-                <div key={item.id} className="flex items-center py-4 border-b border-gray-200">
+              {cartItems.map((item) => {
+                // Create a unique key that includes product id, size, and color options
+                const uniqueKey = item.selectedOptions 
+                  ? `${item.id}-${item.selectedOptions.size || 'default'}-${item.selectedOptions.color || 'default'}` 
+                  : item.id;
+                return (
+                <div key={uniqueKey} className="flex items-center py-4 border-b border-gray-200">
                   <div className="w-16 h-16 mr-4">
                     <Image 
                       src={item.images[0] || "/api/placeholder/80/80"} 
@@ -101,7 +106,7 @@ const CartSidebar = ({
                     />
                   </div>
                   <div className="flex-1">
-                    <Link href={`/product/${item.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${item.id}`} className="hover:underline">
+                    <Link href={`/product/${item.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^w-]/g, '')}-${item.id}`} className="hover:underline">
                       <h3 className="font-medium cursor-pointer">{item.name}</h3>
                     </Link>
                     <p className="text-blue-600 font-semibold">৳{item.price.toFixed(2)}</p>
@@ -139,7 +144,7 @@ const CartSidebar = ({
                     </div>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
 
             <div className="border-t border-gray-200 pt-4">

@@ -17,8 +17,12 @@ export default function ProductDetailPageContent({ product, relatedProducts }: P
   const { dispatch } = useAppContext();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
-  const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
+  const [selectedSize, setSelectedSize] = useState<string | undefined>(
+    product.sizes && product.sizes.length > 0 ? product.sizes[0] : undefined
+  );
+  const [selectedColor, setSelectedColor] = useState<string | undefined>(
+    product.colors && product.colors.length > 0 ? product.colors[0] : undefined
+  );
   // Use product's comments and ratings if available, otherwise use mock data
   const initialReviews = product.commentsAndRatings && product.commentsAndRatings.length > 0 
     ? product.commentsAndRatings.map((review, index) => ({

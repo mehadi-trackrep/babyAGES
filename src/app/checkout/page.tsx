@@ -237,8 +237,13 @@ export default function CheckoutPage() {
             <div className="bg-white rounded-2xl shadow-lg p-8 sticky top-24">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Order Summary</h2>
               <div className="space-y-4">
-                {cartItems.map(item => (
-                  <div key={item.id} className="flex justify-between items-start">
+                {cartItems.map(item => {
+                  // Create a unique key that includes product id, size, and color options
+                  const uniqueKey = item.selectedOptions 
+                    ? `${item.id}-${item.selectedOptions.size || 'default'}-${item.selectedOptions.color || 'default'}` 
+                    : item.id;
+                  return (
+                  <div key={uniqueKey} className="flex justify-between items-start">
                     <div className="flex items-start gap-4">
                       <Image src={item.images?.[0] || ''} alt={item.name} width={64} height={64} className="w-16 h-16 rounded-lg object-cover mt-1" />
                       <div>
@@ -256,7 +261,7 @@ export default function CheckoutPage() {
                     </div>
                     <p className="font-semibold mt-1">৳{(item.price * item.quantity).toFixed(2)}</p>
                   </div>
-                ))}
+                )})}
               </div>
               <div className="border-t border-gray-200 pt-4 mt-6 space-y-2">
                 <div className="flex justify-between">
