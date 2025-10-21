@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaUser, FaCreditCard, FaCheckCircle } from 'react-icons/fa';
 import Image from 'next/image';
+import Link from 'next/link';
 import TermsAndConditionsPopup from '@/components/TermsAndConditionsPopup';
 
 interface FormData {
@@ -143,7 +144,9 @@ export default function CheckoutPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl font-extrabold text-gray-900">Checkout</h1>
+          <Link href="/" className="inline-block hover:underline">
+            <h1 className="text-4xl font-extrabold text-gray-900">Checkout</h1>
+          </Link>
           <p className="mt-2 text-lg text-gray-600">Complete your purchase in a few simple steps.</p>
         </motion.div>
 
@@ -239,7 +242,9 @@ export default function CheckoutPage() {
                     <div className="flex items-start gap-4">
                       <Image src={item.images?.[0] || ''} alt={item.name} width={64} height={64} className="w-16 h-16 rounded-lg object-cover mt-1" />
                       <div>
-                        <p className="font-semibold">{item.name}</p>
+                        <Link href={`/product/${item.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${item.id}`} className="hover:underline">
+                          <p className="font-semibold cursor-pointer">{item.name}</p>
+                        </Link>
                         <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                         {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
                           <div className="mt-1 text-xs text-gray-600">

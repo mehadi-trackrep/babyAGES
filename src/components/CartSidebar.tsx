@@ -1,5 +1,6 @@
 import { FaTimes, FaTrash, FaShoppingCart, FaArrowRight, FaBroom } from 'react-icons/fa';
 import Image from 'next/image';
+import Link from 'next/link';
 import { CartItem } from '@/context/AppContext';
 import { useEffect, useRef } from 'react';
 
@@ -100,7 +101,9 @@ const CartSidebar = ({
                     />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-medium">{item.name}</h3>
+                    <Link href={`/product/${item.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${item.id}`} className="hover:underline">
+                      <h3 className="font-medium cursor-pointer">{item.name}</h3>
+                    </Link>
                     <p className="text-blue-600 font-semibold">৳{item.price.toFixed(2)}</p>
                     {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
                       <div className="mt-1 text-xs text-gray-600">

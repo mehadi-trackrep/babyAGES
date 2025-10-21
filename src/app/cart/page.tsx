@@ -87,7 +87,9 @@ export default function ViewCartPage() {
           transition={{ duration: 0.5 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl font-extrabold text-gray-900">Your Shopping Cart</h1>
+          <Link href="/" className="inline-block hover:underline">
+            <h1 className="text-4xl font-extrabold text-gray-900">Your Shopping Cart</h1>
+          </Link>
           <p className="mt-2 text-lg text-gray-600">Review your items and proceed to checkout.</p>
         </motion.div>
 
@@ -153,7 +155,9 @@ export default function ViewCartPage() {
                     <div className="flex-1 w-full min-w-0 text-gray-900"> {/* min-w-0 allows flex child to shrink below content size, text-gray-900 ensures text visibility */}
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">{item.name}</h3>
+                          <Link href={`/product/${item.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${item.id}`} className="hover:underline">
+                            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 truncate cursor-pointer">{item.name}</h3>
+                          </Link>
                           <p className="mt-1 text-gray-500">৳{item.price.toFixed(2)}</p>
                           {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
                             <div className="mt-2 text-sm text-gray-600">
