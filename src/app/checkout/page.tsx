@@ -41,6 +41,7 @@ export default function CheckoutPage() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [contactError, setContactError] = useState<string | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const discountAmount = subtotal * (discountPercentage || 0);
@@ -93,6 +94,13 @@ export default function CheckoutPage() {
     return true;
   };
 
+  // Email validation function
+  const validateEmail = (email: string): boolean => {
+    // Basic email regex pattern
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
@@ -109,6 +117,13 @@ export default function CheckoutPage() {
         setAddressError('Address must be at least 25 characters and contain at least 3 words');
       } else {
         setAddressError(null);
+      }
+    } else if (name === 'email') {
+      // Only validate if email is not empty
+      if (value !== '' && !validateEmail(value)) {
+        setEmailError('Please enter a valid email address');
+      } else {
+        setEmailError(null);
       }
     }
     
@@ -131,6 +146,12 @@ export default function CheckoutPage() {
     // Validate address before allowing next step
     if (!validateAddress(formData.address)) {
       setAddressError('Address must be at least 25 characters and contain at least 3 words');
+      return;
+    }
+    
+    // Validate email if provided
+    if (formData.email && formData.email !== '' && !validateEmail(formData.email)) {
+      setEmailError('Please enter a valid email address');
       return;
     }
 
@@ -267,7 +288,7 @@ export default function CheckoutPage() {
                 exit="exit"
                 transition={{ duration: 0.3 }}
               >
-                {currentStep === 0 && <ShippingStep formData={formData} handleChange={handleChange} contactError={contactError} addressError={addressError} />}
+                {currentStep === 0 && <ShippingStep formData={formData} handleChange={handleChange} contactError={contactError} addressError={addressError} emailError={emailError} />}
                 {currentStep === 1 && <PaymentStep formData={formData} handleChange={handleChange} />}
                 {currentStep === 2 && <ConfirmationStep 
                   formData={formData} 
@@ -378,7 +399,7 @@ export default function CheckoutPage() {
 }
 
 // Step Components
-const ShippingStep = ({ formData, handleChange, contactError, addressError }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void, contactError: string | null, addressError: string | null }) => (
+const ShippingStep = ({ formData, handleChange, contactError, addressError, emailError }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void, contactError: string | null, addressError: string | null, emailError: string | null }) => (
   <div>
     <h2 className="text-2xl font-bold text-gray-800 mb-6">Shipping Information</h2>
     <form id="shipping-form" className="space-y-6">
@@ -388,7 +409,16 @@ const ShippingStep = ({ formData, handleChange, contactError, addressError }: { 
       </div>
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email (Optional)</label>
-        <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="you@example.com" />
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          value={formData.email} 
+          onChange={handleChange} 
+          className={`w-full px-4 py-3 border ${emailError ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`} 
+          placeholder="you@example.com" 
+        />
+        {emailError && <p className="mt-1 text-sm text-red-600">{emailError}</p>}
       </div>
       <div>
         <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-1">Contact Number <span className="text-red-500">*</span></label>

@@ -19,6 +19,7 @@ interface OrderItem {
 
 interface OrderCustomer {
   name: string;
+  email?: string;
   contact: string;
   address: string;
   deliveryMethod: string;
@@ -45,6 +46,7 @@ export async function POST(request: NextRequest) {
     const sheetData = [
       orderData.orderId,
       orderData.customer.name,
+      orderData.customer.email || '', // Add email field (optional)
       orderData.customer.contact,
       orderData.customer.address,
       orderData.customer.deliveryMethod,
