@@ -18,7 +18,7 @@ export interface Product {
   category?: string;
   subcategory?: string;
   subtitle?: string;
-  savePercentage?: number;
+  discountAmount?: number;
   sizes?: string[];
   colors?: string[];
   itemsLeft?: number;

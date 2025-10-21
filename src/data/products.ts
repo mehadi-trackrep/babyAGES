@@ -12,7 +12,7 @@ export interface Product {
   videos?: string[]; // Optional array of video links
   subcategory?: string;
   subtitle?: string;
-  savePercentage?: number;
+  discountAmount?: number;
   sizes?: string[];
   colors?: string[];
   itemsLeft?: number;
@@ -95,7 +95,7 @@ export const fetchProductsFromSheet = async (): Promise<Product[]> => {
             : undefined,
           subcategory: (rowData['subcategory'] as string) || undefined,
           subtitle: (rowData['subtitle'] as string) || undefined,
-          savePercentage: parseFloat(rowData['save'] as string) || undefined,
+          discountAmount: parseFloat(rowData['discountAmount'] as string) || undefined,
           sizes: (rowData['sizes'] as string)
             ? (rowData['sizes'] as string).split(',').map(size => size.trim())
             : undefined,

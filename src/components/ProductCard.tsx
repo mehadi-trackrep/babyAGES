@@ -76,23 +76,40 @@ const ProductCard = ({
         </Link>
         <p className="text-gray-600 text-sm mb-3 line-clamp-2 h-10">{product.description}</p>
         
-        <div className="flex justify-between items-center mb-4">
-          <span className="text-2xl font-extrabold text-indigo-600">৳{product.price.toFixed(2)}</span>
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => {
-              const rating = product.rating || 0;
-              const fullStars = Math.floor(rating);
-              const hasHalfStar = rating % 1 >= 0.5;
-              
-              if (i < fullStars) {
-                return <FaStar key={i} className="text-yellow-400" />;
-              } else if (i === fullStars && hasHalfStar) {
-                return <FaStarHalfAlt key={`half-${i}`} className="text-yellow-400" />;
-              } else {
-                return <FaRegStar key={`empty-${i}`} className="text-gray-300" />;
-              }
-            })}
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            {product.discountAmount && product.discountAmount > 0 ? (
+              <div className="flex items-center">
+                <span className="text-2xl font-bold text-indigo-600">৳{(product.price - product.discountAmount).toFixed(2)}</span>
+                <span className="ml-2 text-sm text-gray-500 line-through">৳{product.price.toFixed(2)}</span>
+              </div>
+            ) : (
+              <span className="text-2xl font-bold text-indigo-600">৳{product.price.toFixed(2)}</span>
+            )}
+            <div className="flex items-center">
+              {[...Array(5)].map((_, i) => {
+                const rating = product.rating || 0;
+                const fullStars = Math.floor(rating);
+                const hasHalfStar = rating % 1 >= 0.5;
+                
+                if (i < fullStars) {
+                  return <FaStar key={i} className="text-yellow-400" />;
+                } else if (i === fullStars && hasHalfStar) {
+                  return <FaStarHalfAlt key={`half-${i}`} className="text-yellow-400" />;
+                } else {
+                  return <FaRegStar key={`empty-${i}`} className="text-gray-300" />;
+                }
+              })}
+            </div>
           </div>
+          {product.discountAmount && product.discountAmount > 0 && (
+            <div className="flex justify-between items-center mt-2">
+              <span className="text-xs text-red-600 font-medium bg-red-100 px-2 py-1 rounded">Save ৳{product.discountAmount}</span>
+              <span className="text-xs font-bold text-red-700 bg-red-200 px-2 py-1 rounded">
+                {((product.discountAmount / product.price) * 100).toFixed(0)}% OFF
+              </span>
+            </div>
+          )}
         </div>
         
         <div className="flex flex-col gap-2">

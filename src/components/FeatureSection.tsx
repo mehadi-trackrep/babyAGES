@@ -29,10 +29,7 @@ export default function FeatureSection() {
     <div className="bg-white py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl lg:text-center">
-          <h2 className="text-base font-semibold leading-7 text-indigo-600">Our Promise</h2>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            Everything you need for your little one
-          </p>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl text-indigo-600">How It Works</h2>
           <p className="mt-6 text-lg leading-8 text-gray-600">
             We provide the best products for your baby, with a focus on quality, safety, and convenience.
           </p>

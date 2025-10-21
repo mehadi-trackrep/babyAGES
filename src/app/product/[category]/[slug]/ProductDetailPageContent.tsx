@@ -243,14 +243,21 @@ export default function ProductDetailPageContent({ product, relatedProducts }: P
               </div>
 
               <div className="flex items-center mb-6">
-                {product.savePercentage && product.savePercentage > 0 ? (
-                  <>
-                    <div className="text-3xl font-bold text-indigo-600 mr-4">৳{(product.price * (1 - product.savePercentage / 100)).toFixed(2)}</div>
-                    <div className="text-xl text-gray-500 line-through">৳{product.price.toFixed(2)}</div>
-                    <div className="ml-4 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
-                      Save {product.savePercentage}%
+                {product.discountAmount && product.discountAmount > 0 ? (
+                  <div className="flex flex-col">
+                    <div className="flex items-center">
+                      <div className="text-3xl font-bold text-indigo-600">৳{(product.price - product.discountAmount).toFixed(2)}</div>
+                      <div className="ml-4 text-xl text-gray-500 line-through">৳{product.price.toFixed(2)}</div>
                     </div>
-                  </>
+                    <div className="flex items-center mt-2">
+                      <div className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium mr-2">
+                        Save ৳{product.discountAmount}
+                      </div>
+                      <div className="px-3 py-1 bg-red-200 text-red-700 rounded-full text-sm font-bold">
+                        {((product.discountAmount / product.price) * 100).toFixed(0)}% OFF
+                      </div>
+                    </div>
+                  </div>
                 ) : (
                   <div className="text-3xl font-bold text-indigo-600">৳{product.price.toFixed(2)}</div>
                 )}
@@ -535,14 +542,21 @@ export default function ProductDetailPageContent({ product, relatedProducts }: P
                           {relatedProduct.subtitle && (
                             <p className="text-sm text-gray-600 truncate">{relatedProduct.subtitle}</p>
                           )}
-                          <div className="flex items-center mt-2">
-                            {relatedProduct.savePercentage && relatedProduct.savePercentage > 0 ? (
+                          <div className="flex flex-col">
+                            {relatedProduct.discountAmount && relatedProduct.discountAmount > 0 ? (
                               <>
-                                <span className="text-indigo-600 font-bold">৳{(relatedProduct.price * (1 - relatedProduct.savePercentage / 100)).toFixed(2)}</span>
-                                <span className="ml-2 text-sm text-gray-500 line-through">৳{relatedProduct.price.toFixed(2)}</span>
-                                <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs">
-                                  -{relatedProduct.savePercentage}%
-                                </span>
+                                <div className="flex items-center">
+                                  <span className="text-indigo-600 font-bold">৳{(relatedProduct.price - relatedProduct.discountAmount).toFixed(2)}</span>
+                                  <span className="ml-2 text-sm text-gray-500 line-through">৳{relatedProduct.price.toFixed(2)}</span>
+                                </div>
+                                <div className="flex items-center mt-1">
+                                  <span className="text-xs text-red-600 font-medium bg-red-100 px-2 py-0.5 rounded mr-1">
+                                    Save ৳{relatedProduct.discountAmount}
+                                  </span>
+                                  <span className="text-xs font-bold text-red-700 bg-red-200 px-2 py-0.5 rounded">
+                                    {((relatedProduct.discountAmount / relatedProduct.price) * 100).toFixed(0)}% OFF
+                                  </span>
+                                </div>
                               </>
                             ) : (
                               <span className="text-indigo-600 font-bold">৳{relatedProduct.price.toFixed(2)}</span>
