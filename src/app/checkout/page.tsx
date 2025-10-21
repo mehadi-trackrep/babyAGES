@@ -40,6 +40,7 @@ export default function CheckoutPage() {
   const [isTermsAccepted, setIsTermsAccepted] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [contactError, setContactError] = useState<string | null>(null);
+  const [addressError, setAddressError] = useState<string | null>(null);
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const discountAmount = subtotal * (discountPercentage || 0);
@@ -76,6 +77,22 @@ export default function CheckoutPage() {
     return false;
   };
 
+  // Address validation function
+  const validateAddress = (address: string): boolean => {
+    // Check if address is at least 25 characters
+    if (address.length < 25) {
+      return false;
+    }
+    
+    // Count the number of words (split by spaces, tabs, or newlines)
+    const words = address.trim().split(/\s+/).filter(word => word.length > 0);
+    if (words.length < 3) {
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
@@ -85,6 +102,13 @@ export default function CheckoutPage() {
         setContactError('Please enter a valid Bangladesh mobile number (e.g., +880 1XXX-XXXXXX, 01XXX-XXXXXX, or 1XXX-XXXXXX)');
       } else {
         setContactError(null);
+      }
+    } else if (name === 'address') {
+      const isValid = validateAddress(value);
+      if (!isValid && value !== '') {
+        setAddressError('Address must be at least 25 characters and contain at least 3 words');
+      } else {
+        setAddressError(null);
       }
     }
     
@@ -101,6 +125,12 @@ export default function CheckoutPage() {
     // Validate contact number before allowing next step
     if (!validateBangladeshMobile(formData.contact)) {
       setContactError('Please enter a valid Bangladesh mobile number (e.g., +880 1XXX-XXXXXX, 01XXX-XXXXXX, or 1XXX-XXXXXX)');
+      return;
+    }
+    
+    // Validate address before allowing next step
+    if (!validateAddress(formData.address)) {
+      setAddressError('Address must be at least 25 characters and contain at least 3 words');
       return;
     }
 
@@ -237,7 +267,7 @@ export default function CheckoutPage() {
                 exit="exit"
                 transition={{ duration: 0.3 }}
               >
-                {currentStep === 0 && <ShippingStep formData={formData} handleChange={handleChange} contactError={contactError} />}
+                {currentStep === 0 && <ShippingStep formData={formData} handleChange={handleChange} contactError={contactError} addressError={addressError} />}
                 {currentStep === 1 && <PaymentStep formData={formData} handleChange={handleChange} />}
                 {currentStep === 2 && <ConfirmationStep 
                   formData={formData} 
@@ -348,7 +378,7 @@ export default function CheckoutPage() {
 }
 
 // Step Components
-const ShippingStep = ({ formData, handleChange, contactError }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void, contactError: string | null }) => (
+const ShippingStep = ({ formData, handleChange, contactError, addressError }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void, contactError: string | null, addressError: string | null }) => (
   <div>
     <h2 className="text-2xl font-bold text-gray-800 mb-6">Shipping Information</h2>
     <form id="shipping-form" className="space-y-6">
@@ -367,7 +397,17 @@ const ShippingStep = ({ formData, handleChange, contactError }: { formData: Form
       </div>
       <div>
         <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">Delivery Address <span className="text-red-500">*</span></label>
-        <textarea id="address" name="address" value={formData.address} onChange={handleChange} required rows={3} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="123 Main St, City, Country" />
+        <textarea 
+          id="address" 
+          name="address" 
+          value={formData.address} 
+          onChange={handleChange} 
+          required 
+          rows={3} 
+          className={`w-full px-4 py-3 border ${addressError ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`} 
+          placeholder="123 Main St, City, Country" 
+        />
+        {addressError && <p className="mt-1 text-sm text-red-600">{addressError}</p>}
       </div>
     </form>
   </div>
