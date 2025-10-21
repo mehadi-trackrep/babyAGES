@@ -39,13 +39,55 @@ export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isTermsAccepted, setIsTermsAccepted] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [contactError, setContactError] = useState<string | null>(null);
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const discountAmount = subtotal * (discountPercentage || 0);
   const grandTotal = subtotal - discountAmount;
 
+  // Bangladesh mobile number validation function
+  const validateBangladeshMobile = (contact: string): boolean => {
+    // Remove any spaces, hyphens, or parentheses
+    const cleanedContact = contact.replace(/[\s\-\(\)]/g, '');
+    
+    // Check if it starts with +880 and has 11 digits after (+880)
+    if (cleanedContact.startsWith('+880') && cleanedContact.length === 14) {
+      const number = cleanedContact.substring(4); // Remove +880 prefix
+      // Check if it's a valid Bangladeshi number pattern
+      return /^(1[3-9]\d{8}|7\d{8}|8\d{8}|9\d{8})$/.test(number);
+    }
+    
+    // Check if it starts with 880 and has 13 digits
+    if (cleanedContact.startsWith('880') && cleanedContact.length === 13) {
+      const number = cleanedContact.substring(3); // Remove 880 prefix
+      return /^(1[3-9]\d{8}|7\d{8}|8\d{8}|9\d{8})$/.test(number);
+    }
+    
+    // Check if it's a 11 digit number starting with 01 (no country code)
+    if (cleanedContact.startsWith('01') && cleanedContact.length === 11) {
+      return /^(01[3-9]\d{8})$/.test(cleanedContact);
+    }
+    
+    // Check if it's just the number without country code (11 digits starting with 1[3-9])
+    if (cleanedContact.length === 10 && /^1[3-9]\d{8}$/.test(cleanedContact)) {
+      return true;
+    }
+    
+    return false;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    
+    if (name === 'contact') {
+      const isValid = validateBangladeshMobile(value);
+      if (!isValid && value !== '') {
+        setContactError('Please enter a valid Bangladesh mobile number (e.g., +880 1XXX-XXXXXX, 01XXX-XXXXXX, or 1XXX-XXXXXX)');
+      } else {
+        setContactError(null);
+      }
+    }
+    
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
@@ -53,6 +95,12 @@ export default function CheckoutPage() {
     const form = document.getElementById('shipping-form') as HTMLFormElement;
     if (form && !form.checkValidity()) {
       form.reportValidity();
+      return;
+    }
+    
+    // Validate contact number before allowing next step
+    if (!validateBangladeshMobile(formData.contact)) {
+      setContactError('Please enter a valid Bangladesh mobile number (e.g., +880 1XXX-XXXXXX, 01XXX-XXXXXX, or 1XXX-XXXXXX)');
       return;
     }
 
@@ -189,7 +237,7 @@ export default function CheckoutPage() {
                 exit="exit"
                 transition={{ duration: 0.3 }}
               >
-                {currentStep === 0 && <ShippingStep formData={formData} handleChange={handleChange} />}
+                {currentStep === 0 && <ShippingStep formData={formData} handleChange={handleChange} contactError={contactError} />}
                 {currentStep === 1 && <PaymentStep formData={formData} handleChange={handleChange} />}
                 {currentStep === 2 && <ConfirmationStep 
                   formData={formData} 
@@ -300,7 +348,7 @@ export default function CheckoutPage() {
 }
 
 // Step Components
-const ShippingStep = ({ formData, handleChange }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void }) => (
+const ShippingStep = ({ formData, handleChange, contactError }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void, contactError: string | null }) => (
   <div>
     <h2 className="text-2xl font-bold text-gray-800 mb-6">Shipping Information</h2>
     <form id="shipping-form" className="space-y-6">
@@ -314,7 +362,8 @@ const ShippingStep = ({ formData, handleChange }: { formData: FormData, handleCh
       </div>
       <div>
         <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-1">Contact Number <span className="text-red-500">*</span></label>
-        <input type="tel" id="contact" name="contact" value={formData.contact} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="(+880) 1330-414242" />
+        <input type="tel" id="contact" name="contact" value={formData.contact} onChange={handleChange} required className={`w-full px-4 py-3 border ${contactError ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`} placeholder="(+880) 1330-414242" />
+        {contactError && <p className="mt-1 text-sm text-red-600">{contactError}</p>}
       </div>
       <div>
         <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">Delivery Address <span className="text-red-500">*</span></label>
