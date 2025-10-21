@@ -95,56 +95,57 @@ const CartSidebar = ({
                   ? `${item.id}-${item.selectedOptions.size || 'default'}-${item.selectedOptions.color || 'default'}` 
                   : item.id;
                 return (
-                <div key={uniqueKey} className="flex items-center py-4 border-b border-gray-200">
-                  <div className="w-16 h-16 mr-4">
-                    <Image 
-                      src={item.images[0] || "/api/placeholder/80/80"} 
-                      alt={item.name} 
-                      width={64}
-                      height={64}
-                      className="object-contain"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <Link href={`/product/${item.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^w-]/g, '')}-${item.id}`} className="hover:underline">
-                      <h3 className="font-medium cursor-pointer">{item.name}</h3>
-                    </Link>
-                    <p className="text-blue-600 font-semibold">৳{item.price.toFixed(2)}</p>
-                    {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
-                      <div className="mt-1 text-xs text-gray-600">
-                        {item.selectedOptions.size && <span>Size: {item.selectedOptions.size} </span>}
-                        {item.selectedOptions.color && <span>Color: {item.selectedOptions.color}</span>}
-                      </div>
-                    )}
-                    
-                    <div className="flex items-center mt-2">
-                      <button 
-                        onClick={() => onUpdateQuantity(item.id, Math.max(1, item.quantity - 1), item.selectedOptions)}
-                        className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-l"
-                      >
-                        -
-                      </button>
-                      <span className="w-10 h-8 flex items-center justify-center border-t border-b border-gray-300">
-                        {item.quantity}
-                      </span>
-                      <button 
-                        onClick={() => onUpdateQuantity(item.id, item.quantity + 1, item.selectedOptions)}
-                        className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-r"
-                      >
-                        +
-                      </button>
+                  <div key={uniqueKey} className="flex items-center py-4 border-b border-gray-200">
+                    <div className="w-16 h-16 mr-4">
+                      <Image 
+                        src={item.images[0] || "/api/placeholder/80/80"} 
+                        alt={item.name} 
+                        width={64}
+                        height={64}
+                        className="object-contain"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Link href={`/product/${item.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^w-]/g, '')}-${item.id}`} className="hover:underline">
+                        <h3 className="font-medium cursor-pointer">{item.name}</h3>
+                      </Link>
+                      <p className="text-blue-600 font-semibold">৳{item.price.toFixed(2)}</p>
+                      {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
+                        <div className="mt-1 text-xs text-gray-600">
+                          {item.selectedOptions.size && <span>Size: {item.selectedOptions.size} </span>}
+                          {item.selectedOptions.color && <span>Color: {item.selectedOptions.color}</span>}
+                        </div>
+                      )}
                       
-                      <button 
-                        onClick={() => onRemoveItem(item.id, item.selectedOptions)}
-                        className="ml-4 text-red-500 hover:text-red-700"
-                        aria-label="Remove item"
-                      >
-                        <FaTrash />
-                      </button>
+                      <div className="flex items-center mt-2">
+                        <button 
+                          onClick={() => onUpdateQuantity(item.id, Math.max(1, item.quantity - 1), item.selectedOptions)}
+                          className="w-8 h-8 flex items-center justify-center text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 text-lg font-medium rounded-l-md"
+                        >
+                          -
+                        </button>
+                        <span className="w-10 h-8 flex items-center justify-center border-x border-gray-300 bg-white font-medium">
+                          {item.quantity}
+                        </span>
+                        <button 
+                          onClick={() => onUpdateQuantity(item.id, item.quantity + 1, item.selectedOptions)}
+                          className="w-8 h-8 flex items-center justify-center text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 text-lg font-medium rounded-r-md"
+                        >
+                          +
+                        </button>
+                        
+                        <button 
+                          onClick={() => onRemoveItem(item.id, item.selectedOptions)}
+                          className="ml-4 text-red-500 hover:text-red-700"
+                          aria-label="Remove item"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )})}
+                );
+              })}
             </div>
 
             <div className="border-t border-gray-200 pt-4">

@@ -130,23 +130,34 @@ export default function OrderConfirmationContent() {
                   ? `${item.id}-${item.selectedOptions.size || 'default'}-${item.selectedOptions.color || 'default'}` 
                   : item.id;
                 return (
-                <div key={uniqueKey} className="flex items-start gap-4 p-4 bg-white rounded-lg border border-gray-200">
-                  <Image src={item.images?.[0] || ''} alt={item.name} width={64} height={64} className="rounded-md object-cover mt-1" />
-                  <div className="flex-grow">
-                    <p className="font-semibold">{item.name}</p>
-                    {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
-                      <div className="mt-1 text-sm text-gray-600">
-                        {item.selectedOptions.size && <span>Size: {item.selectedOptions.size} </span>}
-                        {item.selectedOptions.color && <span>Color: {item.selectedOptions.color}</span>}
+                  <div key={uniqueKey} className="flex items-center py-4 border-b border-gray-200">
+                    <div className="w-16 h-16 flex-shrink-0">
+                      <Image 
+                        src={item.images?.[0] || ''} 
+                        alt={item.name} 
+                        width={64} 
+                        height={64} 
+                        className="object-contain w-full h-full" 
+                      />
+                    </div>
+                    <div className="ml-4 flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900">{item.name}</p>
+                      <div className="mt-1 flex items-center gap-2">
+                        <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                        <p className="font-semibold text-blue-600">
+                          ৳{(item.price * item.quantity).toFixed(2)}
+                        </p>
                       </div>
-                    )}
-                    <div className="flex justify-between items-center">
-                      <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                      <p className="font-semibold text-right">৳{(item.price * item.quantity).toFixed(2)}</p>
+                      {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
+                        <div className="mt-1 text-xs text-gray-600">
+                          {item.selectedOptions.size && <span>Size: {item.selectedOptions.size} </span>}
+                          {item.selectedOptions.color && <span>Color: {item.selectedOptions.color}</span>}
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-              )})}
+                );
+              })}
             </div>
           </div>
 

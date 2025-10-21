@@ -140,58 +140,57 @@ export default function ViewCartPage() {
                     variants={itemVariants}
                     initial="hidden" /* Initial state for animation */
                     animate="visible" /* Animate to visible state */
-                    className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 border-b border-gray-200 pb-4 sm:pb-6"
+                    className="flex items-center py-4 border-b border-gray-200"
                   >
-                    <div className="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0">
+                    <div className="w-16 h-16 flex-shrink-0">
                       <Image 
-                        src={item.images?.[0] || "/api/placeholder/128/128"} 
+                        src={item.images?.[0] || "/api/placeholder/80/80"} 
                         alt={item.name} 
-                        width={128}
-                        height={128}
-                        className="object-cover rounded-lg shadow-md w-full h-full"
+                        width={64}
+                        height={64}
+                        className="object-contain w-full h-full"
                       />
                     </div>
                     
-                    <div className="flex-1 w-full min-w-0 text-gray-900"> {/* min-w-0 allows flex child to shrink below content size, text-gray-900 ensures text visibility */}
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
-                        <div className="flex-1 min-w-0">
-                          <Link href={`/product/${item.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${item.id}`} className="hover:underline">
-                            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 truncate cursor-pointer">{item.name}</h3>
-                          </Link>
-                          <p className="mt-1 text-gray-500">৳{item.price.toFixed(2)}</p>
-                          {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
-                            <div className="mt-2 text-sm text-gray-600">
-                              {item.selectedOptions.size && <span>Size: {item.selectedOptions.size} </span>}
-                              {item.selectedOptions.color && <span>Color: {item.selectedOptions.color}</span>}
-                            </div>
-                          )}
+                    <div className="flex-1 min-w-0 ml-4">
+                      <Link href={`/product/${item.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${item.id}`} className="hover:underline block">
+                        <h3 className="font-medium text-gray-900 truncate">{item.name}</h3>
+                      </Link>
+                      <p className="text-blue-600 font-semibold mt-1">৳{item.price.toFixed(2)}</p>
+                      {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
+                        <div className="mt-1 text-xs text-gray-600">
+                          {item.selectedOptions.size && <span>Size: {item.selectedOptions.size} </span>}
+                          {item.selectedOptions.color && <span>Color: {item.selectedOptions.color}</span>}
                         </div>
-                        <p className="text-lg sm:text-xl font-bold text-blue-600 self-end sm:self-auto">
-                          ৳{(item.price * item.quantity).toFixed(2)}
-                        </p>
-                      </div>
+                      )}
                       
-                      <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
+                      <div className="flex items-center mt-2">
                         <button
                           onClick={() => handleUpdateQuantity(item.id, item.quantity - 1, item.selectedOptions)}
-                          className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-l-full text-sm sm:text-base"
+                          className="w-8 h-8 flex items-center justify-center text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 text-lg font-medium rounded-l-md"
                         >
                           -
                         </button>
-                        <span className="px-3 py-2 border-x border-gray-300 font-medium text-gray-900 text-sm sm:text-base">{item.quantity}</span>
+                        <span className="w-10 h-8 flex items-center justify-center border-x border-gray-300 bg-white font-medium">
+                          {item.quantity}
+                        </span>
                         <button
                           onClick={() => handleUpdateQuantity(item.id, item.quantity + 1, item.selectedOptions)}
-                          className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-r-full text-sm sm:text-base"
+                          className="w-8 h-8 flex items-center justify-center text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 text-lg font-medium rounded-r-md"
                         >
                           +
                         </button>
                         
                         <button
                           onClick={() => handleRemoveItem(item.id, item.selectedOptions)}
-                          className="text-red-500 hover:text-red-700 transition-colors flex items-center gap-1 sm:gap-2 text-sm"
+                          className="ml-4 text-red-500 hover:text-red-700"
                         >
-                          <FaTrashAlt /> <span>Remove</span>
+                          <FaTrashAlt />
                         </button>
+                        
+                        <p className="ml-auto font-bold text-blue-600">
+                          ৳{(item.price * item.quantity).toFixed(2)}
+                        </p>
                       </div>
                     </div>
                   </motion.div>

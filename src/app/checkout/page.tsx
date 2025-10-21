@@ -243,14 +243,26 @@ export default function CheckoutPage() {
                     ? `${item.id}-${item.selectedOptions.size || 'default'}-${item.selectedOptions.color || 'default'}` 
                     : item.id;
                   return (
-                  <div key={uniqueKey} className="flex justify-between items-start">
-                    <div className="flex items-start gap-4">
-                      <Image src={item.images?.[0] || ''} alt={item.name} width={64} height={64} className="w-16 h-16 rounded-lg object-cover mt-1" />
-                      <div>
-                        <Link href={`/product/${item.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${item.id}`} className="hover:underline">
-                          <p className="font-semibold cursor-pointer">{item.name}</p>
+                    <div key={uniqueKey} className="flex items-center py-4 border-b border-gray-200">
+                      <div className="w-16 h-16 flex-shrink-0">
+                        <Image 
+                          src={item.images?.[0] || ''} 
+                          alt={item.name} 
+                          width={64} 
+                          height={64} 
+                          className="object-contain w-full h-full" 
+                        />
+                      </div>
+                      <div className="ml-4 flex-1 min-w-0">
+                        <Link href={`/product/${item.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^w-]/g, '')}-${item.id}`} className="hover:underline block">
+                          <p className="font-semibold text-gray-900 truncate cursor-pointer">{item.name}</p>
                         </Link>
-                        <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                        <div className="mt-1 flex items-center gap-2">
+                          <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                          <p className="font-semibold text-blue-600">
+                            ৳{(item.price * item.quantity).toFixed(2)}
+                          </p>
+                        </div>
                         {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
                           <div className="mt-1 text-xs text-gray-600">
                             {item.selectedOptions.size && <span>Size: {item.selectedOptions.size} </span>}
@@ -259,9 +271,8 @@ export default function CheckoutPage() {
                         )}
                       </div>
                     </div>
-                    <p className="font-semibold mt-1">৳{(item.price * item.quantity).toFixed(2)}</p>
-                  </div>
-                )})}
+                  );
+                })}
               </div>
               <div className="border-t border-gray-200 pt-4 mt-6 space-y-2">
                 <div className="flex justify-between">

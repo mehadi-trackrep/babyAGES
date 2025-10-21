@@ -289,17 +289,19 @@ export default function ProductDetailPageContent({ product, relatedProducts }: P
 
               <div className="flex items-center mb-4">
                 <label className="mr-4 text-gray-700">Quantity:</label>
-                <div className="flex items-center border border-gray-300 rounded-lg">
+                <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
                   <button 
                     onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                    className="px-4 py-2 text-gray-600 hover:bg-gray-100"
+                    className="w-8 h-8 flex items-center justify-center text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 text-lg font-medium"
                   >
                     -
                   </button>
-                  <span className="px-4 py-2 border-x border-gray-300">{quantity}</span>
+                  <span className="w-10 h-8 flex items-center justify-center border-x border-gray-300 bg-white font-medium">
+                    {quantity}
+                  </span>
                   <button 
                     onClick={() => setQuantity(q => q + 1)}
-                    className="px-4 py-2 text-gray-600 hover:bg-gray-100"
+                    className="w-8 h-8 flex items-center justify-center text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 text-lg font-medium"
                   >
                     +
                   </button>
