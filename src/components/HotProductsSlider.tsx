@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
-import { Product } from '@/context/AppContext';
+import { Product, useAppContext } from '@/context/AppContext';
 import ProductCard from './ProductCard';
 
 const HotProductsSlider = () => {
+  const { dispatch } = useAppContext();
   const [hotProducts, setHotProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [emblaRef] = useEmblaCarousel({ loop: true }, [Autoplay()]);
@@ -20,14 +21,8 @@ const HotProductsSlider = () => {
         }
         const allProducts: Product[] = await response.json();
         
-        console.log('All products from API:', allProducts);
-        console.log('Sample product with isHotProduct:', allProducts[0]?.isHotProduct);
-        
         // Filter to only include products where isHotProduct === 1 (handling both number and string from sheet)
         const filteredProducts = allProducts.filter(product => product.isHotProduct === 1 || String(product.isHotProduct) === '1');
-        
-        console.log('Filtered hot products:', filteredProducts);
-        console.log('Number of hot products found:', filteredProducts.length);
         
         setHotProducts(filteredProducts);
       } catch (error) {
@@ -39,6 +34,18 @@ const HotProductsSlider = () => {
 
     fetchHotProducts();
   }, []);
+
+  const handleAddToCart = (product: Product) => {
+    dispatch({ type: 'ADD_TO_CART', product });
+  };
+
+  const handleAddToWishlist = (product: Product) => {
+    dispatch({ type: 'ADD_TO_WISHLIST', product });
+  };
+
+  const handleQuickView = (product: Product) => {
+    dispatch({ type: 'OPEN_QUICK_VIEW', product });
+  };
 
   return (
     <section className="py-16 px-4 bg-gray-50">
@@ -72,7 +79,7 @@ const HotProductsSlider = () => {
             ) : hotProducts.length > 0 ? (
               hotProducts.map((product) => (
                 <div className="flex-grow-0 flex-shrink-0 w-1/3 pl-4" key={product.id}>
-                  <ProductCard product={product} onAddToCart={() => {}} onAddToWishlist={() => {}} onQuickView={() => {}} />
+                  <ProductCard product={product} onAddToCart={handleAddToCart} onAddToWishlist={handleAddToWishlist} onQuickView={handleQuickView} />
                 </div>
               ))
             ) : (
