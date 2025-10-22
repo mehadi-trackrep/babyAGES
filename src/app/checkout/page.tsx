@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppContext } from '@/context/AppContext';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,6 +16,8 @@ interface FormData {
   address: string;
   deliveryMethod: string;
 }
+
+const CHECKOUT_STORAGE_KEY = 'checkout_form_data';
 
 const steps = [
   { id: 'shipping', name: 'Shipping', icon: FaUser },
@@ -36,6 +38,40 @@ export default function CheckoutPage() {
     address: '',
     deliveryMethod: 'cash-on-delivery'
   });
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Load form data from localStorage on component mount
+  useEffect(() => {
+    // Check if we're in the browser environment
+    if (typeof window !== 'undefined') {
+      const savedData = localStorage.getItem(CHECKOUT_STORAGE_KEY);
+      if (savedData) {
+        try {
+          const parsedData = JSON.parse(savedData);
+          setFormData(parsedData);
+        } catch (error) {
+          console.error('Error parsing saved checkout data:', error);
+        }
+      }
+    }
+    setIsHydrated(true);
+  }, []);
+
+  // Save form data to localStorage whenever it changes
+  useEffect(() => {
+    // Check if we're in the browser environment before accessing localStorage
+    if (typeof window !== 'undefined' && isHydrated) {
+      localStorage.setItem(CHECKOUT_STORAGE_KEY, JSON.stringify(formData));
+    }
+  }, [formData, isHydrated]);
+
+  // Clear saved form data on successful order submission
+  useEffect(() => {
+    return () => {
+      // This cleanup happens when the component unmounts
+      // We'll clear the data only after successful order
+    };
+  }, []);
   const [isLoading, setIsLoading] = useState(false);
   const [isTermsAccepted, setIsTermsAccepted] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -218,6 +254,9 @@ export default function CheckoutPage() {
         });
         dispatch({ type: 'REMOVE_COUPON' });
 
+        // Clear saved checkout form data after successful order
+        localStorage.removeItem(CHECKOUT_STORAGE_KEY);
+
         router.push(`/order-confirmation?orderId=${orderData.orderId}`);
       } else {
         alert(`Order failed: ${result.error || 'Unknown error'}. Please contact support.`);
@@ -234,6 +273,18 @@ export default function CheckoutPage() {
     visible: { opacity: 1, x: 0 },
     exit: { opacity: 0, x: -50 },
   };
+
+  // Don't render until form data is hydrated from localStorage
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 px-4 md:px-8 mt-16 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-lg text-gray-600">Loading checkout form...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 md:px-8 mt-16">
