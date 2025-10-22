@@ -6,21 +6,21 @@ import Link from 'next/link';
 
 const slides = [
   {
-    image: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?q=80&w=2070&auto=format&fit=crop',
+    image: '/images/hero-slider/slide1.jpg',
     title: 'Discover Our New Collection',
     description: 'Shop the latest trends in baby fashion.',
     buttonText: 'Shop Now',
     buttonLink: '/shop',
   },
   {
-    image: 'https://images.unsplash.com/photo-1760632373541-8db1f9eb8d19?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw1OHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=60&w=800',
+    image: '/images/hero-slider/slide2.jpg',
     title: 'Safe & Fun Toys for Your Little One',
     description: 'Explore our wide range of educational and fun toys.',
     buttonText: 'Discover Toys',
     buttonLink: '/shop',
   },
   {
-    image: 'https://images.unsplash.com/photo-1760800327881-c56a3b64ff6b?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwzfHx8ZW58MHx8fHx8&auto=format&fit=crop&q=60&w=800',
+    image: '/images/hero-slider/slide3.jpg',
     title: 'Nourish Your Baby with Organic Food',
     description: 'Healthy and delicious options for your baby.',
     buttonText: 'Explore Foods',
@@ -55,16 +55,13 @@ const HeroSlider = () => {
             className="w-full h-full object-cover"
             width={1920}
             height={1080}
-            quality={100}
           />
           <div className="absolute inset-0 bg-opacity-50 flex items-center justify-center">
             <div className="text-center text-white">
               <h1 className="text-4xl md:text-6xl font-bold">{slide.title}</h1>
               <p className="mt-4 text-lg md:text-2xl">{slide.description}</p>
-              <Link href={slide.buttonLink} legacyBehavior>
-                <a className="mt-8 inline-block bg-blue-500 text-white py-3 px-8 rounded-full text-lg font-semibold hover:bg-blue-600 transition-colors">
-                  {slide.buttonText}
-                </a>
+              <Link href={slide.buttonLink} className="mt-8 inline-block bg-blue-500 text-white py-3 px-8 rounded-full text-lg font-semibold hover:bg-blue-600 transition-colors">
+                {slide.buttonText}
               </Link>
             </div>
           </div>
