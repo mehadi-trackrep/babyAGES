@@ -14,7 +14,7 @@ const HotProductsSlider = () => {
     loop: true,
     align: 'start',
     slidesToScroll: 1
-  }, [Autoplay({ delay: 2000, stopOnMouseEnter: true })]);
+  }, [Autoplay({ delay: 3000, stopOnMouseEnter: false })]);
 
   useEffect(() => {
     const fetchHotProducts = async () => {
