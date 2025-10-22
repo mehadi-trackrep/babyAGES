@@ -232,7 +232,7 @@ export default function ProductDetailPageContent({ product, relatedProducts }: P
 
             {/* Product Info */}
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+              <h1 className="text-3xl font-bold text-indigo-600 mb-2">{product.name}</h1>
               {product.subtitle && <p className="text-lg text-gray-600 mb-2">{product.subtitle}</p>}
               
               <div className="flex items-center mb-4">
@@ -424,10 +424,10 @@ export default function ProductDetailPageContent({ product, relatedProducts }: P
           {/* Reviews Section */}
           <div className="border-t border-gray-200 px-6 py-8">
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Reviews</h2>
+              <h2 className="text-2xl font-bold text-indigo-600 mb-6">Customer Reviews</h2>
               
               <div className="mb-8 p-6 bg-gray-50 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">Write a Review</h3>
+                <h3 className="text-lg font-semibold text-indigo-600 mb-4">Write a Review</h3>
                 {hasSubmittedReview ? (
                   <div className="text-center py-6">
                     <p className="text-gray-600 mb-4">Thank you for your review! You have already submitted a review for this product.</p>
@@ -512,7 +512,7 @@ export default function ProductDetailPageContent({ product, relatedProducts }: P
           {/* Related Products Section */}
           <div className="border-t border-gray-200 px-6 py-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Related Products</h2>
+              <h2 className="text-2xl font-bold text-indigo-600">Related Products</h2>
               <Link href="/shop" className="text-blue-600 hover:underline flex items-center">
                 View All <FiChevronRight className="ml-1" />
               </Link>

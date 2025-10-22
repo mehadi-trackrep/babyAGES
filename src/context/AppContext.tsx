@@ -24,6 +24,7 @@ export interface Product {
   itemsLeft?: number;
   commentsAndRatings?: { comment: string; rating: number }[];
   selectedOptions?: ProductOption;
+  isHotProduct?: number;
 }
 
 export interface CartItem extends Product {

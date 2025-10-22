@@ -88,7 +88,7 @@ export default function ViewCartPage() {
           className="text-center mb-8"
         >
           <Link href="/" className="inline-block hover:underline">
-            <h1 className="text-4xl font-extrabold text-gray-900">Your Shopping Cart</h1>
+            <h1 className="text-4xl font-extrabold text-indigo-600">Your Shopping Cart</h1>
           </Link>
           <p className="mt-2 text-lg text-gray-600">Review your items and proceed to checkout.</p>
         </motion.div>
@@ -118,7 +118,7 @@ export default function ViewCartPage() {
               className="bg-white rounded-2xl shadow-lg p-4 sm:p-6"
             >
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-800">Your Items</h2>
+                <h2 className="text-2xl font-bold text-indigo-600">Your Items</h2>
                 {cartItems.length > 0 && (
                   <button
                     onClick={() => {
@@ -206,7 +206,7 @@ export default function ViewCartPage() {
               className=""
             >
               <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h2 className="text-xl font-bold text-gray-800 mb-4">Order Summary</h2>
+                <h2 className="text-xl font-bold text-indigo-600 mb-4">Order Summary</h2>
                 
                 {/* Coupon Code Input */}
                 <form className="mb-4" onSubmit={(e) => { e.preventDefault(); handleApplyCoupon(); }}>

@@ -87,7 +87,7 @@ export default function Home() {
       <section className="py-16 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">Featured Products</h2>
+            <h2 className="text-3xl font-bold text-indigo-600 mb-2">Featured Products</h2>
             <p className="text-gray-600">Discover our most popular products</p>
           </div>
 

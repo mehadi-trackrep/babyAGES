@@ -68,7 +68,7 @@ export default function OrderConfirmationContent() {
     return (
       <div className="text-center py-20 bg-white rounded-2xl shadow-lg p-8">
         <FaExclamationCircle className="text-6xl text-red-500 mx-auto mb-6" />
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">Order Not Found</h2>
+        <h2 className="text-3xl font-bold text-indigo-600 mb-2">Order Not Found</h2>
         <p className="text-gray-600 mb-8">{error || 'Could not retrieve order details'}</p>
         <Link href="/shop" className="inline-block bg-blue-600 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-700 transition-colors">
           Continue Shopping
@@ -93,11 +93,11 @@ export default function OrderConfirmationContent() {
           >
             <FaCheckCircle className="text-7xl text-green-500 mx-auto mb-6" />
           </motion.div>
-          <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Thank You!</h1>
+          <h1 className="text-4xl font-extrabold text-indigo-600 mb-2">Thank You!</h1>
           <p className="text-lg text-gray-600 mb-8">Your order has been successfully placed.</p>
 
           <div className="bg-gray-100 rounded-lg p-6 text-left mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Order Summary</h2>
+            <h2 className="text-2xl font-bold text-indigo-600 mb-4">Order Summary</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <p className="font-semibold">Order ID:</p>
@@ -122,7 +122,7 @@ export default function OrderConfirmationContent() {
           </div>
 
           <div className="text-left mb-8">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">Items Ordered</h3>
+            <h3 className="text-xl font-bold text-indigo-600 mb-4">Items Ordered</h3>
             <div className="space-y-4">
               {orderData.items.map(item => {
                 // Create a unique key that includes product id, size, and color options

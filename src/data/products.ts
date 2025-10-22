@@ -17,6 +17,7 @@ export interface Product {
   colors?: string[];
   itemsLeft?: number;
   commentsAndRatings?: { comment: string; rating: number }[];
+  isHotProduct?: number;
 }
 
 // Cache to store products temporarily (keyed by timestamp to handle updates)
@@ -113,6 +114,7 @@ export const fetchProductsFromSheet = async (): Promise<Product[]> => {
             ? (rowData['colors'] as string).split(',').map(color => color.trim())
             : undefined,
           itemsLeft: parseInt(rowData['itemsLeft'] as string) || undefined,
+          isHotProduct: parseInt(rowData['isHotProduct'] as string) || undefined,
         };
 
         // Process comments and ratings from the commentsAndRatings column

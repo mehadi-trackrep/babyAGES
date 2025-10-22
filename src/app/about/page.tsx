@@ -52,7 +52,7 @@ const AboutPage = () => {
             initial="hidden"
             animate="visible"
           >
-            <h2 className="text-4xl font-bold text-gray-800">Our Story</h2>
+            <h2 className="text-4xl font-bold text-indigo-600">Our Story</h2>
             <p className="mt-4 text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto">
               Welcome to BabyAGES, where our passion for parenthood drives everything we do. We believe that every child deserves the best, and we are here to provide families with products that are safe, innovative, and full of love.
             </p>
@@ -82,7 +82,7 @@ const AboutPage = () => {
           {/* Our Mission & Promise */}
           <div className="text-center py-16 bg-white rounded-3xl shadow-xl">
             <motion.h2 
-              className="text-4xl font-bold text-gray-800 mb-12"
+              className="text-4xl font-bold text-indigo-600 mb-12"
               variants={fadeIn}
               initial="hidden"
               animate="visible"
@@ -126,7 +126,7 @@ const AboutPage = () => {
             initial="hidden"
             animate="visible"
           >
-            <h2 className="text-3xl font-bold text-gray-800">Join Our Family</h2>
+            <h2 className="text-3xl font-bold text-indigo-600">Join Our Family</h2>
             <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
               Thank you for choosing BabyAGES. We are honored to be a part of your family’s story and look forward to growing with you.
             </p>

@@ -120,7 +120,7 @@ export default function ShopPageContent({
           >
             <div className="p-6 bg-white rounded-2xl shadow-lg">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Filters</h2>
+                <h2 className="text-2xl font-bold text-indigo-600">Filters</h2>
               </div>
               
               {/* Category Filter */}
@@ -179,7 +179,7 @@ export default function ShopPageContent({
                 transition={{ duration: 0.5 }}
                 className="flex flex-col items-center justify-center h-full py-12 bg-white rounded-2xl shadow-lg"
               >
-                <p className="text-2xl font-semibold text-gray-700">No products found</p>
+                <p className="text-2xl font-semibold text-indigo-600">No products found</p>
                 <p className="mt-2 text-gray-500">Try adjusting your filters or search query.</p>
               </motion.div>
             ) : (

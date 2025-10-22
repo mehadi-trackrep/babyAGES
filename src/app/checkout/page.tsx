@@ -295,7 +295,7 @@ export default function CheckoutPage() {
           className="text-center mb-12"
         >
           <Link href="/" className="inline-block hover:underline">
-            <h1 className="text-4xl font-extrabold text-gray-900">Checkout</h1>
+            <h1 className="text-4xl font-extrabold text-indigo-600">Checkout</h1>
           </Link>
           <p className="mt-2 text-lg text-gray-600">Complete your purchase in a few simple steps.</p>
         </motion.div>
@@ -385,7 +385,7 @@ export default function CheckoutPage() {
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-lg p-8 sticky top-24">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Order Summary</h2>
+              <h2 className="text-2xl font-bold text-indigo-600 mb-6">Order Summary</h2>
               <div className="space-y-4">
                 {cartItems.map(item => {
                   // Create a unique key that includes product id, size, and color options
@@ -452,7 +452,7 @@ export default function CheckoutPage() {
 // Step Components
 const ShippingStep = ({ formData, handleChange, contactError, addressError, emailError }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void, contactError: string | null, addressError: string | null, emailError: string | null }) => (
   <div>
-    <h2 className="text-2xl font-bold text-gray-800 mb-6">Shipping Information</h2>
+    <h2 className="text-2xl font-bold text-indigo-600 mb-6">Shipping Information</h2>
     <form id="shipping-form" className="space-y-6">
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Full Name <span className="text-red-500">*</span></label>
@@ -496,7 +496,7 @@ const ShippingStep = ({ formData, handleChange, contactError, addressError, emai
 
 const PaymentStep = ({ formData, handleChange }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
   <div>
-    <h2 className="text-2xl font-bold text-gray-800 mb-6">Payment Method</h2>
+    <h2 className="text-2xl font-bold text-indigo-600 mb-6">Payment Method</h2>
     <div className="space-y-4">
       <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:border-blue-500">
         <input type="radio" name="deliveryMethod" value="cash-on-delivery" checked={formData.deliveryMethod === 'cash-on-delivery'} onChange={handleChange} className="h-5 w-5 text-blue-600 focus:ring-blue-500" />
@@ -534,7 +534,7 @@ const ConfirmationStep = ({
   setIsPopupOpen: React.Dispatch<React.SetStateAction<boolean>>
 }) => (
   <div>
-    <h2 className="text-2xl font-bold text-gray-800 mb-6">Confirm Your Order</h2>
+    <h2 className="text-2xl font-bold text-indigo-600 mb-6">Confirm Your Order</h2>
     <div className="space-y-4 bg-gray-100 p-6 rounded-lg">
       <div>
         <h3 className="font-semibold">Shipping Details:</h3>
