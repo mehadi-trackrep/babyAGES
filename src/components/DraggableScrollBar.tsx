@@ -39,8 +39,14 @@ const DraggableScrollBar = () => {
     };
   }, []);
 
-  // Handle drag events
+  // Handle mouse drag events
   const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  // Handle touch drag events
+  const handleTouchStart = (e: React.TouchEvent) => {
     e.preventDefault();
     setIsDragging(true);
   };
@@ -65,25 +71,55 @@ const DraggableScrollBar = () => {
     setScrollPosition(newTop);
   }, [isDragging, barHeight]);
 
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (!isDragging || !barRef.current || !e.touches[0]) return;
+
+    const windowHeight = window.innerHeight;
+    const maxScroll = windowHeight - barHeight;
+    const minY = 0;
+    const maxY = maxScroll;
+    
+    let newTop = e.touches[0].clientY - barRef.current.offsetHeight / 2;
+    newTop = Math.max(minY, Math.min(newTop, maxY));
+
+    // Calculate scroll position based on bar position
+    const scrollPercentage = newTop / maxScroll;
+    const documentHeight = document.documentElement.scrollHeight - windowHeight;
+    const scrollTo = scrollPercentage * documentHeight;
+
+    window.scrollTo({ top: scrollTo, behavior: 'auto' });
+    setScrollPosition(newTop);
+  }, [isDragging, barHeight]);
+
   const handleMouseUp = () => {
     setIsDragging(false);
   };
 
-  // Add mouse move and up event listeners when dragging
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
+  // Add mouse and touch event listeners when dragging
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
     } else {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
     }
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isDragging, barHeight, handleMouseMove]);
+  }, [isDragging, barHeight, handleMouseMove, handleTouchMove]);
 
   return (
     <div className="draggable-scrollbar">
@@ -95,6 +131,7 @@ const DraggableScrollBar = () => {
           top: `${scrollPosition}px`,
         }}
         onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
       />
     </div>
   );
