@@ -8,7 +8,7 @@ const Footer = () => {
           <div>
             <h3 className="text-xl font-bold mb-4">BabyAGES</h3>
             <p className="text-gray-300">
-              Your one-stop destination for all your shopping needs. Quality products at affordable prices.
+              Your ultimate destination for baby, mom, and family essentials — where top-rated picks and premium quality meet everyday cuteness at prices you&apos;ll love. 💕
             </p>
           </div>
           

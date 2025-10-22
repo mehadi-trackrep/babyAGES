@@ -35,3 +35,52 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c5c5c5;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Draggable scroll bar styling */
+.draggable-scrollbar {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 12px;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.draggable-scrollbar .scroll-thumb {
+  position: absolute;
+  width: 100%;
+  background: rgba(59, 130, 246, 0.8); /* blue-500 with opacity */
+  border-radius: 6px;
+  cursor: grab;
+  pointer-events: auto;
+  transition: background 0.2s;
+}
+
+.draggable-scrollbar .scroll-thumb:hover {
+  background: rgba(37, 99, 235, 0.9); /* blue-600 with opacity */
+}
+
+.draggable-scrollbar .scroll-thumb:active {
+  cursor: grabbing;
+  background: rgba(29, 78, 216, 1); /* blue-700 */
+}

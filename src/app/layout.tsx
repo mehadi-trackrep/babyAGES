@@ -12,6 +12,7 @@ import GlobalUI from '@/components/GlobalUI';
 import ToastManager from '@/components/ToastManager';
 import FloatingButtons from "@/components/FloatingButtons";
 import SocialButtons from "@/components/SocialButtons";
+import DraggableScrollBar from "@/components/DraggableScrollBar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -47,12 +48,23 @@ export default function RootLayout({
           <ToastContainer />
           <FloatingButtons />
           <SocialButtons />
+          <DraggableScrollBar />
         </AppProvider>
-        <script>
-          {
-            "if ('serviceWorker' in navigator) {\n              window.addEventListener('load', () => {\n                navigator.serviceWorker.register('/sw.js').then(registration => {\n                  console.log('SW registered: ', registration);\n                }).catch(registrationError => {\n                  console.log('SW registration failed: ', registrationError);\n                });\n              });\n            }"
-          }
-        </script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                  navigator.serviceWorker.register('/sw.js').then(registration => {
+                    console.log('SW registered: ', registration);
+                  }).catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                  });
+                });
+              }
+            `
+          }}
+        />
       </body>
     </html>
   );
