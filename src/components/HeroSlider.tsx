@@ -52,11 +52,12 @@ const HeroSlider = () => {
           <Image
             src={slide.image}
             alt={slide.title}
-            fill
-            style={{objectFit: "cover"}}
+            className="w-full h-full object-cover"
+            width={1920}
+            height={1080}
             quality={100}
           />
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-opacity-50 flex items-center justify-center">
             <div className="text-center text-white">
               <h1 className="text-4xl md:text-6xl font-bold">{slide.title}</h1>
               <p className="mt-4 text-lg md:text-2xl">{slide.description}</p>
