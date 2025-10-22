@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import React from 'react';
+import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
 import { Product } from '@/context/AppContext';
 import ProductCard from './ProductCard';
 
@@ -44,15 +46,7 @@ const dummyProducts: Product[] = [
 ];
 
 const HotProductsSlider = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const handlePrev = () => {
-    setCurrentIndex((prevIndex) => (prevIndex === 0 ? dummyProducts.length - 1 : prevIndex - 1));
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prevIndex) => (prevIndex === dummyProducts.length - 1 ? 0 : prevIndex + 1));
-  };
+  const [emblaRef] = useEmblaCarousel({ loop: true }, [Autoplay()]);
 
   return (
     <section className="py-16 px-4 bg-gray-50">
@@ -61,31 +55,14 @@ const HotProductsSlider = () => {
           <h2 className="text-3xl font-bold text-gray-800 mb-2">Hot Products</h2>
           <p className="text-gray-600">Check out our trending items</p>
         </div>
-        <div className="relative">
-          <div className="overflow-hidden">
-            <div 
-              className="flex transition-transform duration-500 ease-in-out"
-              style={{ transform: `translateX(-${currentIndex * 100 / 3}%)` }}
-            >
-              {dummyProducts.map((product) => (
-                <div key={product.id} className="w-full md:w-1/3 flex-shrink-0 px-4">
-                  <ProductCard product={product} onAddToCart={() => {}} onAddToWishlist={() => {}} onQuickView={() => {}} />
-                </div>
-              ))}
-            </div>
+        <div className="overflow-hidden" ref={emblaRef}>
+          <div className="flex">
+            {dummyProducts.map((product) => (
+              <div className="flex-grow-0 flex-shrink-0 w-1/3 pl-4" key={product.id}>
+                <ProductCard product={product} onAddToCart={() => {}} onAddToWishlist={() => {}} onQuickView={() => {}} />
+              </div>
+            ))}
           </div>
-          <button 
-            onClick={handlePrev} 
-            className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 z-10"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-          </button>
-          <button 
-            onClick={handleNext} 
-            className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 z-10"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          </button>
         </div>
       </div>
     </section>

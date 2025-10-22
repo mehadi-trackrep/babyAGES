@@ -1,14 +1,13 @@
-
 import Image from 'next/image';
 
 const CoverPhotoBanner = () => {
   return (
     <section className="relative w-full h-96">
       <Image
-        src="https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?q=80&w=2070&auto=format&fit=crop"
+        src="/cover-photo.png"
         alt="Cover Banner"
-        layout="fill"
-        objectFit="cover"
+        fill
+        style={{objectFit: "cover"}}
         quality={100}
       />
       <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
