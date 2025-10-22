@@ -95,6 +95,12 @@ export default function OrderConfirmationContent() {
           </motion.div>
           <h1 className="text-4xl font-extrabold text-indigo-600 mb-2">Thank You!</h1>
           <p className="text-lg text-gray-600 mb-8">Your order has been successfully placed.</p>
+          
+          <div className="mb-8 p-6 bg-green-50 border border-green-200 rounded-lg text-center">
+            <p className="text-lg text-green-800 font-medium">
+              শীঘ্রই আমাদের একজন কাস্টমার প্রতিনিধি আপনাকে ফোন দিয়ে অর্ডার কনফার্ম করবেন এবং ডেলিভারির পদক্ষেপ গ্রহণ করবেন।
+            </p>
+          </div>
 
           <div className="bg-gray-100 rounded-lg p-6 text-left mb-8">
             <h2 className="text-2xl font-bold text-indigo-600 mb-4">Order Summary</h2>
