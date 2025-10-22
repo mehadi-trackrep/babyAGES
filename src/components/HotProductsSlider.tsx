@@ -10,7 +10,11 @@ const HotProductsSlider = () => {
   const { dispatch } = useAppContext();
   const [hotProducts, setHotProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [emblaRef] = useEmblaCarousel({ loop: true }, [Autoplay()]);
+  const [emblaRef] = useEmblaCarousel({ 
+    loop: true,
+    align: 'start',
+    slidesToScroll: 1
+  }, [Autoplay({ delay: 2000, stopOnMouseEnter: true })]);
 
   useEffect(() => {
     const fetchHotProducts = async () => {
@@ -55,10 +59,10 @@ const HotProductsSlider = () => {
           <p className="text-gray-600">Check out our trending items</p>
         </div>
         <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex">
+          <div className="flex -ml-4">
             {loading ? (
               Array.from({ length: 3 }).map((_, index) => (
-                <div className="flex-grow-0 flex-shrink-0 w-1/3 pl-4" key={index}>
+                <div className="flex-grow-0 flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 pl-4" key={index}>
                   <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 animate-pulse h-96">
                     <div className="h-64 flex items-center justify-center p-4">
                       <div className="text-gray-500">Loading...</div>
@@ -78,7 +82,7 @@ const HotProductsSlider = () => {
               ))
             ) : hotProducts.length > 0 ? (
               hotProducts.map((product) => (
-                <div className="flex-grow-0 flex-shrink-0 w-1/3 pl-4" key={product.id}>
+                <div className="flex-grow-0 flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 pl-4" key={product.id}>
                   <ProductCard product={product} onAddToCart={handleAddToCart} onAddToWishlist={handleAddToWishlist} onQuickView={handleQuickView} />
                 </div>
               ))
