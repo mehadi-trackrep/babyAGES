@@ -2,11 +2,12 @@
 
 import { useAppContext } from '@/context/AppContext';
 import { Product } from '@/context/AppContext';
-import HeroSlider from '@/components/HeroSlider';
 import ProductCard from '@/components/ProductCard';
 import FeatureSection from '@/components/FeatureSection';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import CoverPhotoBanner from '@/components/CoverPhotoBanner';
+import HotProductsSlider from '@/components/HotProductsSlider';
 
 export default function Home() {
   const { dispatch } = useAppContext();
@@ -78,7 +79,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <HeroSlider />
+      <CoverPhotoBanner />
+      <HotProductsSlider />
       
       {/* Featured Products Section */}
       <section className="py-16 px-4">
