@@ -79,7 +79,7 @@ export default function CheckoutPage() {
   const [addressError, setAddressError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = cartItems.reduce((sum, item) => sum + (((item.priceAfterDiscount !== undefined && item.priceAfterDiscount > 0) ? item.priceAfterDiscount : item.price) * item.quantity), 0);
   const discountAmount = subtotal * (discountPercentage || 0);
   const grandTotal = subtotal - discountAmount;
 
@@ -410,7 +410,7 @@ export default function CheckoutPage() {
                         <div className="mt-1 flex items-center gap-2">
                           <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                           <p className="font-semibold text-blue-600">
-                            ৳{(item.price * item.quantity).toFixed(2)}
+                            ৳{(((item.priceAfterDiscount !== undefined && item.priceAfterDiscount > 0) ? item.priceAfterDiscount : item.price) * item.quantity).toFixed(2)}
                           </p>
                         </div>
                         {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (

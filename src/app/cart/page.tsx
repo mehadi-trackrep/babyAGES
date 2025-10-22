@@ -17,7 +17,7 @@ export default function ViewCartPage() {
 
   useEffect(() => {
     const newSubtotal = cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
+      (total, item) => total + ((item.priceAfterDiscount !== undefined && item.priceAfterDiscount > 0) ? item.priceAfterDiscount : item.price) * item.quantity,
       0
     );
     const newDiscountAmount = newSubtotal * (discountPercentage || 0);
@@ -33,7 +33,7 @@ export default function ViewCartPage() {
     if (lastAction?.type === 'ADD_TO_CART') {
       // Force re-calculation when an item is added to cart from another component
       const newSubtotal = cartItems.reduce(
-        (total, item) => total + item.price * item.quantity,
+        (total, item) => total + ((item.priceAfterDiscount !== undefined && item.priceAfterDiscount > 0) ? item.priceAfterDiscount : item.price) * item.quantity,
         0
       );
       const newDiscountAmount = newSubtotal * (discountPercentage || 0);
@@ -156,7 +156,7 @@ export default function ViewCartPage() {
                       <Link href={`/product/${item.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${item.id}`} className="hover:underline block">
                         <h3 className="font-medium text-gray-900 truncate">{item.name}</h3>
                       </Link>
-                      <p className="text-blue-600 font-semibold mt-1">৳{item.price.toFixed(2)}</p>
+                      <p className="text-blue-600 font-semibold mt-1">৳{((item.priceAfterDiscount !== undefined && item.priceAfterDiscount > 0) ? item.priceAfterDiscount : item.price).toFixed(2)}</p>
                       {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
                         <div className="mt-1 text-xs text-gray-600">
                           {item.selectedOptions.size && <span>Size: {item.selectedOptions.size} </span>}
@@ -189,7 +189,7 @@ export default function ViewCartPage() {
                         </button>
                         
                         <p className="ml-auto font-bold text-blue-600">
-                          ৳{(item.price * item.quantity).toFixed(2)}
+                          ৳{(((item.priceAfterDiscount !== undefined && item.priceAfterDiscount > 0) ? item.priceAfterDiscount : item.price) * item.quantity).toFixed(2)}
                         </p>
                       </div>
                     </div>

@@ -24,7 +24,7 @@ const CartSidebar = ({
   onViewCart
 }: CartSidebarProps) => {
   const totalPrice = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity, 
+    (total, item) => total + ((item.priceAfterDiscount !== undefined && item.priceAfterDiscount > 0) ? item.priceAfterDiscount : item.price) * item.quantity, 
     0
   );
 
@@ -109,7 +109,7 @@ const CartSidebar = ({
                       <Link href={`/product/${item.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^w-]/g, '')}-${item.id}`} className="hover:underline">
                         <h3 className="font-medium cursor-pointer">{item.name}</h3>
                       </Link>
-                      <p className="text-blue-600 font-semibold">৳{item.price.toFixed(2)}</p>
+                      <p className="text-blue-600 font-semibold">৳{((item.priceAfterDiscount !== undefined && item.priceAfterDiscount > 0) ? item.priceAfterDiscount : item.price).toFixed(2)}</p>
                       {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
                         <div className="mt-1 text-xs text-gray-600">
                           {item.selectedOptions.size && <span>Size: {item.selectedOptions.size} </span>}

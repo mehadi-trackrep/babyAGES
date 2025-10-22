@@ -78,7 +78,12 @@ const ProductCard = ({
         
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
-            {product.discountAmount && product.discountAmount > 0 ? (
+            {product.priceAfterDiscount !== undefined && product.priceAfterDiscount > 0 ? (
+              <div className="flex items-center">
+                <span className="text-2xl font-bold text-indigo-600">৳{product.priceAfterDiscount.toFixed(2)}</span>
+                <span className="ml-2 text-sm text-gray-500 line-through">৳{product.price.toFixed(2)}</span>
+              </div>
+            ) : product.discountAmount && product.discountAmount > 0 ? (
               <div className="flex items-center">
                 <span className="text-2xl font-bold text-indigo-600">৳{(product.price - product.discountAmount).toFixed(2)}</span>
                 <span className="ml-2 text-sm text-gray-500 line-through">৳{product.price.toFixed(2)}</span>
@@ -102,14 +107,21 @@ const ProductCard = ({
               })}
             </div>
           </div>
-          {product.discountAmount && product.discountAmount > 0 && (
+          {product.priceAfterDiscount !== undefined && product.priceAfterDiscount > 0 ? (
+            <div className="flex justify-between items-center mt-2">
+              <span className="text-xs text-red-600 font-medium bg-red-100 px-2 py-1 rounded">Save ৳{(product.price - product.priceAfterDiscount).toFixed(2)}</span>
+              <span className="text-xs font-bold text-red-700 bg-red-200 px-2 py-1 rounded">
+                {(((product.price - product.priceAfterDiscount) / product.price) * 100).toFixed(0)}% OFF
+              </span>
+            </div>
+          ) : product.discountAmount && product.discountAmount > 0 ? (
             <div className="flex justify-between items-center mt-2">
               <span className="text-xs text-red-600 font-medium bg-red-100 px-2 py-1 rounded">Save ৳{product.discountAmount}</span>
               <span className="text-xs font-bold text-red-700 bg-red-200 px-2 py-1 rounded">
                 {((product.discountAmount / product.price) * 100).toFixed(0)}% OFF
               </span>
             </div>
-          )}
+          ) : null}
         </div>
         
         <div className="flex flex-col gap-2">

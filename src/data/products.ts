@@ -13,6 +13,7 @@ export interface Product {
   subcategory?: string;
   subtitle?: string;
   discountAmount?: number;
+  priceAfterDiscount?: number; // New field for discounted price
   sizes?: string[];
   colors?: string[];
   itemsLeft?: number;
@@ -107,6 +108,7 @@ export const fetchProductsFromSheet = async (): Promise<Product[]> => {
           subcategory: (rowData['subcategory'] as string) || undefined,
           subtitle: (rowData['subtitle'] as string) || undefined,
           discountAmount: parseFloat(rowData['discountAmount'] as string) || undefined,
+          priceAfterDiscount: parseFloat(rowData['priceAfterDiscount'] as string) || undefined,
           sizes: (rowData['sizes'] as string)
             ? (rowData['sizes'] as string).split(',').map(size => size.trim())
             : undefined,

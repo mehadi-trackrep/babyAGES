@@ -19,6 +19,7 @@ export interface Product {
   subcategory?: string;
   subtitle?: string;
   discountAmount?: number;
+  priceAfterDiscount?: number; // New field for discounted price
   sizes?: string[];
   colors?: string[];
   itemsLeft?: number;

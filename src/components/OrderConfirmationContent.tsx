@@ -151,7 +151,7 @@ export default function OrderConfirmationContent() {
                       <div className="mt-1 flex items-center gap-2">
                         <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                         <p className="font-semibold text-blue-600">
-                          ৳{(item.price * item.quantity).toFixed(2)}
+                          ৳{(((item.priceAfterDiscount !== undefined && item.priceAfterDiscount > 0) ? item.priceAfterDiscount : item.price) * item.quantity).toFixed(2)}
                         </p>
                       </div>
                       {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
