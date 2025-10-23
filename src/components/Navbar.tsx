@@ -2,13 +2,35 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { FiShoppingCart, FiHeart, FiMenu, FiX } from 'react-icons/fi';
+import { FiShoppingCart, FiHeart, FiMenu, FiX, FiSearch } from 'react-icons/fi';
 import { useAppContext } from '@/context/AppContext';
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  description: string;
+  images: string[]; // Array of image URLs
+  rating: number;
+  category: string;
+  videos?: string[]; // Optional array of video links
+  subcategory?: string;
+  subtitle?: string;
+  discountAmount?: number;
+  priceAfterDiscount?: number; // New field for discounted price
+  sizes?: string[];
+  colors?: string[];
+  itemsLeft?: number;
+}
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   
   const pathname = usePathname();
   const { state, dispatch } = useAppContext();
@@ -24,6 +46,63 @@ const Navbar = () => {
   const toggleWishlist = () => {
     dispatch({ type: 'TOGGLE_WISHLIST' });
   };
+
+  // Handle search form submission
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`;
+    }
+  };
+
+  // Fetch search results as user types
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      if (searchQuery.trim().length === 0) {
+        setSearchResults([]);
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery.trim())}&limit=6`); // Limit to 6 results
+        const data = await response.json();
+        if (response.ok) {
+          // Limit to 6 results for the dropdown
+          setSearchResults(data.results.slice(0, 6) || []);
+        } else {
+          setSearchResults([]);
+        }
+      } catch (error) {
+        console.error('Error fetching search results:', error);
+        setSearchResults([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Debounce the search to avoid too many requests
+    const timeoutId = setTimeout(() => {
+      fetchSearchResults();
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  // Close search when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const searchContainer = document.getElementById('search-container');
+      if (isSearchOpen && searchContainer && !searchContainer.contains(e.target as Node)) {
+        setIsSearchOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSearchOpen]);
 
   return (
     <>
@@ -60,6 +139,116 @@ const Navbar = () => {
 
           {/* Icons and Mobile Menu Button */}
           <div className="flex items-center space-x-4">
+            {/* Search Icon */}
+            <div id="search-container" className="relative">
+              {isSearchOpen ? (
+                <form onSubmit={handleSearch} className="flex flex-col">
+                  <div className="flex items-center">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search products..."
+                      className="px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 w-40 md:w-64"
+                      autoFocus
+                    />
+                    <button 
+                      type="button" 
+                      className="ml-2 text-gray-700"
+                      onClick={() => setIsSearchOpen(false)}
+                    >
+                      <FiX size={20} />
+                    </button>
+                    <button 
+                      type="submit"
+                      className="ml-2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors"
+                    >
+                      <FiSearch size={16} />
+                    </button>
+                  </div>
+                  
+                  {/* Search Results Dropdown */}
+                  {searchQuery && (
+                    <div className="absolute top-full mt-1 w-full md:w-96 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                      {isLoading ? (
+                        <div className="p-4 text-center">Searching...</div>
+                      ) : searchResults.length > 0 ? (
+                        <div className="divide-y">
+                          {searchResults.map((product) => (
+                            <Link 
+                              key={product.id} 
+                              href={`/product/${product.category.toLowerCase().replace(/\s+/g, '-')}/${product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}-${product.id}`}
+                              className="flex items-center p-3 hover:bg-gray-50 transition-colors"
+                              onClick={() => {
+                                setIsSearchOpen(false);
+                                setSearchQuery('');
+                              }}
+                            >
+                              <div className="w-16 h-16 flex-shrink-0">
+                                <Image
+                                  src={product.images?.[0] || '/placeholder-image.jpg'}
+                                  alt={product.name}
+                                  width={64}
+                                  height={64}
+                                  className="w-full h-full object-contain rounded-md"
+                                />
+                              </div>
+                              <div className="ml-3 flex-1 min-w-0">
+                                <h3 className="text-sm font-medium text-gray-900 truncate">{product.name}</h3>
+                                <p className="text-sm text-gray-500 line-clamp-1">{product.category}</p>
+                                <div className="mt-1 flex items-center justify-between">
+                                  <div>
+                                    {product.priceAfterDiscount && product.priceAfterDiscount < product.price ? (
+                                      <div className="flex items-baseline">
+                                        <span className="text-sm font-bold text-blue-600 mr-2">
+                                          ৳{product.priceAfterDiscount}
+                                        </span>
+                                        <span className="text-xs text-gray-500 line-through">
+                                          ৳{product.price}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <span className="text-sm font-medium text-blue-600">
+                                        ৳{product.price}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center">
+                                    {[...Array(5)].map((_, i) => (
+                                      <svg
+                                        key={i}
+                                        className={`w-3 h-3 ${i < Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300'}`}
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                      </svg>
+                                    ))}
+                                    <span className="ml-1 text-xs text-gray-600">({product.rating})</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-4 text-center text-gray-500">
+                          {searchQuery ? 'No products found' : 'Start typing to search'}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </form>
+              ) : (
+                <button 
+                  className="p-2 text-gray-700 hover:text-blue-600 transition-colors"
+                  onClick={() => setIsSearchOpen(true)}
+                >
+                  <FiSearch size={20} />
+                </button>
+              )}
+            </div>
+
             {/* Wishlist Icon */}
             <button 
               className="relative p-2"

@@ -68,12 +68,10 @@ export async function POST(request: NextRequest) {
     // Google Sheets API configuration
     const SPREADSHEET_ID = '1fkxq6X1dupmqovoxTYo4MPfwFVPrPJnajwaKHP_0Y40'; // Your sheet ID from the URL
     
-    // Set up authentication with service account credentials
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: process.env.GOOGLE_CLIENT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined,
-      },
+    // Set up authentication with service account credentials using JWT
+    const auth = new google.auth.JWT({
+      email: process.env.GOOGLE_CLIENT_EMAIL,
+      key: process.env.GOOGLE_PRIVATE_KEY ? process.env.GOOGLE_PRIVATE_KEY.replace(/\n/g, '\n') : undefined,
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
     
