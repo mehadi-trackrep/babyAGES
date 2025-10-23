@@ -13,7 +13,11 @@ interface FormData {
   name: string;
   email?: string;
   contact: string;
-  address: string;
+  address: string; // Combined address for storage
+  district: string;
+  town: string;
+  postcode: string;
+  street: string;
   deliveryMethod: string;
 }
 
@@ -35,7 +39,11 @@ export default function CheckoutPage() {
     name: '',
     email: '', // Initialize email field to prevent uncontrolled input error
     contact: '',
-    address: '',
+    address: '', // Combined address
+    district: '',
+    town: '',
+    postcode: '',
+    street: '',
     deliveryMethod: 'cash-on-delivery'
   });
   const [isHydrated, setIsHydrated] = useState(false);
@@ -76,7 +84,6 @@ export default function CheckoutPage() {
   const [isTermsAccepted, setIsTermsAccepted] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [contactError, setContactError] = useState<string | null>(null);
-  const [addressError, setAddressError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
 
   const subtotal = cartItems.reduce((sum, item) => sum + (((item.priceAfterDiscount !== undefined && item.priceAfterDiscount > 0) ? item.priceAfterDiscount : item.price) * item.quantity), 0);
@@ -114,16 +121,15 @@ export default function CheckoutPage() {
     return false;
   };
 
-  // Address validation function
-  const validateAddress = (address: string): boolean => {
-    // Check if address is at least 25 characters
-    if (address.length < 25) {
+  // Bangladesh-specific address validation function
+  const validateAddressComponents = (district: string, town: string, street: string): boolean => {
+    // All required fields must be filled
+    if (!district || !town || !street) {
       return false;
     }
     
-    // Count the number of words (split by spaces, tabs, or newlines)
-    const words = address.trim().split(/\s+/).filter(word => word.length > 0);
-    if (words.length < 3) {
+    // Check if all required fields have at least 2 characters
+    if (district.length < 2 || town.length < 2 || street.length < 2) {
       return false;
     }
     
@@ -147,13 +153,6 @@ export default function CheckoutPage() {
       } else {
         setContactError(null);
       }
-    } else if (name === 'address') {
-      const isValid = validateAddress(value);
-      if (!isValid && value !== '') {
-        setAddressError('Address must be at least 25 characters and contain at least 3 words');
-      } else {
-        setAddressError(null);
-      }
     } else if (name === 'email') {
       // Only validate if email is not empty
       if (value !== '' && !validateEmail(value)) {
@@ -163,7 +162,23 @@ export default function CheckoutPage() {
       }
     }
     
-    setFormData(prev => ({ ...prev, [name]: value }));
+    // Update form data
+    const updatedFormData = { ...formData, [name]: value };
+    
+    // If any address component field changes, update the combined address
+    if (['district', 'town', 'postcode', 'street'].includes(name)) {
+      // Combine address components into a single string
+      const addressComponents = [
+        updatedFormData.street,
+        updatedFormData.town,
+        updatedFormData.district,
+        updatedFormData.postcode ? updatedFormData.postcode : null
+      ].filter(Boolean); // Remove null/empty values
+      
+      updatedFormData.address = addressComponents.join(', ');
+    }
+    
+    setFormData(updatedFormData);
   };
 
   const handleNext = () => {
@@ -179,9 +194,9 @@ export default function CheckoutPage() {
       return;
     }
     
-    // Validate address before allowing next step
-    if (!validateAddress(formData.address)) {
-      setAddressError('Address must be at least 25 characters and contain at least 3 words');
+    // Validate address components before allowing next step
+    if (!validateAddressComponents(formData.district, formData.town, formData.street)) {
+      alert('Please fill in all required address fields (District, Town/City, and Street/Village)');
       return;
     }
     
@@ -339,7 +354,7 @@ export default function CheckoutPage() {
                 exit="exit"
                 transition={{ duration: 0.3 }}
               >
-                {currentStep === 0 && <ShippingStep formData={formData} handleChange={handleChange} contactError={contactError} addressError={addressError} emailError={emailError} />}
+                {currentStep === 0 && <ShippingStep formData={formData} handleChange={handleChange} contactError={contactError} emailError={emailError} />}
                 {currentStep === 1 && <PaymentStep formData={formData} handleChange={handleChange} />}
                 {currentStep === 2 && <ConfirmationStep 
                   formData={formData} 
@@ -450,7 +465,7 @@ export default function CheckoutPage() {
 }
 
 // Step Components
-const ShippingStep = ({ formData, handleChange, contactError, addressError, emailError }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void, contactError: string | null, addressError: string | null, emailError: string | null }) => (
+const ShippingStep = ({ formData, handleChange, contactError, emailError }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void, contactError: string | null, emailError: string | null }) => (
   <div>
     <h2 className="text-2xl font-bold text-indigo-600 mb-6">Shipping Information</h2>
     <form id="shipping-form" className="space-y-6">
@@ -476,19 +491,62 @@ const ShippingStep = ({ formData, handleChange, contactError, addressError, emai
         <input type="tel" id="contact" name="contact" value={formData.contact} onChange={handleChange} required className={`w-full px-4 py-3 border ${contactError ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`} placeholder="(+880) 1330-414242" />
         {contactError && <p className="mt-1 text-sm text-red-600">{contactError}</p>}
       </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label htmlFor="district" className="block text-sm font-medium text-gray-700 mb-1">District <span className="text-red-500">*</span></label>
+          <select
+            id="district"
+            name="district"
+            value={formData.district}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Select District</option>
+            <option value="valo">Valo</option>
+            <option value="good">Good</option>
+            <option value="note">Note</option>
+            <option value="hello">Hello</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="town" className="block text-sm font-medium text-gray-700 mb-1">Town / City <span className="text-red-500">*</span></label>
+          <input
+            type="text"
+            id="town"
+            name="town"
+            value={formData.town}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter Town / City"
+          />
+        </div>
+      </div>
       <div>
-        <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">Delivery Address <span className="text-red-500">*</span></label>
-        <textarea 
-          id="address" 
-          name="address" 
-          value={formData.address} 
-          onChange={handleChange} 
-          required 
-          rows={3} 
-          className={`w-full px-4 py-3 border ${addressError ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`} 
-          placeholder="123 Main St, City, Country" 
+        <label htmlFor="street" className="block text-sm font-medium text-gray-700 mb-1">Street / Village <span className="text-red-500">*</span></label>
+        <input
+          type="text"
+          id="street"
+          name="street"
+          value={formData.street}
+          onChange={handleChange}
+          required
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Enter Street / Village"
         />
-        {addressError && <p className="mt-1 text-sm text-red-600">{addressError}</p>}
+      </div>
+      <div>
+        <label htmlFor="postcode" className="block text-sm font-medium text-gray-700 mb-1">Postcode / Union Parishad (Optional)</label>
+        <input
+          type="text"
+          id="postcode"
+          name="postcode"
+          value={formData.postcode}
+          onChange={handleChange}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Enter Postcode / Union Parishad (Optional)"
+        />
       </div>
     </form>
   </div>
@@ -542,6 +600,10 @@ const ConfirmationStep = ({
         {formData.email && <p>Email: {formData.email}</p>}
         <p>Contact Number: {formData.contact}</p>
         <p>Delivery Address: {formData.address}</p>
+        <p>District: {formData.district}</p>
+        <p>Town/City: {formData.town}</p>
+        <p>Street/Village: {formData.street}</p>
+        {formData.postcode && <p>Postcode/Union Parishad: {formData.postcode}</p>}
       </div>
       <div>
         <h3 className="font-semibold">Payment Method:</h3>
