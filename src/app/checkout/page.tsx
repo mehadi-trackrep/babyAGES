@@ -19,6 +19,7 @@ interface FormData {
   postcode: string;
   street: string;
   deliveryMethod: string;
+  courierCost: string; // Inside Dhaka/Outside Dhaka
 }
 
 const CHECKOUT_STORAGE_KEY = 'checkout_form_data';
@@ -44,7 +45,8 @@ export default function CheckoutPage() {
     town: '',
     postcode: '',
     street: '',
-    deliveryMethod: 'cash-on-delivery'
+    deliveryMethod: 'cash-on-delivery',
+    courierCost: 'inside-dhaka' // Default to inside Dhaka
   });
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -88,7 +90,8 @@ export default function CheckoutPage() {
 
   const subtotal = cartItems.reduce((sum, item) => sum + (((item.priceAfterDiscount !== undefined && item.priceAfterDiscount > 0) ? item.priceAfterDiscount : item.price) * item.quantity), 0);
   const discountAmount = subtotal * (discountPercentage || 0);
-  const grandTotal = subtotal - discountAmount;
+  const courierCost = formData.courierCost === 'inside-dhaka' ? 60 : 120;
+  const grandTotal = (subtotal - discountAmount) + courierCost;
 
   // Bangladesh mobile number validation function
   const validateBangladeshMobile = (contact: string): boolean => {
@@ -246,6 +249,7 @@ export default function CheckoutPage() {
       discountAmount,
       couponCode,
       total: grandTotal,
+      courierCost: formData.courierCost === 'inside-dhaka' ? 60 : 120,
       date: dhakaTime
     };
 
@@ -450,6 +454,10 @@ export default function CheckoutPage() {
                     <span>-৳{discountAmount.toFixed(2)}</span>
                   </div>
                 )}
+                <div className="flex justify-between">
+                  <span>Courier Cost</span>
+                  <span>৳{formData.courierCost === 'inside-dhaka' ? 60 : 120}</span>
+                </div>
                 <div className="flex justify-between font-bold text-xl">
                   <span>Total</span>
                   <span>৳{grandTotal.toFixed(2)}</span>
@@ -658,24 +666,69 @@ const districts = [
   );
 };
 
-const PaymentStep = ({ formData, handleChange }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
+const PaymentStep = ({ formData, handleChange }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void }) => (
   <div>
-    <h2 className="text-2xl font-bold text-indigo-600 mb-6">Payment Method</h2>
-    <div className="space-y-4">
-      <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:border-blue-500">
-        <input type="radio" name="deliveryMethod" value="cash-on-delivery" checked={formData.deliveryMethod === 'cash-on-delivery'} onChange={handleChange} className="h-5 w-5 text-blue-600 focus:ring-blue-500" />
-        <span className="ml-4">
-          <p className="font-semibold">Cash on Delivery</p>
-          <p className="text-sm text-gray-500">Pay with cash upon delivery.</p>
-        </span>
-      </label>
-      <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-not-allowed bg-gray-100">
-        <input type="radio" name="deliveryMethod" value="standard-delivery" checked={formData.deliveryMethod === 'standard-delivery'} onChange={handleChange} className="h-5 w-5 text-blue-600 focus:ring-blue-500" disabled />
-        <span className="ml-4">
-          <p className="font-semibold text-gray-500">Credit Card (Coming Soon)</p>
-          <p className="text-sm text-gray-400">Pay with your credit card.</p>
-        </span>
-      </label>
+    <h2 className="text-2xl font-bold text-indigo-600 mb-6">Payment Requirements</h2>
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-3">Payment Method</h3>
+        <div className="space-y-4">
+          <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:border-blue-500">
+            <input type="radio" name="deliveryMethod" value="cash-on-delivery" checked={formData.deliveryMethod === 'cash-on-delivery'} onChange={handleChange} className="h-5 w-5 text-blue-600 focus:ring-blue-500" />
+            <span className="ml-4">
+              <p className="font-semibold">Cash on Delivery(COD)</p>
+              <p className="text-sm text-gray-500">Pay with cash upon delivery.</p>
+            </span>
+          </label>
+          <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-not-allowed bg-gray-100">
+            <input type="radio" name="deliveryMethod" value="standard-delivery" checked={formData.deliveryMethod === 'standard-delivery'} onChange={handleChange} className="h-5 w-5 text-blue-600 focus:ring-blue-500" disabled />
+            <span className="ml-4">
+              <p className="font-semibold text-gray-500">Visa Card, Bkash, Nagad (Coming Soon)</p>
+              <p className="text-sm text-gray-400">Pay with your visa card.</p>
+            </span>
+          </label>
+        </div>
+      </div>
+      
+      <div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-3">Courier Option</h3>
+        <div className="space-y-4">
+          <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:border-blue-500">
+            <input 
+              type="radio" 
+              name="courierCost" 
+              value="inside-dhaka" 
+              checked={formData.courierCost === 'inside-dhaka'} 
+              onChange={handleChange} 
+              className="h-5 w-5 text-blue-600 focus:ring-blue-500" 
+            />
+            <span className="ml-4 flex-1">
+              <div className="flex justify-between">
+                <p className="font-semibold">Inside Dhaka City</p>
+                <p className="font-semibold text-blue-600">৳60</p>
+              </div>
+              <p className="text-sm text-gray-500">Courier cost within Dhaka city</p>
+            </span>
+          </label>
+          <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:border-blue-500">
+            <input 
+              type="radio" 
+              name="courierCost" 
+              value="outside-dhaka" 
+              checked={formData.courierCost === 'outside-dhaka'} 
+              onChange={handleChange} 
+              className="h-5 w-5 text-blue-600 focus:ring-blue-500" 
+            />
+            <span className="ml-4 flex-1">
+              <div className="flex justify-between">
+                <p className="font-semibold">Outside Dhaka City</p>
+                <p className="font-semibold text-blue-600">৳120</p>
+              </div>
+              <p className="text-sm text-gray-500">Courier cost outside Dhaka city</p>
+            </span>
+          </label>
+        </div>
+      </div>
     </div>
   </div>
 );
@@ -696,61 +749,71 @@ const ConfirmationStep = ({
   isTermsAccepted: boolean,
   setIsTermsAccepted: React.Dispatch<React.SetStateAction<boolean>>,
   setIsPopupOpen: React.Dispatch<React.SetStateAction<boolean>>
-}) => (
-  <div>
-    <h2 className="text-2xl font-bold text-indigo-600 mb-6">Confirm Your Order</h2>
-    <div className="space-y-4 bg-gray-100 p-6 rounded-lg">
-      <div>
-        <h3 className="font-semibold">Shipping Details:</h3>
-        <p>Full Name: {formData.name}</p>
-        {formData.email && <p>Email: {formData.email}</p>}
-        <p>Contact Number: {formData.contact}</p>
-        <p>Delivery Address: {formData.address}</p>
-        <p>District: {formData.district}</p>
-        <p>Town/City: {formData.town}</p>
-        <p>Street/Village: {formData.street}</p>
-        {formData.postcode && <p>Postcode/Union Parishad: {formData.postcode}</p>}
-      </div>
-      <div>
-        <h3 className="font-semibold">Payment Method:</h3>
-        <p>{formData.deliveryMethod === 'cash-on-delivery' ? 'Cash on Delivery' : 'Standard Delivery'}</p>
-      </div>
-      <div className="border-t pt-4 mt-4 space-y-2">
-        <div className="flex justify-between">
-          <span>Subtotal</span>
-          <span>৳{subtotal.toFixed(2)}</span>
+}) => {
+  const courierCost = formData.courierCost === 'inside-dhaka' ? 60 : 120;
+  
+  return (
+    <div>
+      <h2 className="text-2xl font-bold text-indigo-600 mb-6">Confirm Your Order</h2>
+      <div className="space-y-4 bg-gray-100 p-6 rounded-lg">
+        <div>
+          <h3 className="font-semibold">Shipping Details:</h3>
+          <p>Full Name: {formData.name}</p>
+          {formData.email && <p>Email: {formData.email}</p>}
+          <p>Contact Number: {formData.contact}</p>
+          <p>Delivery Address: {formData.address}</p>
+          <p>District: {formData.district}</p>
+          <p>Town/City: {formData.town}</p>
+          <p>Street/Village: {formData.street}</p>
+          {formData.postcode && <p>Postcode/Union Parishad: {formData.postcode}</p>}
         </div>
-        {discountAmount > 0 && (
-          <div className="flex justify-between text-green-600">
-            <span>Discount</span>
-            <span>-৳{discountAmount.toFixed(2)}</span>
+        <div>
+          <h3 className="font-semibold">Payment & Delivery:</h3>
+          <p>Payment Method: {formData.deliveryMethod === 'cash-on-delivery' ? 'Cash on Delivery' : 'Standard Delivery'}</p>
+          <p>Courier Option: {formData.courierCost === 'inside-dhaka' ? 'Inside Dhaka City' : 'Outside Dhaka City'}</p>
+          <p>Courier Cost: ৳{courierCost}</p>
+        </div>
+        <div className="border-t pt-4 mt-4 space-y-2">
+          <div className="flex justify-between">
+            <span>Subtotal</span>
+            <span>৳{subtotal.toFixed(2)}</span>
           </div>
-        )}
-        <div className="flex justify-between font-bold text-xl">
-          <span>Total</span>
-          <span>৳{total.toFixed(2)}</span>
+          {discountAmount > 0 && (
+            <div className="flex justify-between text-green-600">
+              <span>Discount</span>
+              <span>-৳{discountAmount.toFixed(2)}</span>
+            </div>
+          )}
+          <div className="flex justify-between">
+            <span>Courier Cost</span>
+            <span>৳{courierCost}</span>
+          </div>
+          <div className="flex justify-between font-bold text-xl">
+            <span>Total</span>
+            <span>৳{total.toFixed(2)}</span>
+          </div>
         </div>
       </div>
+      <div className="mt-6">
+        <label className="flex items-center">
+          <input
+            type="checkbox"
+            checked={isTermsAccepted}
+            onChange={() => setIsTermsAccepted(!isTermsAccepted)}
+            className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          />
+          <span className="ml-2 text-sm text-gray-600">
+            I have read and agree to the{' '}
+            <button
+              type="button"
+              onClick={() => setIsPopupOpen(true)}
+              className="text-blue-600 hover:underline focus:outline-none"
+            >
+              Terms & Conditions
+            </button>
+          </span>
+        </label>
+      </div>
     </div>
-    <div className="mt-6">
-      <label className="flex items-center">
-        <input
-          type="checkbox"
-          checked={isTermsAccepted}
-          onChange={() => setIsTermsAccepted(!isTermsAccepted)}
-          className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-        />
-        <span className="ml-2 text-sm text-gray-600">
-          I have read and agree to the{' '}
-          <button
-            type="button"
-            onClick={() => setIsPopupOpen(true)}
-            className="text-blue-600 hover:underline focus:outline-none"
-          >
-            Terms & Conditions
-          </button>
-        </span>
-      </label>
-    </div>
-  </div>
-);
+  );
+};

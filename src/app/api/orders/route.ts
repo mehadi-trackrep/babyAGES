@@ -32,6 +32,7 @@ interface OrderData {
   discountAmount: number;
   couponCode?: string;
   total: number;
+  courierCost?: number;
   date: string;
   items: OrderItem[];
 }
@@ -43,6 +44,8 @@ export async function POST(request: NextRequest) {
     console.log('Order received:', orderData);
     
     // Prepare data for Google Sheets
+    const courierOption = orderData.courierCost === 60 ? 'Inside Dhaka City' : 'Outside Dhaka City';
+    
     const sheetData = [
       orderData.orderId,
       orderData.customer.name,
@@ -51,6 +54,7 @@ export async function POST(request: NextRequest) {
       orderData.customer.address,
       orderData.customer.deliveryMethod,
       orderData.subtotal,
+      courierOption, // Courier Option column after Total Product Price
       orderData.discountAmount,
       orderData.couponCode || '',
       orderData.total,
