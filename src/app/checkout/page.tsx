@@ -465,92 +465,198 @@ export default function CheckoutPage() {
 }
 
 // Step Components
-const ShippingStep = ({ formData, handleChange, contactError, emailError }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void, contactError: string | null, emailError: string | null }) => (
-  <div>
-    <h2 className="text-2xl font-bold text-indigo-600 mb-6">Shipping Information</h2>
-    <form id="shipping-form" className="space-y-6">
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Full Name <span className="text-red-500">*</span></label>
-        <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Md. Mehadi Hasan" />
-      </div>
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email (Optional)</label>
-        <input 
-          type="email" 
-          id="email" 
-          name="email" 
-          value={formData.email} 
-          onChange={handleChange} 
-          className={`w-full px-4 py-3 border ${emailError ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`} 
-          placeholder="you@example.com" 
-        />
-        {emailError && <p className="mt-1 text-sm text-red-600">{emailError}</p>}
-      </div>
-      <div>
-        <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-1">Contact Number <span className="text-red-500">*</span></label>
-        <input type="tel" id="contact" name="contact" value={formData.contact} onChange={handleChange} required className={`w-full px-4 py-3 border ${contactError ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`} placeholder="(+880) 1330-414242" />
-        {contactError && <p className="mt-1 text-sm text-red-600">{contactError}</p>}
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+const ShippingStep = ({ formData, handleChange, contactError, emailError }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void, contactError: string | null, emailError: string | null }) => {
+  const [showDistrictDropdown, setShowDistrictDropdown] = useState(false);
+  const [districtSearch, setDistrictSearch] = useState('');
+  
+const districts = [
+  { value: 'Bagerhat', label: 'Bagerhat' },
+  { value: 'Bandarban', label: 'Bandarban' },
+  { value: 'Barguna', label: 'Barguna' },
+  { value: 'Barishal', label: 'Barishal' },
+  { value: 'Bhola', label: 'Bhola' },
+  { value: 'Bogura', label: 'Bogura' },
+  { value: 'Brahmanbaria', label: 'Brahmanbaria' },
+  { value: 'Chandpur', label: 'Chandpur' },
+  { value: 'Chapai Nawabganj', label: 'Chapai Nawabganj' },
+  { value: 'Chattogram', label: 'Chattogram' },
+  { value: 'Chuadanga', label: 'Chuadanga' },
+  { value: 'Cumilla', label: 'Cumilla' },
+  { value: 'Coxs Bazar', label: 'Coxs Bazar' },
+  { value: 'Dhaka', label: 'Dhaka' },
+  { value: 'Dinajpur', label: 'Dinajpur' },
+  { value: 'Faridpur', label: 'Faridpur' },
+  { value: 'Feni', label: 'Feni' },
+  { value: 'Gaibandha', label: 'Gaibandha' },
+  { value: 'Gazipur', label: 'Gazipur' },
+  { value: 'Gopalganj', label: 'Gopalganj' },
+  { value: 'Habiganj', label: 'Habiganj' },
+  { value: 'Jamalpur', label: 'Jamalpur' },
+  { value: 'Jashore', label: 'Jashore' },
+  { value: 'Jhalakathi', label: 'Jhalakathi' },
+  { value: 'Jhenaidah', label: 'Jhenaidah' },
+  { value: 'Joypurhat', label: 'Joypurhat' },
+  { value: 'Khagrachhari', label: 'Khagrachhari' },
+  { value: 'Khulna', label: 'Khulna' },
+  { value: 'Kishoreganj', label: 'Kishoreganj' },
+  { value: 'Kurigram', label: 'Kurigram' },
+  { value: 'Kushtia', label: 'Kushtia' },
+  { value: 'Lakshmipur', label: 'Lakshmipur' },
+  { value: 'Lalmonirhat', label: 'Lalmonirhat' },
+  { value: 'Madaripur', label: 'Madaripur' },
+  { value: 'Magura', label: 'Magura' },
+  { value: 'Manikganj', label: 'Manikganj' },
+  { value: 'Meherpur', label: 'Meherpur' },
+  { value: 'Moulvibazar', label: 'Moulvibazar' },
+  { value: 'Munshiganj', label: 'Munshiganj' },
+  { value: 'Mymensingh', label: 'Mymensingh' },
+  { value: 'Naogaon', label: 'Naogaon' },
+  { value: 'Narail', label: 'Narail' },
+  { value: 'Narayanganj', label: 'Narayanganj' },
+  { value: 'Narsingdi', label: 'Narsingdi' },
+  { value: 'Natore', label: 'Natore' },
+  { value: 'Netrokona', label: 'Netrokona' },
+  { value: 'Nilphamari', label: 'Nilphamari' },
+  { value: 'Noakhali', label: 'Noakhali' },
+  { value: 'Pabna', label: 'Pabna' },
+  { value: 'Panchagarh', label: 'Panchagarh' },
+  { value: 'Patuakhali', label: 'Patuakhali' },
+  { value: 'Pirojpur', label: 'Pirojpur' },
+  { value: 'Rajbari', label: 'Rajbari' },
+  { value: 'Rajshahi', label: 'Rajshahi' },
+  { value: 'Rangamati', label: 'Rangamati' },
+  { value: 'Rangpur', label: 'Rangpur' },
+  { value: 'Satkhira', label: 'Satkhira' },
+  { value: 'Shariatpur', label: 'Shariatpur' },
+  { value: 'Sherpur', label: 'Sherpur' },
+  { value: 'Sirajganj', label: 'Sirajganj' },
+  { value: 'Sunamganj', label: 'Sunamganj' },
+  { value: 'Sylhet', label: 'Sylhet' },
+  { value: 'Tangail', label: 'Tangail' },
+  { value: 'Thakurgaon', label: 'Thakurgaon' }
+];
+
+  
+  const filteredDistricts = districts.filter(district => 
+    district.label.toLowerCase().includes(districtSearch.toLowerCase())
+  );
+
+  const handleDistrictChange = (value: string) => {
+    // Create a synthetic event to match the expected handleChange function signature
+    const event = {
+      target: {
+        name: 'district',
+        value: value
+      }
+    } as React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
+    
+    handleChange(event);
+    setShowDistrictDropdown(false);
+    setDistrictSearch('');
+  };
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold text-indigo-600 mb-6">Shipping Information</h2>
+      <form id="shipping-form" className="space-y-6">
         <div>
-          <label htmlFor="district" className="block text-sm font-medium text-gray-700 mb-1">District <span className="text-red-500">*</span></label>
-          <select
-            id="district"
-            name="district"
-            value={formData.district}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Select District</option>
-            <option value="valo">Valo</option>
-            <option value="good">Good</option>
-            <option value="note">Note</option>
-            <option value="hello">Hello</option>
-          </select>
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Full Name <span className="text-red-500">*</span></label>
+          <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Md. Mehadi Hasan" />
         </div>
         <div>
-          <label htmlFor="town" className="block text-sm font-medium text-gray-700 mb-1">Town / City <span className="text-red-500">*</span></label>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email (Optional)</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            value={formData.email} 
+            onChange={handleChange} 
+            className={`w-full px-4 py-3 border ${emailError ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`} 
+            placeholder="you@example.com" 
+          />
+          {emailError && <p className="mt-1 text-sm text-red-600">{emailError}</p>}
+        </div>
+        <div>
+          <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-1">Contact Number <span className="text-red-500">*</span></label>
+          <input type="tel" id="contact" name="contact" value={formData.contact} onChange={handleChange} required className={`w-full px-4 py-3 border ${contactError ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`} placeholder="(+880) 1330-414242" />
+          {contactError && <p className="mt-1 text-sm text-red-600">{contactError}</p>}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="relative">
+            <label htmlFor="district" className="block text-sm font-medium text-gray-700 mb-1">District <span className="text-red-500">*</span></label>
+            <div className="relative">
+              <input
+                id="district"
+                name="district"
+                value={formData.district ? districts.find(d => d.value === formData.district)?.label || formData.district : districtSearch}
+                onChange={(e) => {
+                  setDistrictSearch(e.target.value);
+                  setShowDistrictDropdown(true);
+                }}
+                onClick={() => setShowDistrictDropdown(true)}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Search District"
+              />
+              <div className={`absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto ${showDistrictDropdown ? 'block' : 'hidden'}`}>
+                {filteredDistricts.map((district) => (
+                  <div
+                    key={district.value}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleDistrictChange(district.value)}
+                  >
+                    {district.label}
+                  </div>
+                ))}
+                {filteredDistricts.length === 0 && districtSearch && (
+                  <div className="px-4 py-2 text-gray-500">No districts found</div>
+                )}
+              </div>
+            </div>
+          </div>
+          <div>
+            <label htmlFor="town" className="block text-sm font-medium text-gray-700 mb-1">Town / City <span className="text-red-500">*</span></label>
+            <input
+              type="text"
+              id="town"
+              name="town"
+              value={formData.town}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter Town / City"
+            />
+          </div>
+        </div>
+        <div>
+          <label htmlFor="street" className="block text-sm font-medium text-gray-700 mb-1">Street / Village <span className="text-red-500">*</span></label>
           <input
             type="text"
-            id="town"
-            name="town"
-            value={formData.town}
+            id="street"
+            name="street"
+            value={formData.street}
             onChange={handleChange}
             required
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter Town / City"
+            placeholder="Enter Street / Village"
           />
         </div>
-      </div>
-      <div>
-        <label htmlFor="street" className="block text-sm font-medium text-gray-700 mb-1">Street / Village <span className="text-red-500">*</span></label>
-        <input
-          type="text"
-          id="street"
-          name="street"
-          value={formData.street}
-          onChange={handleChange}
-          required
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Enter Street / Village"
-        />
-      </div>
-      <div>
-        <label htmlFor="postcode" className="block text-sm font-medium text-gray-700 mb-1">Postcode / Union Parishad (Optional)</label>
-        <input
-          type="text"
-          id="postcode"
-          name="postcode"
-          value={formData.postcode}
-          onChange={handleChange}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Enter Postcode / Union Parishad (Optional)"
-        />
-      </div>
-    </form>
-  </div>
-);
+        <div>
+          <label htmlFor="postcode" className="block text-sm font-medium text-gray-700 mb-1">Postcode / Union Parishad (Optional)</label>
+          <input
+            type="text"
+            id="postcode"
+            name="postcode"
+            value={formData.postcode}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter Postcode / Union Parishad (Optional)"
+          />
+        </div>
+      </form>
+    </div>
+  );
+};
 
 const PaymentStep = ({ formData, handleChange }: { formData: FormData, handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
   <div>
