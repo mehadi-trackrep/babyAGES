@@ -25,7 +25,16 @@ const GlobalUI = () => {
   };
 
   const handleCartAddFromWishlist = (product: Product) => {
-    dispatch({ type: 'ADD_TO_CART_WITH_QUANTITY', product, quantity: 1 });
+    // Create a new product object with default options if they don't exist
+    const productWithDefaults = {
+      ...product,
+      selectedOptions: {
+        size: product.selectedOptions?.size || (product.sizes && product.sizes.length > 0 ? product.sizes[0] : undefined),
+        color: product.selectedOptions?.color || (product.colors && product.colors.length > 0 ? product.colors[0] : undefined)
+      }
+    };
+    
+    dispatch({ type: 'ADD_TO_CART_WITH_QUANTITY', product: productWithDefaults, quantity: 1 });
     dispatch({ type: 'REMOVE_FROM_WISHLIST', id: product.id });
   };
 

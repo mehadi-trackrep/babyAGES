@@ -1,20 +1,24 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import { Product, useAppContext } from '@/context/AppContext';
 import ProductCard from './ProductCard';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 const HotProductsSlider = () => {
   const { dispatch } = useAppContext();
   const [hotProducts, setHotProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [emblaRef] = useEmblaCarousel({ 
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: true,
     align: 'start',
     slidesToScroll: 1
   }, [Autoplay({ delay: 3000, stopOnMouseEnter: false })]);
+  
+  const prevBtnRef = useRef<HTMLButtonElement>(null);
+  const nextBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const fetchHotProducts = async () => {
@@ -39,6 +43,25 @@ const HotProductsSlider = () => {
     fetchHotProducts();
   }, []);
 
+  // Set up navigation buttons
+  useEffect(() => {
+    if (!emblaApi) return;
+    
+    const scrollPrev = () => emblaApi.scrollPrev();
+    const scrollNext = () => emblaApi.scrollNext();
+    
+    const prevBtn = prevBtnRef.current;
+    const nextBtn = nextBtnRef.current;
+    
+    if (prevBtn) prevBtn.addEventListener('click', scrollPrev);
+    if (nextBtn) nextBtn.addEventListener('click', scrollNext);
+    
+    return () => {
+      if (prevBtn) prevBtn.removeEventListener('click', scrollPrev);
+      if (nextBtn) nextBtn.removeEventListener('click', scrollNext);
+    };
+  }, [emblaApi]);
+
   const handleAddToCart = (product: Product) => {
     dispatch({ type: 'ADD_TO_CART', product });
   };
@@ -52,13 +75,13 @@ const HotProductsSlider = () => {
   };
 
   return (
-    <section className="py-16 px-4 bg-gray-50">
+    <section className="py-16 px-4 bg-gray-50 relative">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-indigo-600 mb-2">Hot Products</h2>
           <p className="text-gray-600">Check out our trending items</p>
         </div>
-        <div className="overflow-hidden" ref={emblaRef}>
+        <div className="overflow-hidden relative" ref={emblaRef}>
           <div className="flex -ml-4">
             {loading ? (
               Array.from({ length: 3 }).map((_, index) => (
@@ -92,6 +115,22 @@ const HotProductsSlider = () => {
               </div>
             )}
           </div>
+          
+          {/* Navigation Arrows */}
+          <button
+            ref={prevBtnRef}
+            className="absolute top-1/2 left-2 transform -translate-y-1/2 z-10 bg-white rounded-full shadow-md p-2 hover:bg-gray-100 transition-colors"
+            aria-label="Previous slide"
+          >
+            <FiChevronLeft className="w-6 h-6 text-gray-700" />
+          </button>
+          <button
+            ref={nextBtnRef}
+            className="absolute top-1/2 right-2 transform -translate-y-1/2 z-10 bg-white rounded-full shadow-md p-2 hover:bg-gray-100 transition-colors"
+            aria-label="Next slide"
+          >
+            <FiChevronRight className="w-6 h-6 text-gray-700" />
+          </button>
         </div>
       </div>
     </section>
