@@ -159,8 +159,8 @@ export default function ViewCartPage() {
                       <p className="text-blue-600 font-semibold mt-1">৳{((item.priceAfterDiscount !== undefined && item.priceAfterDiscount > 0) ? item.priceAfterDiscount : item.price).toFixed(2)}</p>
                       {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
                         <div className="mt-1 text-xs text-gray-600">
-                          {item.selectedOptions.size && <span>Size: {item.selectedOptions.size} </span>}
-                          {item.selectedOptions.color && <span>Color: {item.selectedOptions.color}</span>}
+                          {item.selectedOptions.size && <span><span className="font-bold">Size:</span> {item.selectedOptions.size} </span>}
+                          {item.selectedOptions.color && <span><span className="font-bold">Color:</span> {item.selectedOptions.color}</span>}
                         </div>
                       )}
                       

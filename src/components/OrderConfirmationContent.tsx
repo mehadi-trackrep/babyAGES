@@ -156,8 +156,8 @@ export default function OrderConfirmationContent() {
                       </div>
                       {item.selectedOptions && (item.selectedOptions.size || item.selectedOptions.color) && (
                         <div className="mt-1 text-xs text-gray-600">
-                          {item.selectedOptions.size && <span>Size: {item.selectedOptions.size} </span>}
-                          {item.selectedOptions.color && <span>Color: {item.selectedOptions.color}</span>}
+                          {item.selectedOptions && item.selectedOptions.size && <span><span className="font-bold">Size:</span> {item.selectedOptions.size} </span>}
+                          {item.selectedOptions && item.selectedOptions.color && <span><span className="font-bold">Color:</span> {item.selectedOptions.color}</span>}
                         </div>
                       )}
                     </div>
