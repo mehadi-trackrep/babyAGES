@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     
     // Set up authentication with service account credentials using JWT
     const privateKey = process.env.GOOGLE_PRIVATE_KEY
-      ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n').replace(/\\r/g, '\r')
+      ? process.env.GOOGLE_PRIVATE_KEY.replace(/\n/g, '\n').replace(/\r/g, '\r')
       : undefined;
 
     // Validate required environment variables
