@@ -3,11 +3,11 @@ import { Metadata } from 'next';
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: 'BabyAGES - Top Selected Baby Products',
-    description: 'Shop the best quality baby products with free delivery. Discover a wide range of baby essentials for your little ones.',
+    description: 'Shop the best quality baby products with free packaging. Discover a wide range of baby essentials for your little ones.',
     keywords: 'baby products, baby essentials, baby toys, baby clothes, baby care, online baby store',
     openGraph: {
       title: 'BabyAGES - Top Selected Baby Products',
-      description: 'Shop the best quality baby products with free delivery. Discover a wide range of baby essentials for your little ones.',
+      description: 'Shop the best quality baby products with free packaging. Discover a wide range of baby essentials for your little ones.',
       type: 'website',
       url: process.env.NEXT_PUBLIC_BASE_URL || 'https://babyages.vercel.app',
       images: [
@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
     twitter: {
       card: 'summary_large_image',
       title: 'BabyAGES - Top Selected Baby Products',
-      description: 'Shop the best quality baby products with free delivery. Discover a wide range of baby essentials for your little ones.',
+      description: 'Shop the best quality baby products with free packaging. Discover a wide range of baby essentials for your little ones.',
       images: ['/images/og/og-homepage-snapshot.svg'],
     },
     alternates: {

@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     default: "BabyAGES - Top Selected Baby Products",
     template: "%s | BabyAGES"
   },
-  description: "Shop the best quality baby products with free delivery. Discover a wide range of baby essentials for your little ones.",
+  description: "Shop the best quality baby products with free packaging. Discover a wide range of baby essentials for your little ones.",
   keywords: "baby products, baby toys, baby clothes, baby care, online baby store, kids products",
   authors: [{ name: "BabyAGES Team" }],
   creator: "BabyAGES",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "BabyAGES - Top Selected Baby Products",
-    description: "Shop the best quality baby products with free delivery. Discover a wide range of baby essentials for your little ones.",
+    description: "Shop the best quality baby products with free packaging. Discover a wide range of baby essentials for your little ones.",
     url: process.env.NEXT_PUBLIC_BASE_URL || "https://babyages.vercel.app",
     siteName: "BabyAGES",
     locale: "en_US",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "BabyAGES - Top Selected Baby Products",
-    description: "Shop the best quality baby products with free delivery.",
+    description: "Shop the best quality baby products with free packaging.",
   },
   robots: {
     index: true,
