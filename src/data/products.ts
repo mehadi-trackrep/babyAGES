@@ -39,16 +39,25 @@ export const fetchProductsFromSheet = async (): Promise<Product[]> => {
 
   try {
     // Set up authentication with service account credentials using JWT constructor (modern approach)
+    const privateKey = process.env.GOOGLE_PRIVATE_KEY
+      ? process.env.GOOGLE_PRIVATE_KEY.replace(/\n/g, '\n').replace(/\r/g, '\r')
+      : undefined;
+
+    // Validate required environment variables
+    if (!process.env.GOOGLE_CLIENT_EMAIL || !privateKey || !process.env.PRODUCT_SHEET_ID) {
+      throw new Error('Missing required Google Sheets environment variables for products');
+    }
+
     const auth = new JWT({
       email: process.env.GOOGLE_CLIENT_EMAIL!,
-      key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, '\n'),
+      key: privateKey,
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
     const sheets = google.sheets({ version: 'v4', auth });
 
-    // Google Sheets API configuration
-    const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID!;
+    // Google Sheets API configuration for products
+    const SPREADSHEET_ID = process.env.PRODUCT_SHEET_ID!;
     const RANGE = 'Sheet1!A:Z'; // Assuming data is in the first sheet, columns A to Z
 
     // Get data from the Google Sheet
