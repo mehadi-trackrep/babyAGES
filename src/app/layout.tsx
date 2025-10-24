@@ -13,6 +13,7 @@ import ToastManager from '@/components/ToastManager';
 import FloatingButtons from "@/components/FloatingButtons";
 import SocialButtons from "@/components/SocialButtons";
 import DraggableScrollBar from "@/components/DraggableScrollBar";
+import LoadingIndicator from '@/components/LoadingIndicator';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -49,6 +50,7 @@ export default function RootLayout({
           <FloatingButtons />
           <SocialButtons />
           <DraggableScrollBar />
+          <LoadingIndicator />
         </AppProvider>
         <script
           dangerouslySetInnerHTML={{

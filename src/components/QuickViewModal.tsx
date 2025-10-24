@@ -1,8 +1,11 @@
+'use client';
+
 import { useState, useRef } from 'react';
 import { FaTimes, FaShoppingCart, FaHeart, FaChevronLeft, FaChevronRight, FaExpand, FaCompress } from 'react-icons/fa';
 import Image from 'next/image';
 import Slider from 'react-slick';
 import Link from 'next/link';
+import { useAppContext } from '@/context/AppContext';
 
 interface Product {
   id: number;
@@ -12,6 +15,13 @@ interface Product {
   images: string[];
   rating: number;
   videos?: string[];
+  category?: string;
+  sizes?: string[];
+  colors?: string[];
+  selectedOptions?: {
+    size?: string;
+    color?: string;
+  };
 }
 
 interface QuickViewModalProps {
@@ -61,6 +71,7 @@ const QuickViewModal = ({
   onAddToCart,
   onAddToWishlist
 }: QuickViewModalProps) => {
+  const { dispatch } = useAppContext();
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
@@ -70,7 +81,16 @@ const QuickViewModal = ({
   if (!isOpen || !product) return null;
 
   const handleAddToCart = () => {
-    onAddToCart(product);
+    // Create a product with default options if available
+    const productWithOptions = {
+      ...product,
+      selectedOptions: {
+        size: product.selectedOptions?.size || (product.sizes && product.sizes.length > 0 ? product.sizes[0] : undefined),
+        color: product.selectedOptions?.color || (product.colors && product.colors.length > 0 ? product.colors[0] : undefined)
+      }
+    };
+    
+    onAddToCart(productWithOptions);
     onClose();
   };
 
@@ -217,7 +237,10 @@ const QuickViewModal = ({
                 <Link
                   href={`/product/${product.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${product.id}`}
                   className="flex-1 min-w-[150px] bg-white border border-gray-300 text-gray-700 py-3 px-6 rounded-lg flex items-center justify-center hover:bg-gray-100"
-                  onClick={onClose} // Close modal when clicking View Details
+                  onClick={() => {
+                    dispatch({ type: 'SET_LOADING', isLoading: true, message: 'Loading product details...' });
+                    onClose(); // Close modal when clicking View Details
+                  }}
                 >
                   View Details
                 </Link>
@@ -383,17 +406,6 @@ const QuickViewModal = ({
 };
 
 export default QuickViewModal;
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  images: string[];
-  rating: number;
-  videos?: string[];
-  category?: string;
-}
 
 // Helper function to extract YouTube ID from URL
 const extractYouTubeId = (url: string): string => {

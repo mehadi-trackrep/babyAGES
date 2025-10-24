@@ -6,6 +6,7 @@ import { FaStar, FaRegStar, FaStarHalfAlt } from 'react-icons/fa';
 import { FiHeart, FiShoppingCart, FiShare2, FiChevronRight } from 'react-icons/fi';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useClearLoadingOnMount } from '@/hooks/useLoadingState';
 
 interface Review {
   id: number;
@@ -23,6 +24,7 @@ interface ProductDetailPageContentProps {
 
 export default function ProductDetailPageContent({ product, relatedProducts }: ProductDetailPageContentProps) {
   const { dispatch } = useAppContext();
+  useClearLoadingOnMount();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState<string | undefined>(

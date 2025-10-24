@@ -5,8 +5,10 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Product } from '@/data/products';
+import { useClearLoadingOnMount } from '@/hooks/useLoadingState';
 
 const SearchPageClient = () => {
+  useClearLoadingOnMount();
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   const [products, setProducts] = useState<Product[]>([]);

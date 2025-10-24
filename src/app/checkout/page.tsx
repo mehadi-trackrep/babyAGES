@@ -423,7 +423,7 @@ export default function CheckoutPage() {
                         />
                       </div>
                       <div className="ml-4 flex-1 min-w-0">
-                        <Link href={`/product/${item.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^w-]/g, '')}-${item.id}`} className="hover:underline block">
+                        <Link href={`/product/${item.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${item.id}`} onClick={() => dispatch({ type: 'SET_LOADING', isLoading: true, message: 'Loading product details...' })} className="hover:underline block">
                           <p className="font-semibold text-gray-900 truncate cursor-pointer">{item.name}</p>
                         </Link>
                         <div className="mt-1 flex items-center gap-2">

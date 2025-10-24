@@ -1,8 +1,10 @@
-import { FaShoppingCart, FaHeart, FaEye, FaStar, FaRegStar, FaStarHalfAlt, FaSpinner } from 'react-icons/fa';
+'use client';
+
+import { FaShoppingCart, FaHeart, FaEye, FaStar, FaRegStar, FaStarHalfAlt } from 'react-icons/fa';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Product } from '@/context/AppContext';
-import { useState } from 'react';
+import { useAppContext } from '@/context/AppContext';
 
 interface ProductCardProps {
   product: Product;
@@ -17,10 +19,19 @@ const ProductCard = ({
   onAddToWishlist, 
   onQuickView 
 }: ProductCardProps) => {
-  const [isNavigating, setIsNavigating] = useState(false);
+  const { dispatch } = useAppContext();
   
   const handleAddToCart = () => {
-    onAddToCart(product);
+    // Create a product with default options if available
+    const productWithOptions = {
+      ...product,
+      selectedOptions: {
+        size: product.selectedOptions?.size || (product.sizes && product.sizes.length > 0 ? product.sizes[0] : undefined),
+        color: product.selectedOptions?.color || (product.colors && product.colors.length > 0 ? product.colors[0] : undefined)
+      }
+    };
+    
+    onAddToCart(productWithOptions);
   };
 
   const handleAddToWishlist = () => {
@@ -32,12 +43,7 @@ const ProductCard = ({
   };
 
   const handleViewDetails = () => {
-    setIsNavigating(true);
-    // The navigation is handled by the Link component, but we show the loading state
-    // and reset it after a short timeout to provide visual feedback
-    setTimeout(() => {
-      setIsNavigating(false);
-    }, 1000); // Reset loading after 1 second (or page navigation will prevent this)
+    dispatch({ type: 'SET_LOADING', isLoading: true, message: 'Loading product details...' });
   };
 
   return (
@@ -134,16 +140,9 @@ const ProductCard = ({
           </button>
           <Link href={`/product/${product.category?.toLowerCase().replace(/\s+/g, '-')}/${product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${product.id}`} onClick={handleViewDetails}>
             <button
-              className="w-full bg-white border border-gray-300 text-gray-700 font-bold py-2.5 px-4 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors duration-300 disabled:opacity-50"
-              disabled={isNavigating}
+              className="w-full bg-white border border-gray-300 text-gray-700 font-bold py-2.5 px-4 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors duration-300"
             >
-              {isNavigating ? (
-                <>
-                  <FaSpinner className="animate-spin mr-2" /> Loading...
-                </>
-              ) : (
-                'View Details'
-              )}
+              <span>View Details</span>
             </button>
           </Link>
         </div>

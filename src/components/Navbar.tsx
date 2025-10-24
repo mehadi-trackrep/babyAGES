@@ -52,6 +52,7 @@ const Navbar = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      dispatch({ type: 'SET_LOADING', isLoading: true, message: 'Searching products...' });
       window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`;
     }
   };
@@ -181,6 +182,7 @@ const Navbar = () => {
                               href={`/product/${product.category.toLowerCase().replace(/\s+/g, '-')}/${product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}-${product.id}`}
                               className="flex items-center p-3 hover:bg-gray-50 transition-colors"
                               onClick={() => {
+                                dispatch({ type: 'SET_LOADING', isLoading: true, message: 'Loading product...' });
                                 setIsSearchOpen(false);
                                 setSearchQuery('');
                               }}

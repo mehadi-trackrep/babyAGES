@@ -153,7 +153,7 @@ export default function ViewCartPage() {
                     </div>
                     
                     <div className="flex-1 min-w-0 ml-4">
-                      <Link href={`/product/${item.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${item.id}`} className="hover:underline block">
+                      <Link href={`/product/${item.category?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'}/${item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${item.id}`} onClick={() => dispatch({ type: 'SET_LOADING', isLoading: true, message: 'Loading product details...' })} className="hover:underline block">
                         <h3 className="font-medium text-gray-900 truncate">{item.name}</h3>
                       </Link>
                       <p className="text-blue-600 font-semibold mt-1">৳{((item.priceAfterDiscount !== undefined && item.priceAfterDiscount > 0) ? item.priceAfterDiscount : item.price).toFixed(2)}</p>

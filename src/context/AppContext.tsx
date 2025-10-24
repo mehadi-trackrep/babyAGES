@@ -42,6 +42,8 @@ interface State {
   lastAction?: { type: string; product?: Product };
   couponCode?: string;
   discountPercentage?: number;
+  isLoading: boolean;
+  loadingMessage: string;
 }
 
 type Action =
@@ -60,7 +62,8 @@ type Action =
   | { type: 'REPLACE_WISHLIST'; wishlistItems: Product[] }
   | { type: 'APPLY_COUPON'; couponCode: string }
   | { type: 'REMOVE_COUPON' }
-  | { type: 'CLEAR_CART' };
+  | { type: 'CLEAR_CART' }
+  | { type: 'SET_LOADING'; isLoading: boolean; message?: string };
 
 const initialState: State = {
   cartItems: [],
@@ -72,6 +75,8 @@ const initialState: State = {
   lastAction: undefined,
   couponCode: '',
   discountPercentage: 0,
+  isLoading: false,
+  loadingMessage: '',
 };
 
 const AppContext = createContext<{
@@ -287,6 +292,14 @@ const appReducer = (state: State, action: Action): State => {
       return {
         ...state,
         cartItems: [],
+      };
+    }
+
+    case 'SET_LOADING': {
+      return {
+        ...state,
+        isLoading: action.isLoading,
+        loadingMessage: action.message || (action.isLoading ? 'Loading...' : ''),
       };
     }
 
