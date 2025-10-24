@@ -68,29 +68,16 @@ export async function POST(request: NextRequest) {
         return itemDetails;
       }).join('; ')
     ];
-    
+
     // Google Sheets API configuration - get from environment variables
     const SPREADSHEET_ID = process.env.ORDER_SHEET_ID!;
-    
-    // Set up authentication with service account credentials using JWT
-    let privateKey = process.env.GOOGLE_PRIVATE_KEY || undefined;
-    
-    if (privateKey) {
-      // Handle various line ending formats that may be present in environment variables
-      privateKey = privateKey
-        .replace(/\n/g, '\n')    // Handle literal \n sequences
-        .replace(/\r/g, '\r')    // Handle literal \r sequences
-        .replace(/\t/g, '\t');   // Handle literal \t sequences
-    }
 
-    // Validate required environment variables
-    if (!process.env.GOOGLE_CLIENT_EMAIL || !privateKey || !process.env.ORDER_SHEET_ID) {
-      throw new Error('Missing required Google Sheets environment variables');
-    }
-
-    const auth = new google.auth.JWT({
-      email: process.env.GOOGLE_CLIENT_EMAIL,
-      key: privateKey,
+    // Set up authentication with service account credentials
+    const auth = new google.auth.GoogleAuth({
+      credentials: {
+        client_email: process.env.GOOGLE_CLIENT_EMAIL,
+        private_key: process.env.GOOGLE_PRIVATE_KEY ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined,
+      },
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
     
