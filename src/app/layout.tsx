@@ -18,6 +18,7 @@ import LoadingIndicator from '@/components/LoadingIndicator';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://babyages.vercel.app"),
   title: {
     default: "BabyAGES - Top Selected Baby Products",
     template: "%s | BabyAGES"

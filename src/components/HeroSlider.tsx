@@ -21,7 +21,7 @@ const slides = [
   },
   {
     image: '/images/hero-slider/slide3.jpg',
-    title: 'Nourish Your Baby with Organic Food',
+    title: 'Nourish Your Baby with Organic Products',
     description: 'Healthy and delicious options for your baby.',
     buttonText: 'Explore Foods',
     buttonLink: '/shop',
