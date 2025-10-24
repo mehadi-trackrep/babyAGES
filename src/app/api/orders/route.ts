@@ -73,9 +73,15 @@ export async function POST(request: NextRequest) {
     const SPREADSHEET_ID = process.env.ORDER_SHEET_ID!;
     
     // Set up authentication with service account credentials using JWT
-    const privateKey = process.env.GOOGLE_PRIVATE_KEY
-      ? process.env.GOOGLE_PRIVATE_KEY.replace(/\n/g, '\n').replace(/\r/g, '\r')
-      : undefined;
+    let privateKey = process.env.GOOGLE_PRIVATE_KEY || undefined;
+    
+    if (privateKey) {
+      // Handle various line ending formats that may be present in environment variables
+      privateKey = privateKey
+        .replace(/\n/g, '\n')    // Handle literal \n sequences
+        .replace(/\r/g, '\r')    // Handle literal \r sequences
+        .replace(/\t/g, '\t');   // Handle literal \t sequences
+    }
 
     // Validate required environment variables
     if (!process.env.GOOGLE_CLIENT_EMAIL || !privateKey || !process.env.ORDER_SHEET_ID) {
