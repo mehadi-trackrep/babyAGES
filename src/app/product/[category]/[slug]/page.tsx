@@ -49,8 +49,8 @@ export async function generateMetadata({
     openGraph: {
       title: product.name,
       description: product.description,
-      type: 'website', // Changed from 'product' to 'website' as 'product' is not a valid OpenGraph type
-      url: `https://your-domain.com/product/${product.category?.toLowerCase().replace(/\\s+/g, '-')}/${product.subcategory?.toLowerCase().replace(/\\s+/g, '-') || ''}/${product.name.toLowerCase().replace(/\\s+/g, '-').replace(/[^\w-]/g, '')}-${product.id}`,
+      type: 'website',
+      url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://babyages.vercel.app'}/product/${product.category?.toLowerCase().replace(/\s+/g, '-')}/${product.subcategory?.toLowerCase().replace(/\s+/g, '-') || ''}/${product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${product.id}`,
       images: [
         {
           url: product.images?.[0] || '/default-product-image.jpg',
@@ -67,7 +67,7 @@ export async function generateMetadata({
       images: [product.images?.[0] || '/default-product-image.jpg'],
     },
     alternates: {
-      canonical: `https://your-domain.com/product/${product.category?.toLowerCase().replace(/\\s+/g, '-')}/${product.subcategory?.toLowerCase().replace(/\\s+/g, '-') || ''}/${product.name.toLowerCase().replace(/\\s+/g, '-').replace(/[^\w-]/g, '')}-${product.id}`,
+      canonical: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://babyages.vercel.app'}/product/${product.category?.toLowerCase().replace(/\s+/g, '-')}/${product.subcategory?.toLowerCase().replace(/\s+/g, '-') || ''}/${product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}-${product.id}`,
     },
   };
 }

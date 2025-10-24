@@ -18,8 +18,48 @@ import LoadingIndicator from '@/components/LoadingIndicator';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "BabyAGES - Top Selected Baby Products",
-  description: "A top select e-commerce baby platform for your beautiful family",
+  title: {
+    default: "BabyAGES - Top Selected Baby Products",
+    template: "%s | BabyAGES"
+  },
+  description: "Shop the best quality baby products with free delivery. Discover a wide range of baby essentials for your little ones.",
+  keywords: "baby products, baby toys, baby clothes, baby care, online baby store, kids products",
+  authors: [{ name: "BabyAGES Team" }],
+  creator: "BabyAGES",
+  publisher: "BabyAGES",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    title: "BabyAGES - Top Selected Baby Products",
+    description: "Shop the best quality baby products with free delivery. Discover a wide range of baby essentials for your little ones.",
+    url: process.env.NEXT_PUBLIC_BASE_URL || "https://babyages.vercel.app",
+    siteName: "BabyAGES",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BabyAGES - Top Selected Baby Products",
+    description: "Shop the best quality baby products with free delivery.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    nocache: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+    },
+  },
+  verification: {
+    google: 'your-google-verification-code',
+    yandex: 'your-yandex-verification-code',
+    yahoo: 'your-yahoo-verification-code',
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", type: "image/x-icon" },

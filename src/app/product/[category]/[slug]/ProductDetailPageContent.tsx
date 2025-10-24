@@ -7,6 +7,7 @@ import { FiHeart, FiShoppingCart, FiShare2, FiChevronRight } from 'react-icons/f
 import Image from 'next/image';
 import Link from 'next/link';
 import { useClearLoadingOnMount } from '@/hooks/useLoadingState';
+import ProductStructuredData from '@/components/StructuredData';
 
 interface Review {
   id: number;
@@ -178,6 +179,7 @@ export default function ProductDetailPageContent({ product, relatedProducts }: P
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      <ProductStructuredData product={product} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumbs */}
         <nav className="mb-6">
