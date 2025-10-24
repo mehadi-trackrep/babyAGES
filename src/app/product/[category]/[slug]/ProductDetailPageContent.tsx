@@ -253,7 +253,7 @@ export default function ProductDetailPageContent({ product, relatedProducts }: P
                     </div>
                     <div className="flex items-center mt-2">
                       <div className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium mr-2">
-                        Save ৳{product.discountAmount}
+                        Save ৳{product.discountAmount.toFixed(0)}
                       </div>
                       <div className="px-3 py-1 bg-red-200 text-red-700 rounded-full text-sm font-bold">
                         {((product.discountAmount / product.price) * 100).toFixed(0)}% OFF
@@ -553,7 +553,7 @@ export default function ProductDetailPageContent({ product, relatedProducts }: P
                                 </div>
                                 <div className="flex items-center mt-1">
                                   <span className="text-xs text-red-600 font-medium bg-red-100 px-2 py-0.5 rounded mr-1">
-                                    Save ৳{relatedProduct.discountAmount}
+                                    Save ৳{relatedProduct.discountAmount.toFixed(0)}
                                   </span>
                                   <span className="text-xs font-bold text-red-700 bg-red-200 px-2 py-0.5 rounded">
                                     {((relatedProduct.discountAmount / relatedProduct.price) * 100).toFixed(0)}% OFF

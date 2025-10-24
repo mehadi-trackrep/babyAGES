@@ -115,14 +115,14 @@ const ProductCard = ({
           </div>
           {product.priceAfterDiscount !== undefined && product.priceAfterDiscount > 0 ? (
             <div className="flex justify-between items-center mt-2">
-              <span className="text-xs text-red-600 font-medium bg-red-100 px-2 py-1 rounded">Save ৳{(product.price - product.priceAfterDiscount).toFixed(2)}</span>
+              <span className="text-xs text-red-600 font-medium bg-red-100 px-2 py-1 rounded">Save ৳{(product.price - product.priceAfterDiscount).toFixed(0)}</span>
               <span className="text-xs font-bold text-red-700 bg-red-200 px-2 py-1 rounded">
                 {(((product.price - product.priceAfterDiscount) / product.price) * 100).toFixed(0)}% OFF
               </span>
             </div>
           ) : product.discountAmount && product.discountAmount > 0 ? (
             <div className="flex justify-between items-center mt-2">
-              <span className="text-xs text-red-600 font-medium bg-red-100 px-2 py-1 rounded">Save ৳{product.discountAmount}</span>
+              <span className="text-xs text-red-600 font-medium bg-red-100 px-2 py-1 rounded">Save ৳{product.discountAmount.toFixed(0)}</span>
               <span className="text-xs font-bold text-red-700 bg-red-200 px-2 py-1 rounded">
                 {((product.discountAmount / product.price) * 100).toFixed(0)}% OFF
               </span>
