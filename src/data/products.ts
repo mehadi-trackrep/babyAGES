@@ -185,3 +185,49 @@ export const getProductsByCategory = async (category: string): Promise<Product[]
     return [];
   }
 };
+
+// Function to get products by both category and subcategory
+export const getProductsByCategoryAndSubcategory = async (category: string, subcategory: string): Promise<Product[]> => {
+  try {
+    const allProducts = await fetchProductsFromSheet();
+    return allProducts.filter(product => 
+      product.category === category && 
+      product.subcategory === subcategory
+    );
+  } catch (error) {
+    console.error(`Error fetching products for category ${category} and subcategory ${subcategory}:`, error);
+    return [];
+  }
+};
+
+// Function to get unique subcategories for a specific category
+export const getSubcategoriesByCategory = async (category: string): Promise<string[]> => {
+  try {
+    const allProducts = await fetchProductsFromSheet();
+    const subcategories = [...new Set(
+      allProducts
+        .filter(product => product.category === category && product.subcategory)
+        .map(product => product.subcategory as string)
+    )] as string[];
+    return subcategories;
+  } catch (error) {
+    console.error(`Error fetching subcategories for category ${category}:`, error);
+    return [];
+  }
+};
+
+// Function to get all unique categories
+export const getAllCategories = async (): Promise<string[]> => {
+  try {
+    const allProducts = await fetchProductsFromSheet();
+    const categories = [...new Set(
+      allProducts
+        .filter(product => product.category)
+        .map(product => product.category as string)
+    )] as string[];
+    return categories;
+  } catch (error) {
+    console.error('Error fetching all categories:', error);
+    return [];
+  }
+};

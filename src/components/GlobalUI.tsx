@@ -5,6 +5,7 @@ import { Product } from '@/context/AppContext';
 import CartSidebar from '@/components/CartSidebar';
 import WishlistSidebar from '@/components/WishlistSidebar';
 import QuickViewModal from '@/components/QuickViewModal';
+import MobileBottomNavigation from '@/components/MobileBottomNavigation';
 import { useRouter } from 'next/navigation';
 
 // Global UI component that manages sidebars and modals across all pages
@@ -83,6 +84,9 @@ const GlobalUI = () => {
         onAddToCart={handleAddToCart}
         onAddToWishlist={handleAddToWishlist}
       />
+
+      {/* Mobile Bottom Navigation for screens smaller than md */}
+      <MobileBottomNavigation />
     </>
   );
 };

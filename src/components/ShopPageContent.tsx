@@ -4,11 +4,11 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import ProductCard from '@/components/ProductCard';
+import CategorySubcategoryFilter from '@/components/CategorySubcategoryFilter';
 import { Product } from '@/context/AppContext';
 
 interface ShopPageContentProps {
   products: Product[];
-  categories: string[];
   onAddToCart: (product: Product) => void;
   onAddToWishlist: (product: Product) => void;
   onQuickView: (product: Product) => void;
@@ -16,23 +16,31 @@ interface ShopPageContentProps {
 
 export default function ShopPageContent({
   products,
-  categories,
   onAddToCart,
   onAddToWishlist,
   onQuickView,
 }: ShopPageContentProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortOption, setSortOption] = useState<string>('price-asc');
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
+  const [currentCategory, setCurrentCategory] = useState<string>('');
+  const [currentSubcategory, setCurrentSubcategory] = useState<string>('');
 
-  // Update filtered products when products, selectedCategory, or searchQuery changes
+  // Update filtered products when products, category, subcategory, or searchQuery changes
   useEffect(() => {
     let filtered = [...products];
     
     // Apply category filter
-    if (selectedCategory !== 'All') {
-      filtered = filtered.filter(product => product.category === selectedCategory);
+    if (currentCategory) {
+      filtered = filtered.filter(product => product.category === currentCategory);
+    }
+    
+    // Apply subcategory filter if category is also selected
+    if (currentCategory && currentSubcategory) {
+      filtered = filtered.filter(product => 
+        product.category === currentCategory && 
+        product.subcategory === currentSubcategory
+      );
     }
     
     // Apply search filter
@@ -66,10 +74,11 @@ export default function ShopPageContent({
     }
     
     setFilteredProducts(filtered);
-  }, [products, selectedCategory, searchQuery, sortOption]);
+  }, [products, currentCategory, currentSubcategory, searchQuery, sortOption]);
 
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
+  const handleCategorySubcategoryFilter = (category: string, subcategory: string) => {
+    setCurrentCategory(category);
+    setCurrentSubcategory(subcategory);
   };
 
   const handleSearch = (query: string) => {
@@ -118,32 +127,19 @@ export default function ShopPageContent({
             transition={{ duration: 0.5, delay: 0.2 }}
             className="w-full md:w-1/4"
           >
-            <div className="p-6 bg-white rounded-2xl shadow-lg">
+            {/* Category-Subcategory Filter */}
+            <CategorySubcategoryFilter 
+              onFilterChange={handleCategorySubcategoryFilter}
+              initialCategory={currentCategory}
+              initialSubcategory={currentSubcategory}
+            />
+            
+            {/* Search Filter */}
+            <div className="mt-6 p-6 bg-white rounded-2xl shadow-lg">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-indigo-600">Filters</h2>
+                <h2 className="text-2xl font-bold text-indigo-600">Other Filters</h2>
               </div>
               
-              {/* Category Filter */}
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-700 mb-4">Categories</h3>
-                <div className="flex flex-col gap-2">
-                  {categories.map((category) => (
-                    <button
-                      key={category}
-                      onClick={() => handleCategoryChange(category)}
-                      className={`px-4 py-2 rounded-lg text-left text-sm font-medium transition-all duration-300 ${
-                        selectedCategory === category
-                          ? 'bg-blue-600 text-white shadow-md'
-                          : 'bg-gray-100 text-gray-700 hover:bg-blue-100 hover:text-blue-600'
-                      }`}
-                    >
-                      {category}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Search Filter */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-700 mb-4">Search</h3>
                 <input
@@ -159,7 +155,16 @@ export default function ShopPageContent({
 
           {/* Products Grid */}
           <div className="w-full md:w-3/4">
-            <div className="flex justify-end mb-4">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
+              <div className="text-sm text-gray-600">
+                Showing {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
+                {currentCategory && (
+                  <span> in <span className="font-medium">{currentCategory}</span></span>
+                )}
+                {currentSubcategory && (
+                  <span> - <span className="font-medium">{currentSubcategory}</span></span>
+                )}
+              </div>
               <select
                 value={sortOption}
                 onChange={(e) => handleSortChange(e.target.value)}

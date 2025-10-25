@@ -7,11 +7,10 @@ import ShopPageContent from '@/components/ShopPageContent';
 export default function ShopClient() {
   const { dispatch } = useAppContext();
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProductsAndCategories = async () => {
+    const fetchProducts = async () => {
       try {
         // Fetch products from the API route
         const response = await fetch('/api/products');
@@ -20,18 +19,14 @@ export default function ShopClient() {
         }
         const allProducts: Product[] = await response.json();
         setProducts(allProducts);
-
-        // Extract categories from products
-        const allCategories = [...new Set(allProducts.map(p => p.category).filter(cat => cat !== undefined))] as string[];
-        setCategories(['All', ...allCategories]);
       } catch (error) {
-        console.error('Error fetching products or categories:', error);
+        console.error('Error fetching products:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProductsAndCategories();
+    fetchProducts();
   }, []);
 
   const handleAddToCart = (product: Product) => {
@@ -59,7 +54,6 @@ export default function ShopClient() {
   return (
     <ShopPageContent
       products={products}
-      categories={categories}
       onAddToCart={handleAddToCart}
       onAddToWishlist={handleAddToWishlist}
       onQuickView={handleQuickView}
