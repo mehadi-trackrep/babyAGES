@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
       url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://babyages.vercel.app'}/shop`,
       images: [
         {
-          url: '/images/og/og-shop.svg',
+          url: '/images/og/og-shop.png',
           width: 1200,
           height: 630,
           alt: 'Shop All Products | BabyAGES',

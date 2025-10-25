@@ -24,9 +24,9 @@ export const metadata: Metadata = {
     template: "%s | BabyAGES"
   },
   description: "Shop the best quality baby products with free packaging. Discover a wide range of baby essentials for your little ones.",
-  keywords: "baby products, baby toys, baby clothes, baby care, online baby store, kids products",
-  authors: [{ name: "BabyAGES Team" }],
-  creator: "BabyAGES",
+  keywords: "baby products, baby toys, baby clothes, baby care, online baby store, kids products, educational toys, baby gear, baby accessories, baby essentials, parenting products",
+  authors: [{name: "@mehadihasan"}],
+  creator: "@mehadihasan",
   publisher: "BabyAGES",
   formatDetection: {
     email: false,
@@ -37,6 +37,7 @@ export const metadata: Metadata = {
     title: "BabyAGES - Top Selected Baby Products",
     description: "Shop the best quality baby products with free packaging. Discover a wide range of baby essentials for your little ones.",
     url: process.env.NEXT_PUBLIC_BASE_URL || "https://babyages.vercel.app",
+    images: ['https://babyages.vercel.app/images/og/og-website.png'],
     siteName: "BabyAGES",
     locale: "en_US",
     type: "website",
@@ -45,6 +46,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "BabyAGES - Top Selected Baby Products",
     description: "Shop the best quality baby products with free packaging. Discover a wide range of baby essentials for your little ones.", 
+    images: ['https://babyages.vercel.app/images/og/og-website.png'],
   },
   robots: {
     index: true,
