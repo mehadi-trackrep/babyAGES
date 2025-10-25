@@ -40,11 +40,20 @@ export const metadata: Metadata = {
     siteName: "BabyAGES",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "/images/og/og-homepage-snapshot.svg",
+        width: 1200,
+        height: 630,
+        alt: "BabyAGES - Top Selected Baby Products",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "BabyAGES - Top Selected Baby Products",
-    description: "Shop the best quality baby products with free packaging.",
+    description: "Shop the best quality baby products with free packaging. Discover a wide range of baby essentials for your little ones.",
+    images: ["/images/og/og-homepage-snapshot.svg"],
   },
   robots: {
     index: true,
