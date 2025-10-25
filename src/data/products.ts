@@ -231,3 +231,32 @@ export const getAllCategories = async (): Promise<string[]> => {
     return [];
   }
 };
+
+// Function to get all categories with their subcategories
+export const getAllCategoriesWithSubcategories = async (): Promise<{ name: string; subcategories: string[] }[]> => {
+  try {
+    const allProducts = await fetchProductsFromSheet();
+    const categoriesMap: { [key: string]: Set<string> } = {};
+
+    allProducts.forEach(product => {
+      if (product.category) {
+        if (!categoriesMap[product.category]) {
+          categoriesMap[product.category] = new Set();
+        }
+        if (product.subcategory) {
+          categoriesMap[product.category].add(product.subcategory);
+        }
+      }
+    });
+
+    const categoriesWithSubcategories = Object.keys(categoriesMap).map(category => ({
+      name: category,
+      subcategories: Array.from(categoriesMap[category]),
+    }));
+
+    return categoriesWithSubcategories;
+  } catch (error) {
+    console.error('Error fetching categories with subcategories:', error);
+    return [];
+  }
+};

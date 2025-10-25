@@ -1,11 +1,13 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import ProductCard from '@/components/ProductCard';
-import CategorySubcategoryFilter from '@/components/CategorySubcategoryFilter';
+import AdvancedCategoryFilter from '@/components/AdvancedCategoryFilter';
 import { Product } from '@/context/AppContext';
+import FloatingFilterButton from './FloatingFilterButton';
+import CategoryFilterModal from './CategoryFilterModal';
 
 interface ShopPageContentProps {
   products: Product[];
@@ -25,6 +27,24 @@ export default function ShopPageContent({
   const [sortOption, setSortOption] = useState<string>('price-asc');
   const [currentCategory, setCurrentCategory] = useState<string>('');
   const [currentSubcategory, setCurrentSubcategory] = useState<string>('');
+  const [isFilterModalOpen, setFilterModalOpen] = useState(false);
+
+  // Listen for category filter changes from the modal
+  useEffect(() => {
+    const handleCategoryFilterChange = (e: CustomEvent) => {
+      const { category, subcategory } = e.detail;
+      setCurrentCategory(category);
+      setCurrentSubcategory(subcategory);
+    };
+
+    // Add event listener for category filter changes
+    window.addEventListener('categoryFilterChanged', handleCategoryFilterChange as EventListener);
+    
+    // Cleanup event listener on unmount
+    return () => {
+      window.removeEventListener('categoryFilterChanged', handleCategoryFilterChange as EventListener);
+    };
+  }, []);
 
   // Update filtered products when products, category, subcategory, or searchQuery changes
   useEffect(() => {
@@ -76,18 +96,23 @@ export default function ShopPageContent({
     setFilteredProducts(filtered);
   }, [products, currentCategory, currentSubcategory, searchQuery, sortOption]);
 
-  const handleCategorySubcategoryFilter = (category: string, subcategory: string) => {
+  // Scroll to top when filtered products change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [filteredProducts]);
+
+  const handleCategorySubcategoryFilter = useCallback((category: string, subcategory: string) => {
     setCurrentCategory(category);
     setCurrentSubcategory(subcategory);
-  };
+  }, []);
 
-  const handleSearch = (query: string) => {
+  const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
-  };
+  }, []);
 
-  const handleSortChange = (option: string) => {
+  const handleSortChange = useCallback((option: string) => {
     setSortOption(option);
-  };
+  }, []);
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
@@ -119,43 +144,61 @@ export default function ShopPageContent({
           </p>
         </motion.div>
 
+        {/* Floating Filter Button - Mobile Only */}
+        <FloatingFilterButton onClick={() => setFilterModalOpen(true)} />
+
+        {/* Category Filter Modal - Mobile Only */}
+        <CategoryFilterModal
+          isOpen={isFilterModalOpen}
+          onClose={() => setFilterModalOpen(false)}
+          onFilterChange={handleCategorySubcategoryFilter}
+          initialCategory={currentCategory}
+          initialSubcategory={currentSubcategory}
+        />
+
         <div className="flex flex-col md:flex-row gap-8">
-          {/* Filter Sidebar */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="w-full md:w-1/4"
-          >
-            {/* Category-Subcategory Filter */}
-            <CategorySubcategoryFilter 
-              onFilterChange={handleCategorySubcategoryFilter}
-              initialCategory={currentCategory}
-              initialSubcategory={currentSubcategory}
-            />
-            
-            {/* Search Filter */}
-            <div className="mt-6 p-6 bg-white rounded-2xl shadow-lg">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-indigo-600">Other Filters</h2>
-              </div>
+          {/* Advanced Filter Sidebar - Hidden on mobile */}
+          <div className="w-full md:w-1/5 flex-shrink-0 md:sticky md:top-24 md:h-[calc(100vh-6rem)] md:overflow-y-auto hidden md:block">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <AdvancedCategoryFilter 
+                onFilterChange={handleCategorySubcategoryFilter}
+                initialCategory={currentCategory}
+                initialSubcategory={currentSubcategory}
+              />
               
-              <div>
-                <h3 className="text-lg font-semibold text-gray-700 mb-4">Search</h3>
+              {/* Search Filter */}
+              <div className="mt-6 p-4 bg-white rounded-xl shadow-lg">
+                <div className="mb-4">
+                  <h2 className="text-lg font-bold text-gray-800 mb-3">Search Products</h2>
+                  <input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow text-sm"
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Products Grid */}
+          <div className="w-full md:w-4/5">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
+              {/* Search input - visible on mobile */}
+              <div className="md:hidden mb-4 w-full">
                 <input
                   type="text"
                   placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow text-sm"
                 />
               </div>
-            </div>
-          </motion.div>
-
-          {/* Products Grid */}
-          <div className="w-full md:w-3/4">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
               <div className="text-sm text-gray-600">
                 Showing {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
                 {currentCategory && (
@@ -168,7 +211,7 @@ export default function ShopPageContent({
               <select
                 value={sortOption}
                 onChange={(e) => handleSortChange(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-custom-blue"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-custom-blue text-sm"
               >
                 <option value="price-asc">Price: Low to High</option>
                 <option value="price-desc">Price: High to Low</option>

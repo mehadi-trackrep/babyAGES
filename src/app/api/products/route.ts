@@ -1,6 +1,6 @@
 // src/app/api/products/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchProductsFromSheet, getProductById, getProductsByCategory, getProductsByCategoryAndSubcategory, getSubcategoriesByCategory, getAllCategories } from '@/data/products';
+import { fetchProductsFromSheet, getProductById, getProductsByCategory, getProductsByCategoryAndSubcategory, getSubcategoriesByCategory, getAllCategories, getAllCategoriesWithSubcategories } from '@/data/products';
 
 export async function GET(request: NextRequest) {
   try {
@@ -27,6 +27,10 @@ export async function GET(request: NextRequest) {
     } else if (action === 'categories') {
       // Return all categories
       const categories = await getAllCategories();
+      return NextResponse.json(categories);
+    } else if (action === 'categories-with-subcategories') {
+      // Return all categories with their subcategories
+      const categories = await getAllCategoriesWithSubcategories();
       return NextResponse.json(categories);
     } else if (category && subcategory) {
       // Return products by both category and subcategory

@@ -15,7 +15,7 @@ const SocialButtons = () => {
         <FaLinkedin size={20} />
       </a>
       <a
-        href="https://www.facebook.com/your-profile"
+        href="https://www.facebook.com/profile.php?id=61582673437666"
         target="_blank"
         rel="noopener noreferrer"
         className="bg-blue-800 text-white p-2 rounded-r-lg flex items-center justify-center w-10 h-10"

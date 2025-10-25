@@ -309,9 +309,12 @@ const Navbar = () => {
               >
                 About Us
               </Link>
+              
             </div>
           </div>
         )}
+        
+        
       </nav>
     </>
   );
