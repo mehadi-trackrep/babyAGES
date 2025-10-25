@@ -64,18 +64,14 @@ const AdvancedCategoryFilter = ({
   }, [initialCategory]);
 
   const handleCategorySelect = (category: string) => {
-    if (selectedCategory === category) {
-      setExpandedCategory(expandedCategory === category ? null : category);
-    } else {
+    if (selectedCategory !== category) {
       setSelectedCategory(category);
+      setSelectedSubcategory(''); // Clear subcategory when category changes
+      setSelectedTag(''); // Clear tag when category changes
       setExpandedCategory(category);
-      if (category === 'Shop by Age') {
-        setSelectedSubcategory('');
-        onFilterChange(category, '', selectedTag);
-      } else {
-        setSelectedTag('');
-        onFilterChange(category, selectedSubcategory, '');
-      }
+      onFilterChange(category, '', '');
+    } else {
+      setExpandedCategory(expandedCategory === category ? null : category);
     }
   };
 
@@ -125,16 +121,16 @@ const AdvancedCategoryFilter = ({
       
       <div className="max-h-[500px] overflow-y-auto p-2">
         <div className="space-y-1">
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <div className="border border-dashed border-blue-300 rounded-lg overflow-hidden">
             <button
-              className={`w-full flex justify-between items-center px-4 py-3 text-left font-medium transition-colors duration-200 ${
+              className={`w-full flex justify-between items-center px-4 py-3 text-left font-medium transition-colors duration-200 bg-blue-50 ${
                 selectedCategory === 'Shop by Age'
-                  ? 'bg-blue-50 text-blue-700'
-                  : 'hover:bg-gray-50 text-gray-700'
+                  ? 'text-blue-700'
+                  : 'hover:bg-blue-100 text-gray-700'
               }`}
               onClick={() => handleCategorySelect('Shop by Age')}
             >
-              <span className="truncate">Shop by Age</span>
+              <span className="truncate font-bold">Shop by Age</span>
               <span className="ml-2 flex-shrink-0 text-lg font-bold transition-transform duration-200">
                 {expandedCategory === 'Shop by Age' ? '-' : '+'}
               </span>

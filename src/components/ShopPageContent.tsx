@@ -25,6 +25,7 @@ export default function ShopPageContent({
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortOption, setSortOption] = useState<string>('price-asc');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
   const [currentCategory, setCurrentCategory] = useState<string>('');
   const [currentSubcategory, setCurrentSubcategory] = useState<string>('');
   const [currentTag, setCurrentTag] = useState<string>('');
@@ -47,6 +48,17 @@ export default function ShopPageContent({
     };
   }, []);
 
+  // Debounce search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery]);
+
   // Update filtered products when products, category, subcategory, or searchQuery changes
   useEffect(() => {
     let filtered = [...products];
@@ -61,8 +73,8 @@ export default function ShopPageContent({
     }
     
     // Apply search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+    if (debouncedSearchQuery) {
+      const query = debouncedSearchQuery.toLowerCase();
       filtered = filtered.filter(product => 
         product.name.toLowerCase().includes(query) || 
         product.description.toLowerCase().includes(query)
@@ -91,7 +103,7 @@ export default function ShopPageContent({
     }
     
     setFilteredProducts(filtered);
-  }, [products, currentCategory, currentSubcategory, currentTag, searchQuery, sortOption]);
+  }, [products, currentCategory, currentSubcategory, currentTag, debouncedSearchQuery, sortOption]);
 
   // Scroll to top when filtered products change
   useEffect(() => {
