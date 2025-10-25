@@ -19,6 +19,7 @@ export interface Product {
   itemsLeft?: number;
   commentsAndRatings?: { comment: string; rating: number }[];
   isHotProduct?: number;
+  tags?: string[];
 }
 
 // Cache to store products temporarily (keyed by timestamp to handle updates)
@@ -120,6 +121,9 @@ export const fetchProductsFromSheet = async (): Promise<Product[]> => {
             : undefined,
           itemsLeft: parseInt(rowData['itemsLeft'] as string) || undefined,
           isHotProduct: parseInt(rowData['isHotProduct'] as string) || undefined,
+          tags: (rowData['tags'] as string)
+            ? (rowData['tags'] as string).split(',').map(tag => tag.trim())
+            : undefined,
         };
 
         // Process comments and ratings from the commentsAndRatings column
@@ -257,6 +261,22 @@ export const getAllCategoriesWithSubcategories = async (): Promise<{ name: strin
     return categoriesWithSubcategories;
   } catch (error) {
     console.error('Error fetching categories with subcategories:', error);
+    return [];
+  }
+};
+
+// Function to get all unique tags
+export const getAllTags = async (): Promise<string[]> => {
+  try {
+    const allProducts = await fetchProductsFromSheet();
+    const tags = [...new Set(
+      allProducts
+        .filter(product => product.tags)
+        .flatMap(product => product.tags!)
+    )];
+    return tags;
+  } catch (error) {
+    console.error('Error fetching all tags:', error);
     return [];
   }
 };

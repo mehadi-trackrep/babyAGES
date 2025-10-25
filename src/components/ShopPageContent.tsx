@@ -27,6 +27,7 @@ export default function ShopPageContent({
   const [sortOption, setSortOption] = useState<string>('price-asc');
   const [currentCategory, setCurrentCategory] = useState<string>('');
   const [currentSubcategory, setCurrentSubcategory] = useState<string>('');
+  const [currentTag, setCurrentTag] = useState<string>('');
   const [isFilterModalOpen, setFilterModalOpen] = useState(false);
 
   // Listen for category filter changes from the modal
@@ -50,17 +51,13 @@ export default function ShopPageContent({
   useEffect(() => {
     let filtered = [...products];
     
-    // Apply category filter
-    if (currentCategory) {
+    if (currentCategory && currentCategory !== 'Shop by Age') {
       filtered = filtered.filter(product => product.category === currentCategory);
-    }
-    
-    // Apply subcategory filter if category is also selected
-    if (currentCategory && currentSubcategory) {
-      filtered = filtered.filter(product => 
-        product.category === currentCategory && 
-        product.subcategory === currentSubcategory
-      );
+      if (currentSubcategory) {
+        filtered = filtered.filter(product => product.subcategory === currentSubcategory);
+      }
+    } else if (currentCategory === 'Shop by Age' && currentTag) {
+      filtered = filtered.filter(product => product.tags?.includes(currentTag));
     }
     
     // Apply search filter
@@ -94,16 +91,17 @@ export default function ShopPageContent({
     }
     
     setFilteredProducts(filtered);
-  }, [products, currentCategory, currentSubcategory, searchQuery, sortOption]);
+  }, [products, currentCategory, currentSubcategory, currentTag, searchQuery, sortOption]);
 
   // Scroll to top when filtered products change
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [filteredProducts]);
 
-  const handleCategorySubcategoryFilter = useCallback((category: string, subcategory: string) => {
+  const handleCategorySubcategoryFilter = useCallback((category: string, subcategory: string, tag: string) => {
     setCurrentCategory(category);
     setCurrentSubcategory(subcategory);
+    setCurrentTag(tag);
   }, []);
 
   const handleSearch = useCallback((query: string) => {
@@ -154,6 +152,7 @@ export default function ShopPageContent({
           onFilterChange={handleCategorySubcategoryFilter}
           initialCategory={currentCategory}
           initialSubcategory={currentSubcategory}
+          initialTag={currentTag}
         />
 
         <div className="flex flex-col md:flex-row gap-8">
@@ -168,6 +167,7 @@ export default function ShopPageContent({
                 onFilterChange={handleCategorySubcategoryFilter}
                 initialCategory={currentCategory}
                 initialSubcategory={currentSubcategory}
+                initialTag={currentTag}
               />
               
               {/* Search Filter */}

@@ -7,9 +7,10 @@ import AdvancedCategoryFilter from './AdvancedCategoryFilter';
 interface CategoryFilterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onFilterChange: (category: string, subcategory: string) => void;
+  onFilterChange: (category: string, subcategory: string, tag: string) => void;
   initialCategory: string;
   initialSubcategory: string;
+  initialTag: string;
 }
 
 export default function CategoryFilterModal({
@@ -18,6 +19,7 @@ export default function CategoryFilterModal({
   onFilterChange,
   initialCategory,
   initialSubcategory,
+  initialTag,
 }: CategoryFilterModalProps) {
   return (
     <AnimatePresence>
@@ -50,6 +52,7 @@ export default function CategoryFilterModal({
                 onFilterChange={onFilterChange}
                 initialCategory={initialCategory}
                 initialSubcategory={initialSubcategory}
+                initialTag={initialTag}
               />
             </div>
           </motion.div>

@@ -4,9 +4,10 @@ import { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CategorySubcategoryFilterProps {
-  onFilterChange: (category: string, subcategory: string) => void;
+  onFilterChange: (category: string, subcategory: string, tag: string) => void;
   initialCategory?: string;
   initialSubcategory?: string;
+  initialTag?: string;
 }
 
 interface CategoryData {
@@ -17,63 +18,87 @@ interface CategoryData {
 const AdvancedCategoryFilter = ({ 
   onFilterChange, 
   initialCategory, 
-  initialSubcategory
+  initialSubcategory,
+  initialTag
 }: CategorySubcategoryFilterProps) => {
   const [categories, setCategories] = useState<CategoryData[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || '');
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>(initialSubcategory || '');
+  const [selectedTag, setSelectedTag] = useState<string>(initialTag || '');
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch categories and their subcategories on component mount
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('/api/products?action=categories-with-subcategories');
-        if (!response.ok) {
-          throw new Error('Failed to fetch categories');
+        const [categoriesResponse, tagsResponse] = await Promise.all([
+          fetch('/api/products?action=categories-with-subcategories'),
+          fetch('/api/products?action=tags'),
+        ]);
+
+        if (!categoriesResponse.ok || !tagsResponse.ok) {
+          throw new Error('Failed to fetch data');
         }
-        const data = await response.json();
-        setCategories(data);
+
+        const categoriesData = await categoriesResponse.json();
+        const tagsData = await tagsResponse.json();
+
+        setCategories(categoriesData);
+        setTags(tagsData);
         
         // Set expanded category if one was selected
         if (initialCategory) {
           setExpandedCategory(initialCategory);
         }
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchCategories();
+    fetchData();
   }, [initialCategory]);
 
   const handleCategorySelect = (category: string) => {
-    // If clicking the same category, just expand/collapse it
     if (selectedCategory === category) {
       setExpandedCategory(expandedCategory === category ? null : category);
     } else {
-      // Select new category and expand it
       setSelectedCategory(category);
-      setSelectedSubcategory('');
       setExpandedCategory(category);
-      onFilterChange(category, '');
+      if (category === 'Shop by Age') {
+        setSelectedSubcategory('');
+        onFilterChange(category, '', selectedTag);
+      } else {
+        setSelectedTag('');
+        onFilterChange(category, selectedSubcategory, '');
+      }
     }
   };
 
   const handleSubcategorySelect = (subcategory: string) => {
     setSelectedSubcategory(subcategory);
-    onFilterChange(selectedCategory, subcategory);
+    setSelectedTag('');
+    onFilterChange(selectedCategory, subcategory, '');
+  };
+
+  const handleTagSelect = (tag: string) => {
+    setSelectedTag(tag);
+    setSelectedSubcategory('');
+    setSelectedCategory('Shop by Age');
+    setExpandedCategory('Shop by Age');
+    onFilterChange('Shop by Age', '', tag);
   };
 
   const resetFilters = () => {
     setSelectedCategory('');
     setSelectedSubcategory('');
+    setSelectedTag('');
     setExpandedCategory(null);
-    onFilterChange('', '');
+    onFilterChange('', '', '');
   };
 
   if (isLoading) {
@@ -100,6 +125,50 @@ const AdvancedCategoryFilter = ({
       
       <div className="max-h-[500px] overflow-y-auto p-2">
         <div className="space-y-1">
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
+            <button
+              className={`w-full flex justify-between items-center px-4 py-3 text-left font-medium transition-colors duration-200 ${
+                selectedCategory === 'Shop by Age'
+                  ? 'bg-blue-50 text-blue-700'
+                  : 'hover:bg-gray-50 text-gray-700'
+              }`}
+              onClick={() => handleCategorySelect('Shop by Age')}
+            >
+              <span className="truncate">Shop by Age</span>
+              <span className="ml-2 flex-shrink-0 text-lg font-bold transition-transform duration-200">
+                {expandedCategory === 'Shop by Age' ? '-' : '+'}
+              </span>
+            </button>
+            <AnimatePresence>
+              {expandedCategory === 'Shop by Age' && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden"
+                >
+                  <div className="py-2 px-4 bg-gray-50 border-t border-gray-200">
+                    <div className="space-y-2">
+                      {tags.map((tag) => (
+                        <button
+                          key={tag}
+                          className={`w-full text-left px-3 py-2 rounded-md text-sm ${
+                            selectedTag === tag
+                              ? 'bg-blue-100 text-blue-700' 
+                              : 'hover:bg-gray-200 text-gray-700'
+                          }`}
+                          onClick={() => handleTagSelect(tag)}
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
           {categories.map((category) => (
             <div key={category.name} className="border border-gray-200 rounded-lg overflow-hidden">
               <button
